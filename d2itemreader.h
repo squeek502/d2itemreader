@@ -4,17 +4,14 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "bitreader.h"
+#include "d2data.h"
 
 // D2
 #define D2_JM_TAG 0x4D4A //"JM"
 #define D2_MAX_CHAR_NAME_STRLEN 15
 #define D2_MAX_CHAR_NAME_BYTELEN D2_MAX_CHAR_NAME_STRLEN+1
-#define D2_ITEM_CODE_STRLEN 3
-#define D2_ITEM_CODE_BYTELEN D2_ITEM_CODE_STRLEN+1
 #define D2_MAX_SET_PROPERTIES 5
-#define D2_ITEMSTAT_MAX_PARAMS 4
-#define D2_ITEMSTAT_END_ID 0x1ff
-#define D2_MAX_ITEMSTATCOST_IDS D2_ITEMSTAT_END_ID
+#define D2_ITEMPROP_MAX_PARAMS 4
 #define D2_MAX_RARE_PREFIXES 3
 #define D2_MAX_RARE_SUFFIXES 3
 #define D2_MAX_RARE_AFFIXES D2_MAX_RARE_PREFIXES+D2_MAX_RARE_SUFFIXES
@@ -34,36 +31,6 @@
 // TODO: remove this hardcoding
 #define D2ITEMTYPE_TOME_TP "tbk"
 #define D2ITEMTYPE_TOME_ID "ibk"
-
-typedef struct d2itemreader_data_armor {
-	char code[D2_ITEM_CODE_BYTELEN];
-} d2itemreader_data_armor;
-
-typedef struct d2itemreader_data_weapon {
-	char code[D2_ITEM_CODE_BYTELEN];
-	bool stackable;
-} d2itemreader_data_weapon;
-
-typedef struct d2itemreader_data_misc {
-	char code[D2_ITEM_CODE_BYTELEN];
-	bool stackable;
-} d2itemreader_data_misc;
-
-typedef struct d2itemreader_data_itemstat {
-	uint16_t id;
-	uint8_t encode;
-	uint16_t saveBits;
-	uint16_t saveAdd;
-	uint16_t saveParamBits;
-	uint16_t nextInChain;
-} d2itemreader_data_itemstat;
-
-typedef struct d2itemreader_data {
-	d2itemreader_data_armor* armors;
-	d2itemreader_data_weapon* weapons;
-	d2itemreader_data_misc* miscs;
-	d2itemreader_data_itemstat itemstats[D2_MAX_ITEMSTATCOST_IDS];
-} d2itemreader_data;
 
 enum d2rarity {
 	RARITY_LOW_QUALITY = 0x01,
@@ -92,7 +59,7 @@ typedef struct d2ear {
 
 typedef struct d2itemprop {
 	uint16_t id;
-	int params[D2_ITEMSTAT_MAX_PARAMS];
+	int params[D2_ITEMPROP_MAX_PARAMS];
 	int numParams;
 } d2itemprop;
 
@@ -102,7 +69,12 @@ typedef struct d2itemproplist {
 	size_t _size;
 } d2itemproplist;
 
-typedef struct d2itemlist d2itemlist; // forward dec
+typedef struct d2item d2item; // forward dec
+typedef struct d2itemlist {
+	d2item* items;
+	size_t count;
+	size_t _size;
+} d2itemlist;
 
 typedef struct d2item {
 	// boolean flags
@@ -166,14 +138,8 @@ typedef struct d2item {
 	uint8_t numRarePrefixes;
 	uint16_t rareSuffixes[D2_MAX_RARE_SUFFIXES];
 	uint8_t numRareSuffixes;
-	d2itemlist* socketedItems;
+	d2itemlist socketedItems;
 } d2item;
-
-typedef struct d2itemlist {
-	d2item* items;
-	size_t count;
-	size_t _size;
-} d2itemlist;
 
 typedef struct d2stashpage {
 	uint32_t pageNum;
@@ -189,11 +155,11 @@ typedef struct d2sharedstash {
 	d2stashpage* pages;
 } d2sharedstash;
 
-void load_armors(const char* filename, d2itemreader_data* data);
-void load_weapons(const char* filename, d2itemreader_data* data);
-void load_miscs(const char* filename, d2itemreader_data* data);
-void d2item_parsestats(const char* filename, d2itemreader_data* data);
-void d2itemreader_data_destroy(d2itemreader_data* data);
+void d2data_load_armors(const char* filename, d2data* data);
+void d2data_load_weapons(const char* filename, d2data* data);
+void d2data_load_miscs(const char* filename, d2data* data);
+void d2data_load_itemstats(const char* filename, d2data* data);
+void d2data_destroy(d2data* data);
 
 void d2sharedstash_parse(const char* filename, d2sharedstash *stash, uint32_t* out_bytesRead);
 void d2sharedstash_destroy(d2sharedstash *stash);
@@ -209,15 +175,15 @@ void d2itemlist_append(d2itemlist* list, const d2item* const item);
 void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* item, uint32_t* size_out);
 void d2item_destroy(d2item *item);
 
-void d2itemproplist_parse(bit_reader* br, d2itemreader_data* data, d2itemproplist* list);
+void d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list);
 void d2itemproplist_init(d2itemproplist* list);
 void d2itemproplist_append(d2itemproplist* list, d2itemprop prop);
 void d2itemproplist_destroy(d2itemproplist* list);
 
-bool is_stackable(const char* itemCode, d2itemreader_data* data);
-bool is_weapon(const char* itemCode, d2itemreader_data* data);
-bool is_armor(const char* itemCode, d2itemreader_data* data);
+bool d2data_is_stackable(const char* itemCode, d2data* data);
+bool d2data_is_weapon(const char* itemCode, d2data* data);
+bool d2data_is_armor(const char* itemCode, d2data* data);
 
-extern d2itemreader_data g_d2itemreader_data;
+extern d2data g_d2data;
 
 #endif

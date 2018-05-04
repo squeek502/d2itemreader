@@ -5,237 +5,13 @@
 #include <assert.h>
 #include <string.h>
 
-d2itemreader_data g_d2itemreader_data = { NULL };
+d2data g_d2data = { NULL };
 
 #define BITS_PER_BYTE 8
 
-bool is_armor(const char* itemCode, d2itemreader_data* data)
-{
-	for (int i = 0; *(data->armors[i].code); i++)
-	{
-		if (strcmp(itemCode, data->armors[i].code) == 0)
-			return true;
-	}
-	return false;
-}
-
-bool is_weapon(const char* itemCode, d2itemreader_data* data)
-{
-	for (int i = 0; *(data->weapons[i].code); i++)
-	{
-		if (strcmp(itemCode, data->weapons[i].code) == 0)
-			return true;
-	}
-	return false;
-}
-
-bool is_stackable(const char* itemCode, d2itemreader_data* data)
-{
-	for (int i = 0; *(data->weapons[i].code); i++)
-	{
-		if (data->weapons[i].stackable && strcmp(itemCode, data->weapons[i].code) == 0)
-			return true;
-	}
-	for (int i = 0; *(data->miscs[i].code); i++)
-	{
-		if (data->miscs[i].stackable && strcmp(itemCode, data->miscs[i].code) == 0)
-			return true;
-	}
-	return false;
-}
-
-void load_armors(const char* filename, d2itemreader_data* data)
-{
-	size_t numRows;
-	char*** parsed = d2txt_parse_file(filename, &numRows);
-
-	data->armors = malloc(numRows * sizeof(*data->armors));
-	int codeCol = d2txt_find_index(parsed, "code");
-
-	int i = 0;
-	for (int iRow = 1; parsed[iRow]; iRow++)
-	{
-		char** row = parsed[iRow];
-		char* code = row[codeCol];
-		if (!code[0]) continue;
-
-		strcpy_s(data->armors[i].code, sizeof(data->armors[i].code), code);
-		i++;
-	}
-	data->armors[i].code[0] = 0;
-
-	d2txt_destroy_file(parsed);
-}
-
-void load_weapons(const char* filename, d2itemreader_data* data)
-{
-	size_t numRows;
-	char*** parsed = d2txt_parse_file(filename, &numRows);
-
-	data->weapons = malloc(numRows * sizeof(*data->weapons));
-	int codeCol = d2txt_find_index(parsed, "code");
-	int stackableCol = d2txt_find_index(parsed, "stackable");
-
-	int i = 0;
-	for (int iRow = 1; parsed[iRow]; iRow++)
-	{
-		char** row = parsed[iRow];
-		char* code = row[codeCol];
-		if (!code[0]) continue;
-
-		strcpy_s(data->weapons[i].code, sizeof(data->weapons[i].code), code);
-		data->weapons[i].stackable = row[stackableCol][0] == '1' ? true : false;
-		i++;
-	}
-	data->weapons[i].code[0] = 0;
-
-	d2txt_destroy_file(parsed);
-}
-
-void load_miscs(const char* filename, d2itemreader_data* data)
-{
-	size_t numRows;
-	char*** parsed = d2txt_parse_file(filename, &numRows);
-
-	data->miscs = malloc(numRows * sizeof(*data->miscs));
-	int codeCol = d2txt_find_index(parsed, "code");
-	int stackableCol = d2txt_find_index(parsed, "stackable");
-
-	int i = 0;
-	for (int iRow = 1; parsed[iRow]; iRow++)
-	{
-		char** row = parsed[iRow];
-		char* code = row[codeCol];
-		if (!code[0]) continue;
-
-		strcpy_s(data->miscs[i].code, sizeof(data->miscs[i].code), code);
-		data->miscs[i].stackable = row[stackableCol][0] == '1' ? true : false;
-		i++;
-	}
-	data->miscs[i].code[0] = 0;
-
-	d2txt_destroy_file(parsed);
-}
-
-void d2item_parsestats(const char* filename, d2itemreader_data* data)
-{
-	char*** parsed = d2txt_parse_file(filename, NULL);
-
-	int saveBitsCol = d2txt_find_index(parsed, "Save Bits");
-	int saveAddCol = d2txt_find_index(parsed, "Save Add");
-	int encodeCol = d2txt_find_index(parsed, "Encode");
-	int saveParamBitsCol = d2txt_find_index(parsed, "Save Param Bits");
-
-	int id = 0;
-	for (int iRow = 1; parsed[iRow] && id < D2_MAX_ITEMSTATCOST_IDS; iRow++)
-	{
-		char** row = parsed[iRow];
-		char* saveBits = row[saveBitsCol];
-		char* saveAdd = row[saveAddCol];
-		char* encode = row[encodeCol];
-		char* saveParamBits = row[saveParamBitsCol];
-
-		data->itemstats[id].id = id;
-		data->itemstats[id].saveBits = saveBits[0] ? atoi(saveBits) : 0;
-		data->itemstats[id].saveAdd = saveAdd[0] ? atoi(saveAdd) : 0;
-		data->itemstats[id].saveParamBits = saveParamBits[0] ? atoi(saveParamBits) : 0;
-
-		if (id == 17 || id == 48 || id == 50 || id == 52 || id == 54 || id == 55 || id == 57 || id == 58)
-		{
-			data->itemstats[id].nextInChain = id + 1;
-		}
-		else
-		{
-			data->itemstats[id].nextInChain = 0;
-		}
-
-		id++;
-	}
-
-	d2txt_destroy_file(parsed);
-}
-
-void d2itemreader_data_destroy(d2itemreader_data* data)
-{
-	if (data->miscs) free(data->miscs);
-	if (data->armors) free(data->armors);
-	if (data->weapons) free(data->weapons);
-}
-
-void d2itemproplist_init(d2itemproplist* list)
-{
-	list->count = 0;
-	list->_size = 4;
-	list->properties = malloc(list->_size * sizeof(*list->properties));
-}
-
-void d2itemproplist_destroy(d2itemproplist* list)
-{
-	free(list->properties);
-	list->properties = NULL;
-	list->count = list->_size = 0;
-}
-
-void d2itemproplist_append(d2itemproplist* list, d2itemprop prop)
-{
-	if (list->count == list->_size)
-	{
-		list->_size *= 2;
-		list->properties = realloc(list->properties, list->_size * sizeof(*list->properties));
-	}
-	list->properties[list->count++] = prop;
-}
-
-void d2item_destroy(d2item *item)
-{
-	if (item->numItemsInSockets > 0)
-	{
-		d2itemlist_destroy(item->socketedItems);
-		free(item->socketedItems);
-	}
-
-	d2itemproplist_destroy(&item->magicProperties);
-	d2itemproplist_destroy(&item->runewordProperties);
-	for (int i = 0; i < item->numSetBonuses; i++)
-	{
-		d2itemproplist_destroy(&item->setBonuses[i]);
-	}
-}
-
-void d2itemlist_init(d2itemlist* list, size_t initialSize)
-{
-	list->count = 0;
-	list->_size = initialSize;
-	list->items = list->_size > 0 ? malloc(list->_size * sizeof(*list->items)) : NULL;
-}
-
-void d2itemlist_destroy(d2itemlist* list)
-{
-	if (list->items)
-	{
-		for (unsigned int i = 0; i < list->count; i++)
-		{
-			d2item_destroy(&(list->items[i]));
-		}
-		free(list->items);
-	}
-	list->items = NULL;
-	list->count = list->_size = 0;
-}
-
-void d2itemlist_append(d2itemlist* list, const d2item* const item)
-{
-	if (list->count == list->_size)
-	{
-		list->_size = list->_size > 0 ? list->_size * 2 : 4;
-		list->items = realloc(list->items, list->_size * sizeof(*list->items));
-	}
-	list->items[list->count++] = *item;
-}
-
 // Parses the magical property list in the byte queue that belongs to an item
 // and returns the list of properties.
-void d2itemproplist_parse(bit_reader* br, d2itemreader_data* data, d2itemproplist* list)
+void d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list)
 {
 	d2itemproplist_init(list);
 
@@ -244,10 +20,10 @@ void d2itemproplist_parse(bit_reader* br, d2itemreader_data* data, d2itemproplis
 		uint16_t id = (uint16_t)read_bits(br, 9);
 
 		// If all 9 bits are set, we've hit the end of the list
-		if (id == D2_ITEMSTAT_END_ID)
+		if (id == D2DATA_ITEMSTAT_END_ID)
 			break;
 
-		d2itemreader_data_itemstat* stat = &data->itemstats[id];
+		d2data_itemstat* stat = &data->itemstats[id];
 		d2itemprop prop = { id };
 
 		// this is unrecoverably bad
@@ -284,7 +60,7 @@ void d2itemproplist_parse(bit_reader* br, d2itemreader_data* data, d2itemproplis
 			prop.numParams = 1;
 		}
 
-		while (stat->nextInChain && prop.numParams < D2_ITEMSTAT_MAX_PARAMS)
+		while (stat->nextInChain && prop.numParams < D2_ITEMPROP_MAX_PARAMS)
 		{
 			stat = &data->itemstats[stat->nextInChain];
 			assert(stat->saveParamBits == 0);
@@ -294,6 +70,99 @@ void d2itemproplist_parse(bit_reader* br, d2itemreader_data* data, d2itemproplis
 
 		d2itemproplist_append(list, prop);
 	}
+}
+
+void d2itemproplist_init(d2itemproplist* list)
+{
+	list->count = 0;
+	list->_size = 4;
+	list->properties = malloc(list->_size * sizeof(*list->properties));
+}
+
+void d2itemproplist_append(d2itemproplist* list, d2itemprop prop)
+{
+	if (list->count == list->_size)
+	{
+		list->_size *= 2;
+		list->properties = realloc(list->properties, list->_size * sizeof(*list->properties));
+	}
+	list->properties[list->count++] = prop;
+}
+
+void d2itemproplist_destroy(d2itemproplist* list)
+{
+	free(list->properties);
+	list->properties = NULL;
+	list->count = list->_size = 0;
+}
+
+void d2itemlist_parse(const unsigned char* const data, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead)
+{
+	uint32_t curByte = startByte;
+	uint16_t tag = D2ITEMREADER_READ(uint16_t);
+	assert(tag == D2_JM_TAG);
+
+	uint16_t numItems = D2ITEMREADER_READ(uint16_t);
+
+	d2itemlist_init(items, numItems);
+	d2item* lastSocketedItem = NULL;
+
+	for (uint16_t i = 0; i < numItems; i++)
+	{
+		uint32_t itemSizeBytes;
+		d2item item = { 0 };
+		d2item_parse(data, curByte, &item, &itemSizeBytes);
+		curByte += itemSizeBytes;
+
+		if (item.locationID == LOCATION_SOCKETED)
+		{
+			assert(lastSocketedItem != NULL);
+			d2itemlist_append(&lastSocketedItem->socketedItems, &item);
+		}
+		else
+		{
+			d2itemlist_append(items, &item);
+
+			if (item.numItemsInSockets > 0 && !item.simpleItem)
+			{
+				lastSocketedItem = &(items->items[items->count - 1]);
+				numItems += item.numItemsInSockets;
+			}
+		}
+	}
+
+	*out_bytesRead = curByte - startByte;
+}
+
+void d2itemlist_init(d2itemlist* list, size_t initialSize)
+{
+	list->count = 0;
+	list->_size = initialSize;
+	list->items = list->_size > 0 ? malloc(list->_size * sizeof(*list->items)) : NULL;
+}
+
+void d2itemlist_append(d2itemlist* list, const d2item* const item)
+{
+	if (list->count == list->_size)
+	{
+		list->_size = list->_size > 0 ? list->_size * 2 : 4;
+		list->items = realloc(list->items, list->_size * sizeof(*list->items));
+	}
+	list->items[list->count++] = *item;
+}
+
+void d2itemlist_destroy(d2itemlist* list)
+{
+	if (list->items)
+	{
+		for (unsigned int i = 0; i < list->count; i++)
+		{
+			d2item_destroy(&(list->items[i]));
+		}
+		free(list->items);
+	}
+	list->items = NULL;
+	list->count = list->_size = 0;
 }
 
 void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* item, uint32_t* size_out)
@@ -368,11 +237,7 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 		// offset 108
 		// If sockets exist, read the items, they'll be 108 bit basic items * nrOfSockets
 		item->numItemsInSockets = (uint8_t)read_bits(&br, 3);
-		if (item->numItemsInSockets)
-		{
-			item->socketedItems = malloc(sizeof(*item->socketedItems));
-			d2itemlist_init(item->socketedItems, item->numItemsInSockets);
-		}
+		d2itemlist_init(&item->socketedItems, item->numItemsInSockets);
 	}
 	else
 	{
@@ -501,7 +366,7 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 		// and the item specific data
 		item->timestamp = read_bits(&br, 1);
 
-		if (is_armor(item->code, &g_d2itemreader_data))
+		if (d2data_is_armor(item->code, &g_d2data))
 		{
 			// If the item is an armor, it will have this field of defense data.
 			// We need to subtract 10 defense rating from all armors for
@@ -509,7 +374,7 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 			item->defenseRating = (uint16_t)read_bits(&br, 11) - 10;
 		}
 
-		if (is_armor(item->code, &g_d2itemreader_data) || is_weapon(item->code, &g_d2itemreader_data))
+		if (d2data_is_armor(item->code, &g_d2data) || d2data_is_weapon(item->code, &g_d2data))
 		{
 			item->maxDurability = (uint8_t)read_bits(&br, 8);
 			// Some weapons like phase blades don't have durability, so we'll
@@ -523,7 +388,7 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 			}
 		}
 
-		if (is_stackable(item->code, &g_d2itemreader_data))
+		if (d2data_is_stackable(item->code, &g_d2data))
 		{
 			// If the item is a stacked item, e.g. a javelin or something, these 9
 			// bits will contain the quantity.
@@ -548,7 +413,7 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 
 		// MARK: Time to parse 9 bit magical property ids followed by their n bit
 		// length values, but only if the item is magical or above.
-		d2itemproplist_parse(&br, &g_d2itemreader_data, &item->magicProperties);
+		d2itemproplist_parse(&br, &g_d2data, &item->magicProperties);
 
 		// Item has more magical property lists due to being a set item
 		if (setPropertyFlags)
@@ -558,7 +423,7 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 				unsigned short mask = 1 << i;
 				if (setPropertyFlags & mask)
 				{
-					d2itemproplist_parse(&br, &g_d2itemreader_data, &item->setBonuses[item->numSetBonuses]);
+					d2itemproplist_parse(&br, &g_d2data, &item->setBonuses[item->numSetBonuses]);
 					item->numSetBonuses++;
 				}
 			}
@@ -566,7 +431,7 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 
 		if (item->isRuneword)
 		{
-			d2itemproplist_parse(&br, &g_d2itemreader_data, &item->runewordProperties);
+			d2itemproplist_parse(&br, &g_d2data, &item->runewordProperties);
 		}
 	}
 
@@ -576,42 +441,16 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 	*size_out = curByte - startByte;
 }
 
-void d2itemlist_parse(const unsigned char* const data, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead)
+void d2item_destroy(d2item *item)
 {
-	uint32_t curByte = startByte;
-	uint16_t tag = D2ITEMREADER_READ(uint16_t);
-	assert(tag == D2_JM_TAG);
+	d2itemlist_destroy(&item->socketedItems);
 
-	uint16_t numItems = D2ITEMREADER_READ(uint16_t);
-
-	d2itemlist_init(items, numItems);
-	d2item* lastSocketedItem = NULL;
-
-	for (uint16_t i = 0; i < numItems; i++)
+	d2itemproplist_destroy(&item->magicProperties);
+	d2itemproplist_destroy(&item->runewordProperties);
+	for (int i = 0; i < item->numSetBonuses; i++)
 	{
-		uint32_t itemSizeBytes;
-		d2item item = { 0 };
-		d2item_parse(data, curByte, &item, &itemSizeBytes);
-		curByte += itemSizeBytes;
-
-		if (item.locationID == LOCATION_SOCKETED)
-		{
-			assert(lastSocketedItem != NULL);
-			d2itemlist_append(lastSocketedItem->socketedItems, &item);
-		}
-		else
-		{
-			d2itemlist_append(items, &item);
-
-			if (item.numItemsInSockets > 0 && !item.simpleItem)
-			{
-				lastSocketedItem = &(items->items[items->count - 1]);
-				numItems += item.numItemsInSockets;
-			}
-		}
+		d2itemproplist_destroy(&item->setBonuses[i]);
 	}
-
-	*out_bytesRead = curByte - startByte;
 }
 
 void d2stashpage_parse(const unsigned char* const data, uint32_t startByte, d2stashpage *page, uint32_t* out_bytesRead)

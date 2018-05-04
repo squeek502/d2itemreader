@@ -18,10 +18,10 @@ int main(int argc, const char* argv[])
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	load_armors("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Armor.txt", &g_d2itemreader_data);
-	load_weapons("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Weapons.txt", &g_d2itemreader_data);
-	load_miscs("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Misc.txt", &g_d2itemreader_data);
-	d2item_parsestats("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/ItemStatCost.txt", &g_d2itemreader_data);
+	d2data_load_armors("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Armor.txt", &g_d2data);
+	d2data_load_weapons("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Weapons.txt", &g_d2data);
+	d2data_load_miscs("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Misc.txt", &g_d2data);
+	d2data_load_itemstats("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/ItemStatCost.txt", &g_d2data);
 
 	d2sharedstash stash;
 	uint32_t bytesRead;
@@ -30,5 +30,5 @@ int main(int argc, const char* argv[])
 	printf("done, %d pages\n", stash.numPages);
 
 	d2sharedstash_destroy(&stash);
-	d2itemreader_data_destroy(&g_d2itemreader_data);
+	d2data_destroy(&g_d2data);
 }
