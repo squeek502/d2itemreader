@@ -6,7 +6,18 @@
 #include "bitreader.h"
 #include "d2data.h"
 
+extern d2data g_d2data;
+
 // D2
+#define D2S_HEADER 0xAA55AA55 // "U.U." where '.' = (unsigned char)170
+#define D2S_STATUS_OFFSET 36
+#define D2S_STATUS_EXPANSION_MASK 1 << 5
+#define D2S_MERC_ID_OFFSET 179
+#define D2S_STATS_OFFSET 765
+#define D2S_STATS_HEADER 0x6667 //"gf"
+#define D2S_SKILLS_BYTELEN 32 // 2 byte header + 30 bytes
+#define D2S_MERC_HEADER 0x666A //"jf"
+#define D2S_IRON_GOLEM_HEADER 0x666B //"kf"
 #define D2_JM_TAG 0x4D4A //"JM"
 #define D2_MAX_CHAR_NAME_STRLEN 15
 #define D2_MAX_CHAR_NAME_BYTELEN D2_MAX_CHAR_NAME_STRLEN+1
@@ -20,42 +31,56 @@
 #define D2_MAX_STASH_PAGE_NAME_STRLEN 15
 #define D2_MAX_STASH_PAGE_NAME_BYTELEN D2_MAX_STASH_PAGE_NAME_STRLEN+1
 #define PLUGY_SHAREDSTASH_HEADER 0x00535353 //"SSS\0"
+#define PLUGY_PERSONALSTASH_HEADER 0x4D545343 //"CSTM"
 #define PLUGY_FILE_VERSION_01 0x3130 //"01"
 #define PLUGY_FILE_VERSION_02 0x3230 //"02"
 #define PLUGY_STASH_TAG 0x5453 //"ST"
 
-// d2itemreader
-#define D2ITEMREADER_DATA (data + curByte)
-#define D2ITEMREADER_READ(T) *(T*)D2ITEMREADER_DATA; curByte += sizeof(T)
-
-// TODO: remove this hardcoding
+// TODO: remove this hardcoding, but first need to check
+// if the itemtype controls the save format, or if it actually
+// is hardcoded to these ids
 #define D2ITEMTYPE_TOME_TP "tbk"
 #define D2ITEMTYPE_TOME_ID "ibk"
 
 enum d2rarity {
-	RARITY_LOW_QUALITY = 0x01,
-	RARITY_NORMAL,
-	RARITY_HIGH_QUALITY,
-	RARITY_MAGIC,
-	RARITY_SET,
-	RARITY_RARE,
-	RARITY_UNIQUE,
-	RARITY_CRAFTED
+	D2RARITY_LOW_QUALITY = 0x01,
+	D2RARITY_NORMAL,
+	D2RARITY_HIGH_QUALITY,
+	D2RARITY_MAGIC,
+	D2RARITY_SET,
+	D2RARITY_RARE,
+	D2RARITY_UNIQUE,
+	D2RARITY_CRAFTED
 };
 
 enum d2location {
-	LOCATION_STORED = 0x00,
-	LOCATION_EQUIPPED,
-	LOCATION_BELT,
-	LOCATION_CURSOR = 0x04,
-	LOCATION_SOCKETED = 0x06
+	D2LOCATION_STORED = 0x00,
+	D2LOCATION_EQUIPPED,
+	D2LOCATION_BELT,
+	D2LOCATION_CURSOR = 0x04,
+	D2LOCATION_SOCKETED = 0x06
 };
 
-typedef struct d2ear {
-	unsigned int class : 3;
-	unsigned int level : 7;
-	char name[D2_MAX_CHAR_NAME_BYTELEN];
-} d2ear;
+enum d2filetype {
+	D2FILETYPE_UNKNOWN,
+	D2FILETYPE_D2_CHARACTER,
+	D2FILETYPE_PLUGY_SHARED_STASH,
+	D2FILETYPE_PLUGY_PERSONAL_STASH
+};
+
+enum d2filetype d2filetype_get(const char* filename);
+
+typedef struct d2item d2item; // forward dec
+typedef struct d2itemlist {
+	d2item* items;
+	size_t count;
+	size_t _size;
+} d2itemlist;
+
+void d2itemlist_parse(const unsigned char* const data, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead);
+void d2itemlist_init(d2itemlist* list, size_t initialSize);
+void d2itemlist_destroy(d2itemlist* list);
+void d2itemlist_append(d2itemlist* list, const d2item* const item);
 
 typedef struct d2itemprop {
 	uint16_t id;
@@ -69,12 +94,16 @@ typedef struct d2itemproplist {
 	size_t _size;
 } d2itemproplist;
 
-typedef struct d2item d2item; // forward dec
-typedef struct d2itemlist {
-	d2item* items;
-	size_t count;
-	size_t _size;
-} d2itemlist;
+void d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list);
+void d2itemproplist_init(d2itemproplist* list);
+void d2itemproplist_append(d2itemproplist* list, d2itemprop prop);
+void d2itemproplist_destroy(d2itemproplist* list);
+
+typedef struct d2ear {
+	unsigned int class : 3;
+	unsigned int level : 7;
+	char name[D2_MAX_CHAR_NAME_BYTELEN];
+} d2ear;
 
 typedef struct d2item {
 	// boolean flags
@@ -141,12 +170,18 @@ typedef struct d2item {
 	d2itemlist socketedItems;
 } d2item;
 
+void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* item, uint32_t* size_out);
+void d2item_destroy(d2item *item);
+
 typedef struct d2stashpage {
 	uint32_t pageNum;
 	uint32_t flags;
 	char name[D2_MAX_STASH_PAGE_NAME_BYTELEN];
 	d2itemlist items;
 } d2stashpage;
+
+void d2stashpage_parse(const unsigned char* const data, uint32_t startByte, d2stashpage *page, uint32_t* out_bytesRead);
+void d2stashpage_destroy(d2stashpage *page);
 
 typedef struct d2sharedstash {
 	uint16_t fileVersion;
@@ -155,35 +190,25 @@ typedef struct d2sharedstash {
 	d2stashpage* pages;
 } d2sharedstash;
 
-void d2data_load_armors(const char* filename, d2data* data);
-void d2data_load_weapons(const char* filename, d2data* data);
-void d2data_load_miscs(const char* filename, d2data* data);
-void d2data_load_itemstats(const char* filename, d2data* data);
-void d2data_destroy(d2data* data);
-
 void d2sharedstash_parse(const char* filename, d2sharedstash *stash, uint32_t* out_bytesRead);
 void d2sharedstash_destroy(d2sharedstash *stash);
 
-void d2stashpage_parse(const unsigned char* const data, uint32_t startByte, d2stashpage *page, uint32_t* out_bytesRead);
-void d2stashpage_destroy(d2stashpage *page);
+typedef struct d2personalstash {
+	uint16_t fileVersion;
+	uint32_t numPages;
+	d2stashpage* pages;
+} d2personalstash;
 
-void d2itemlist_parse(const unsigned char* const data, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead);
-void d2itemlist_init(d2itemlist* list, size_t initialSize);
-void d2itemlist_destroy(d2itemlist* list);
-void d2itemlist_append(d2itemlist* list, const d2item* const item);
+void d2personalstash_parse(const char* filename, d2personalstash *stash, uint32_t* out_bytesRead);
+void d2personalstash_destroy(d2personalstash *stash);
 
-void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* item, uint32_t* size_out);
-void d2item_destroy(d2item *item);
+typedef struct d2char {
+	d2itemlist items;
+	d2itemlist itemsCorpse;
+	d2itemlist itemsMerc;
+} d2char;
 
-void d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list);
-void d2itemproplist_init(d2itemproplist* list);
-void d2itemproplist_append(d2itemproplist* list, d2itemprop prop);
-void d2itemproplist_destroy(d2itemproplist* list);
-
-bool d2data_is_stackable(const char* itemCode, d2data* data);
-bool d2data_is_weapon(const char* itemCode, d2data* data);
-bool d2data_is_armor(const char* itemCode, d2data* data);
-
-extern d2data g_d2data;
+void d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRead);
+void d2char_destroy(d2char *character);
 
 #endif

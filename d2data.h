@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define D2_ITEM_CODE_STRLEN 3
+#define D2_ITEM_CODE_STRLEN 4
 #define D2_ITEM_CODE_BYTELEN D2_ITEM_CODE_STRLEN+1
 #define D2DATA_ITEMSTAT_END_ID 0x1ff
 #define D2DATA_MAX_ITEMSTATCOST_IDS D2DATA_ITEMSTAT_END_ID
@@ -30,6 +30,7 @@ typedef struct d2data_itemstat {
 	uint16_t saveAdd;
 	uint16_t saveParamBits;
 	uint16_t nextInChain;
+	uint16_t charSaveBits;
 } d2data_itemstat;
 
 typedef struct d2data {

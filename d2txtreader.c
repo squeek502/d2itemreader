@@ -54,7 +54,7 @@ char** d2txt_parse_row(char *line, size_t numFields)
 	size_t parsedCount = 0;
 	char** parsed = malloc((numFields + 1) * sizeof(*parsed));
 
-	for (const char* tok = d2txt_strsep(line, "\t"); tok != NULL; tok = d2txt_strsep(NULL, "\t"))
+	for (const char* tok = d2txt_strsep(line, "\t"); tok != NULL && parsedCount < numFields; tok = d2txt_strsep(NULL, "\t"))
 	{
 		parsedCount += d2txt_insert_field(&parsed[parsedCount], tok);
 	}

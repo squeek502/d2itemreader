@@ -1,4 +1,7 @@
 #include "d2data.h"
+#include "d2txtreader.h"
+#include <stdlib.h>
+#include <string.h>
 
 bool d2data_is_armor(const char* itemCode, const d2data* data)
 {
@@ -116,6 +119,7 @@ void d2data_load_itemstats(const char* filename, d2data* data)
 	int saveAddCol = d2txt_find_index(parsed, "Save Add");
 	int encodeCol = d2txt_find_index(parsed, "Encode");
 	int saveParamBitsCol = d2txt_find_index(parsed, "Save Param Bits");
+	int charSaveBitsCol = d2txt_find_index(parsed, "CSvBits");
 
 	int id = 0;
 	for (int iRow = 1; parsed[iRow] && id < D2DATA_MAX_ITEMSTATCOST_IDS; iRow++)
@@ -125,11 +129,13 @@ void d2data_load_itemstats(const char* filename, d2data* data)
 		char* saveAdd = row[saveAddCol];
 		char* encode = row[encodeCol];
 		char* saveParamBits = row[saveParamBitsCol];
+		char* charSaveBits = row[charSaveBitsCol];
 
 		data->itemstats[id].id = id;
 		data->itemstats[id].saveBits = saveBits[0] ? atoi(saveBits) : 0;
 		data->itemstats[id].saveAdd = saveAdd[0] ? atoi(saveAdd) : 0;
 		data->itemstats[id].saveParamBits = saveParamBits[0] ? atoi(saveParamBits) : 0;
+		data->itemstats[id].charSaveBits = charSaveBits[0] ? atoi(charSaveBits) : 0;
 
 		// these specific ids are melded together with the next ID, but there's no signifier of this in the
 		// .txt file, so we have to hardcode this list
