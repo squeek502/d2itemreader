@@ -11,19 +11,12 @@ d2data g_d2data = { NULL };
 #define D2ITEMREADER_DATA (data + curByte)
 #define D2ITEMREADER_READ(T) *(T*)D2ITEMREADER_DATA; curByte += sizeof(T)
 
-enum d2filetype d2filetype_get(const char* filename)
+enum d2filetype d2filetype_get(const unsigned char* data, size_t size)
 {
-	FILE* file;
-	fopen_s(&file, filename, "rb");
-
-	if (!file)
+	if (size < 4)
 		return D2FILETYPE_UNKNOWN;
 
-	uint32_t header;
-	size_t bytesRead = fread(&header, 1, 4, file);
-	
-	if (bytesRead != 4)
-		goto unknown;
+	uint32_t header = *((uint32_t*)data);
 
 	switch (header)
 	{
@@ -34,12 +27,23 @@ enum d2filetype d2filetype_get(const char* filename)
 	case PLUGY_SHAREDSTASH_HEADER:
 		return D2FILETYPE_PLUGY_SHARED_STASH;
 	default:
-		goto unknown;
+		return D2FILETYPE_UNKNOWN;
 	}
+}
 
-unknown:
+enum d2filetype d2filetype_of_file(const char* filename)
+{
+	FILE* file;
+	fopen_s(&file, filename, "rb");
+
+	if (!file)
+		return D2FILETYPE_UNKNOWN;
+
+	uint32_t header;
+	size_t bytesRead = fread(&header, 1, 4, file);
 	fclose(file);
-	return D2FILETYPE_UNKNOWN;
+
+	return d2filetype_get((unsigned char*)&header, bytesRead);;
 }
 
 // Parses the magical property list in the byte queue that belongs to an item
@@ -703,6 +707,7 @@ void d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRe
 		{
 			d2item ironGolemItem = {0};
 			d2item_parse(data, curByte, &ironGolemItem, &bytesRead);
+			d2item_destroy(&ironGolemItem);
 			curByte += bytesRead;
 		}
 	}

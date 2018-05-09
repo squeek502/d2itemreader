@@ -18,19 +18,36 @@ void extract_bytes_to_file(FILE* infile, int offset, int bytes, const char* outf
 
 void read_full_file(const char* filepath, unsigned char** data_out, size_t* bytesRead)
 {
-	uint32_t size;
 	FILE* file;
 	fopen_s(&file, filepath, "rb");
-	fseek(file, 0, SEEK_END);
-	size = ftell(file);
-	fseek(file, 0, SEEK_SET);
-	*data_out = (unsigned char*)malloc(size);
-	size_t _bytesRead = fread(*data_out, 1, size, file);
-	if (bytesRead)
-		*bytesRead = _bytesRead;
-	fclose(file);
-}
+	if (!file)
+	{
+		goto nothing_read;
+	}
 
+	fseek(file, 0, SEEK_END);
+	uint32_t size = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	*data_out = (unsigned char*)malloc(size+1);
+	if (*data_out == NULL)
+	{
+		goto fclose_nothing_read;
+	}
+	(*data_out)[size] = '\0';
+
+	size_t _bytesRead = fread(*data_out, 1, size, file);
+	fclose(file);
+
+	if (bytesRead) *bytesRead = _bytesRead;
+	return;
+
+fclose_nothing_read:
+	fclose(file);
+nothing_read:
+	*data_out = NULL;
+	if (bytesRead) *bytesRead = 0;
+	return;
+}
 
 void DumpHex(const void* data, size_t size) {
 	char ascii[17];

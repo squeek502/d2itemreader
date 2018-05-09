@@ -68,7 +68,8 @@ enum d2filetype {
 	D2FILETYPE_PLUGY_PERSONAL_STASH
 };
 
-enum d2filetype d2filetype_get(const char* filename);
+enum d2filetype d2filetype_get(const unsigned char* data, size_t size);
+enum d2filetype d2filetype_of_file(const char* filename);
 
 typedef struct d2item d2item; // forward dec
 typedef struct d2itemlist {

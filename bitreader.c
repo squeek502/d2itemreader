@@ -49,5 +49,5 @@ uint64_t read_bits(bit_reader* reader, size_t bitsToRead)
 {
 	advance_bits(reader, bitsToRead);
 	uint64_t n = (reader->buffer >> (reader->validBits)) & ((1 << bitsToRead) - 1);
-	return reverse_bits(n, bitsToRead);
+	return bitsToRead > 1 ? reverse_bits(n, bitsToRead) : n;
 }

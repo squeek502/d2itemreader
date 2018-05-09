@@ -4,13 +4,15 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
+#include "util.h"
 
 #define D2TXT_MAX_LINE_LEN 4096
 #define D2TXT_INITIAL_ARRAY_SIZE 100
 
 // like strtok, but returns "" between consecutive delims
 // e.g. d2txt_strsep("a;;b", ";") would give "a", "", "b", NULL
-static char* d2txt_strsep(char* str, const char* delims)
+static char* d2txt_strsep(char* str, const char* delims, size_t* out_tokLen)
 {
 	static char* src = NULL;
 	char* p, *ret = 0;
@@ -25,23 +27,49 @@ static char* d2txt_strsep(char* str, const char* delims)
 	{
 		*p = 0;
 		ret = src;
+		if (out_tokLen) *out_tokLen = p - ret;
 		src = ++p;
 	}
 	else if (*src)
 	{
 		ret = src;
+		if (out_tokLen) *out_tokLen = strlen(ret);
 		src = NULL;
 	}
 
 	return ret;
 }
 
+static const char* d2txt_strtokbuf(const char* str, const char* delims, char* buf, size_t bufSizeInBytes)
+{
+	static char* src = NULL;
+
+	if (str != NULL)
+		src = (char*)str;
+
+	size_t length = strcspn(src, delims);
+	assert(length < bufSizeInBytes);
+	memcpy(buf, src, length);
+	buf[length] = '\0';
+
+	if (length != 0)
+	{
+		src += length;
+		src += strspn(src, delims);
+	}
+	else
+	{
+		src = NULL;
+	}
+
+	return src;
+}
+
 // returns the number of fields inserted (0 or 1)
-static size_t d2txt_insert_field(char** row, const char* field)
+static size_t d2txt_insert_field(char** row, const char* field, size_t len)
 {
 	if (field[0] == '\r' || field[0] == '\n') return 0;
 
-	size_t len = strlen(field);
 	char* str = malloc(len + 1);
 	memcpy(str, field, len + 1);
 
@@ -54,13 +82,14 @@ char** d2txt_parse_row(char *line, size_t numFields)
 	size_t parsedCount = 0;
 	char** parsed = malloc((numFields + 1) * sizeof(*parsed));
 
-	for (const char* tok = d2txt_strsep(line, "\t"); tok != NULL && parsedCount < numFields; tok = d2txt_strsep(NULL, "\t"))
+	size_t tokLen;
+	for (const char* tok = d2txt_strsep(line, "\t", &tokLen); tok != NULL && parsedCount < numFields; tok = d2txt_strsep(NULL, "\t", &tokLen))
 	{
-		parsedCount += d2txt_insert_field(&parsed[parsedCount], tok);
+		parsedCount += d2txt_insert_field(&parsed[parsedCount], tok, tokLen);
 	}
 	for (; parsedCount < numFields; parsedCount++)
 	{
-		parsedCount += d2txt_insert_field(&parsed[parsedCount], "");
+		parsedCount += d2txt_insert_field(&parsed[parsedCount], "", 0);
 	}
 	parsed[numFields] = NULL;
 
@@ -73,9 +102,10 @@ char** d2txt_parse_header(char *line, size_t *out_numFields)
 	size_t parsedSize = D2TXT_INITIAL_ARRAY_SIZE;
 	char** parsed = malloc(parsedSize * sizeof(*parsed));
 
-	for (char* tok = d2txt_strsep(line, "\t"); tok != NULL; tok = d2txt_strsep(NULL, "\t"))
+	size_t tokLen;
+	for (const char* tok = d2txt_strsep(line, "\t", &tokLen); tok != NULL; tok = d2txt_strsep(NULL, "\t", &tokLen))
 	{
-		parsedCount += d2txt_insert_field(&parsed[parsedCount], tok);
+		parsedCount += d2txt_insert_field(&parsed[parsedCount], tok, tokLen);
 
 		if (parsedCount >= parsedSize)
 		{
@@ -91,22 +121,21 @@ char** d2txt_parse_header(char *line, size_t *out_numFields)
 	return parsed;
 }
 
-char*** d2txt_parse_file(const char *filename, size_t *out_numRows)
+char*** d2txt_parse(const char *data, size_t length, size_t *out_numRows)
 {
-	FILE* file = fopen(filename, "r");
 	static char line[D2TXT_MAX_LINE_LEN];
 
 	size_t parsedCount = 0;
 	size_t parsedSize = D2TXT_INITIAL_ARRAY_SIZE;
 	char*** parsed = malloc(parsedSize * sizeof(*parsed));
 
-	if (fgets(line, D2TXT_MAX_LINE_LEN, file))
+	if (d2txt_strtokbuf(data, "\r\n", line, D2TXT_MAX_LINE_LEN))
 	{
 		size_t numFieldsPerRow;
 		parsed[parsedCount] = d2txt_parse_header(line, &numFieldsPerRow);
 		parsedCount++;
 
-		while (fgets(line, D2TXT_MAX_LINE_LEN, file))
+		while (d2txt_strtokbuf(NULL, "\r\n", line, D2TXT_MAX_LINE_LEN))
 		{
 			parsed[parsedCount] = d2txt_parse_row(line, numFieldsPerRow);
 			parsedCount++;
@@ -123,6 +152,20 @@ char*** d2txt_parse_file(const char *filename, size_t *out_numRows)
 	if (out_numRows)
 		*out_numRows = parsedCount;
 
+	return parsed;
+}
+
+char*** d2txt_parse_file(const char *filename, size_t *out_numRows)
+{
+	unsigned char* data;
+	size_t size;
+	read_full_file(filename, &data, &size);
+	if (data == NULL)
+	{
+		return NULL;
+	}
+	char*** parsed = d2txt_parse(data, size, out_numRows);
+	free(data);
 	return parsed;
 }
 
@@ -146,7 +189,7 @@ void d2txt_destroy_file(char ***parsed)
 
 int d2txt_find_index(const char*** parsed, const char* needle)
 {
-	char** header = *parsed;
+	const char** header = *parsed;
 	if (header)
 	{
 		for (int i = 0; header[i]; i++)

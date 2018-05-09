@@ -22,7 +22,7 @@ int main(int argc, const char* argv[])
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	printf("%d %d %d\n", d2filetype_get(SSS_FILE), d2filetype_get(D2X_FILE), d2filetype_get(D2S_FILE));
+	printf("%d %d %d\n", d2filetype_of_file(SSS_FILE), d2filetype_of_file(D2X_FILE), d2filetype_of_file(D2S_FILE));
 
 	d2data_load_armors("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Armor.txt", &g_d2data);
 	d2data_load_weapons("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Weapons.txt", &g_d2data);
