@@ -1,8 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 project (d2grailcheck C)
 
-include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/src)
 
-# Our Module
-add_executable( d2grailcheck d2grailcheck.c d2txtreader.c bitreader.c d2itemreader.c d2data.c util.c )
-add_executable( test_bitreader test/test_bitreader.c bitreader.c )
+add_executable( d2grailcheck src/d2grailcheck.c src/d2txtreader.c src/bitreader.c src/d2itemreader.c src/d2data.c src/util.c )
