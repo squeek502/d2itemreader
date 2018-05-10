@@ -1,6 +1,10 @@
+#ifdef _WIN32
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
+#else
+#include <stdlib.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -12,22 +16,24 @@
 #include "d2itemreader.h"
 #include "d2txtreader.h"
 
-#define SSS_FILE "C:/Users/Ryan/Programming/Diablo/d2grailcheck/_LOD_SharedStashSave.sss"
-#define D2X_FILE "C:/Users/Ryan/Programming/Diablo/d2grailcheck/cool.d2x"
-#define D2S_FILE "C:/Users/Ryan/Programming/Diablo/d2grailcheck/cool.d2s"
-#define D2S_FILE_GOLEM "C:/Users/Ryan/Programming/Diablo/d2grailcheck/golem.d2s"
-#define D2S_FILE_CLASSIC "C:/Users/Ryan/Programming/Diablo/d2grailcheck/classic.d2s"
+#define SSS_FILE "../_LOD_SharedStashSave.sss"
+#define D2X_FILE "../cool.d2x"
+#define D2S_FILE "../cool.d2s"
+#define D2S_FILE_GOLEM "../golem.d2s"
+#define D2S_FILE_CLASSIC "../classic.d2s"
 
 int main(int argc, const char* argv[])
 {
+#ifdef _WIN32
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
 
 	printf("%d %d %d\n", d2filetype_of_file(SSS_FILE), d2filetype_of_file(D2X_FILE), d2filetype_of_file(D2S_FILE));
 
-	d2data_load_armors_from_file("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Armor.txt", &g_d2data);
-	d2data_load_weapons_from_file("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Weapons.txt", &g_d2data);
-	d2data_load_miscs_from_file("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Misc.txt", &g_d2data);
-	d2data_load_itemstats_from_file("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/ItemStatCost.txt", &g_d2data);
+	d2data_load_armors_from_file("../data/Armor.txt", &g_d2data);
+	d2data_load_weapons_from_file("../data/Weapons.txt", &g_d2data);
+	d2data_load_miscs_from_file("../data/Misc.txt", &g_d2data);
+	d2data_load_itemstats_from_file("../data/ItemStatCost.txt", &g_d2data);
 
 	d2sharedstash stash;
 	uint32_t bytesRead;

@@ -38,7 +38,7 @@ bool d2data_is_stackable(const char* itemCode, const d2data* data)
 	return false;
 }
 
-static d2data_load_armors_common(char*** parsed, size_t numRows, d2data* data)
+static void d2data_load_armors_common(char*** parsed, size_t numRows, d2data* data)
 {
 	data->armors = malloc(numRows * sizeof(*data->armors));
 	int codeCol = d2txt_find_index(parsed, "code");
@@ -50,7 +50,7 @@ static d2data_load_armors_common(char*** parsed, size_t numRows, d2data* data)
 		char* code = row[codeCol];
 		if (!code[0]) continue;
 
-		strcpy_s(data->armors[i].code, sizeof(data->armors[i].code), code);
+		strcpy(data->armors[i].code, code);
 		i++;
 	}
 	data->armors[i].code[0] = 0;
@@ -72,7 +72,7 @@ void d2data_load_armors_from_file(const char* filename, d2data* data)
 	d2txt_destroy(parsed);
 }
 
-static d2data_load_weapons_common(char*** parsed, size_t numRows, d2data* data)
+static void d2data_load_weapons_common(char*** parsed, size_t numRows, d2data* data)
 {
 	data->weapons = malloc(numRows * sizeof(*data->weapons));
 	int codeCol = d2txt_find_index(parsed, "code");
@@ -85,7 +85,7 @@ static d2data_load_weapons_common(char*** parsed, size_t numRows, d2data* data)
 		char* code = row[codeCol];
 		if (!code[0]) continue;
 
-		strcpy_s(data->weapons[i].code, sizeof(data->weapons[i].code), code);
+		strcpy(data->weapons[i].code, code);
 		data->weapons[i].stackable = row[stackableCol][0] == '1' ? true : false;
 		i++;
 	}
@@ -108,7 +108,7 @@ void d2data_load_weapons_from_file(const char* filename, d2data* data)
 	d2txt_destroy(parsed);
 }
 
-static d2data_load_miscs_common(char*** parsed, size_t numRows, d2data* data)
+static void d2data_load_miscs_common(char*** parsed, size_t numRows, d2data* data)
 {
 	data->miscs = malloc(numRows * sizeof(*data->miscs));
 	int codeCol = d2txt_find_index(parsed, "code");
@@ -121,7 +121,7 @@ static d2data_load_miscs_common(char*** parsed, size_t numRows, d2data* data)
 		char* code = row[codeCol];
 		if (!code[0]) continue;
 
-		strcpy_s(data->miscs[i].code, sizeof(data->miscs[i].code), code);
+		strcpy(data->miscs[i].code, code);
 		data->miscs[i].stackable = row[stackableCol][0] == '1' ? true : false;
 		i++;
 	}
@@ -144,7 +144,7 @@ void d2data_load_miscs_from_file(const char* filename, d2data* data)
 	d2txt_destroy(parsed);
 }
 
-static d2data_load_itemstats_common(char*** parsed, d2data* data)
+static void d2data_load_itemstats_common(char*** parsed, d2data* data)
 {
 	int saveBitsCol = d2txt_find_index(parsed, "Save Bits");
 	int saveAddCol = d2txt_find_index(parsed, "Save Add");

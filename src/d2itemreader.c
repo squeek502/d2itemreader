@@ -33,8 +33,7 @@ enum d2filetype d2filetype_get(const unsigned char* data, size_t size)
 
 enum d2filetype d2filetype_of_file(const char* filename)
 {
-	FILE* file;
-	fopen_s(&file, filename, "rb");
+	FILE* file = fopen(filename, "rb");
 
 	if (!file)
 		return D2FILETYPE_UNKNOWN;
@@ -43,7 +42,7 @@ enum d2filetype d2filetype_of_file(const char* filename)
 	size_t bytesRead = fread(&header, 1, 4, file);
 	fclose(file);
 
-	return d2filetype_get((unsigned char*)&header, bytesRead);;
+	return d2filetype_get((unsigned char*)&header, bytesRead);
 }
 
 // Parses the magical property list in the byte queue that belongs to an item
@@ -507,8 +506,9 @@ void d2stashpage_parse(const unsigned char* const data, uint32_t startByte, d2st
 	page->name[0] = 0;
 	char* namePtr = (char*)&data[curByte];
 	size_t nameLen = strlen(namePtr);
+	assert(nameLen <= D2_MAX_STASH_PAGE_NAME_STRLEN);
 	if (nameLen)
-		strncpy_s(page->name, sizeof(page->name), namePtr, nameLen + 1);
+		strncpy(page->name, namePtr, nameLen + 1);
 	curByte += (uint32_t)(nameLen + 1);
 
 	uint32_t inventorySizeBytes;

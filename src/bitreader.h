@@ -1,6 +1,7 @@
 #ifndef BITREADER_H
 #define BITREADER_H
 
+#include <stdlib.h>
 #include <stdint.h>
 
 typedef struct bit_reader {

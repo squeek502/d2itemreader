@@ -1,7 +1,4 @@
-#define _CRTDBG_MAP_ALLOC  
-#include <stdlib.h>  
-#include <crtdbg.h>
-
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -40,6 +37,9 @@ static char* d2txt_strsep(char* str, const char* delims, size_t* out_tokLen)
 	return ret;
 }
 
+// like strtok but non-destructive; instead,  the token is copied to buf and
+// returns the pointer to the beginning of the next token, or NULL if
+// the current token's length is 0
 static const char* d2txt_strtokbuf(const char* str, const char* delims, char* buf, size_t bufSizeInBytes)
 {
 	static char* src = NULL;
@@ -187,9 +187,9 @@ void d2txt_destroy(char ***parsed)
 	free(parsed);
 }
 
-int d2txt_find_index(const char*** parsed, const char* needle)
+int d2txt_find_index(char*** parsed, const char* needle)
 {
-	const char** header = *parsed;
+	char** header = *parsed;
 	if (header)
 	{
 		for (int i = 0; header[i]; i++)

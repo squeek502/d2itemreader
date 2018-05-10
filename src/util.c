@@ -5,8 +5,7 @@
 void extract_bytes_to_file(FILE* infile, int offset, int bytes, const char* outfile)
 {
 	long pos = ftell(infile);
-	FILE* f;
-	fopen_s(&f, outfile, "wb");
+	FILE* f = fopen(outfile, "wb");
 	unsigned char* buffer = malloc(bytes);
 	fseek(infile, offset, SEEK_SET);
 	fread(buffer, bytes, 1, infile);
@@ -18,8 +17,7 @@ void extract_bytes_to_file(FILE* infile, int offset, int bytes, const char* outf
 
 void read_full_file(const char* filepath, unsigned char** data_out, size_t* bytesRead)
 {
-	FILE* file;
-	fopen_s(&file, filepath, "rb");
+	FILE* file = fopen(filepath, "rb");
 	if (!file)
 	{
 		goto nothing_read;

@@ -1,6 +1,7 @@
 #ifndef D2DATA_H_
 #define D2DATA_H_
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
 

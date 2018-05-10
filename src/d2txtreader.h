@@ -23,6 +23,6 @@ char** d2txt_parse_row(char *line, size_t numFields);
 void d2txt_destroy_row(char **parsed);
 
 // find the index of the header column with the given name
-int d2txt_find_index(const char*** parsed, const char* needle);
+int d2txt_find_index(char*** parsed, const char* needle);
 
 #endif
