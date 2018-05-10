@@ -120,7 +120,6 @@ typedef struct d2item {
 	bool multiplePictures : 1;
 	bool classSpecific : 1;
 	bool timestamp : 1;
-	//bool : 4; // force byte alignment
 	// ints
 	uint32_t id;
 	uint8_t locationID;
