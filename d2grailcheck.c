@@ -24,10 +24,10 @@ int main(int argc, const char* argv[])
 
 	printf("%d %d %d\n", d2filetype_of_file(SSS_FILE), d2filetype_of_file(D2X_FILE), d2filetype_of_file(D2S_FILE));
 
-	d2data_load_armors("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Armor.txt", &g_d2data);
-	d2data_load_weapons("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Weapons.txt", &g_d2data);
-	d2data_load_miscs("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Misc.txt", &g_d2data);
-	d2data_load_itemstats("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/ItemStatCost.txt", &g_d2data);
+	d2data_load_armors_from_file("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Armor.txt", &g_d2data);
+	d2data_load_weapons_from_file("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Weapons.txt", &g_d2data);
+	d2data_load_miscs_from_file("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/Misc.txt", &g_d2data);
+	d2data_load_itemstats_from_file("C:/Users/Ryan/Programming/Diablo/diablo2/code/d2_113_data/ItemStatCost.txt", &g_d2data);
 
 	d2sharedstash stash;
 	uint32_t bytesRead;

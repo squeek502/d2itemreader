@@ -38,11 +38,8 @@ bool d2data_is_stackable(const char* itemCode, const d2data* data)
 	return false;
 }
 
-void d2data_load_armors(const char* filename, d2data* data)
+static d2data_load_armors_common(char*** parsed, size_t numRows, d2data* data)
 {
-	size_t numRows;
-	char*** parsed = d2txt_parse_file(filename, &numRows);
-
 	data->armors = malloc(numRows * sizeof(*data->armors));
 	int codeCol = d2txt_find_index(parsed, "code");
 
@@ -57,15 +54,26 @@ void d2data_load_armors(const char* filename, d2data* data)
 		i++;
 	}
 	data->armors[i].code[0] = 0;
-
-	d2txt_destroy_file(parsed);
 }
 
-void d2data_load_weapons(const char* filename, d2data* data)
+void d2data_load_armors(const char* txtdata, size_t length, d2data* data)
+{
+	size_t numRows;
+	char*** parsed = d2txt_parse(txtdata, length, &numRows);
+	d2data_load_armors_common(parsed, numRows, data);
+	d2txt_destroy(parsed);
+}
+
+void d2data_load_armors_from_file(const char* filename, d2data* data)
 {
 	size_t numRows;
 	char*** parsed = d2txt_parse_file(filename, &numRows);
+	d2data_load_armors_common(parsed, numRows, data);
+	d2txt_destroy(parsed);
+}
 
+static d2data_load_weapons_common(char*** parsed, size_t numRows, d2data* data)
+{
 	data->weapons = malloc(numRows * sizeof(*data->weapons));
 	int codeCol = d2txt_find_index(parsed, "code");
 	int stackableCol = d2txt_find_index(parsed, "stackable");
@@ -82,15 +90,26 @@ void d2data_load_weapons(const char* filename, d2data* data)
 		i++;
 	}
 	data->weapons[i].code[0] = 0;
-
-	d2txt_destroy_file(parsed);
 }
 
-void d2data_load_miscs(const char* filename, d2data* data)
+void d2data_load_weapons(const char* txtdata, size_t length, d2data* data)
+{
+	size_t numRows;
+	char*** parsed = d2txt_parse(txtdata, length, &numRows);
+	d2data_load_weapons_common(parsed, numRows, data);
+	d2txt_destroy(parsed);
+}
+
+void d2data_load_weapons_from_file(const char* filename, d2data* data)
 {
 	size_t numRows;
 	char*** parsed = d2txt_parse_file(filename, &numRows);
+	d2data_load_weapons_common(parsed, numRows, data);
+	d2txt_destroy(parsed);
+}
 
+static d2data_load_miscs_common(char*** parsed, size_t numRows, d2data* data)
+{
 	data->miscs = malloc(numRows * sizeof(*data->miscs));
 	int codeCol = d2txt_find_index(parsed, "code");
 	int stackableCol = d2txt_find_index(parsed, "stackable");
@@ -107,14 +126,26 @@ void d2data_load_miscs(const char* filename, d2data* data)
 		i++;
 	}
 	data->miscs[i].code[0] = 0;
-
-	d2txt_destroy_file(parsed);
 }
 
-void d2data_load_itemstats(const char* filename, d2data* data)
+void d2data_load_miscs(const char* txtdata, size_t length, d2data* data)
 {
-	char*** parsed = d2txt_parse_file(filename, NULL);
+	size_t numRows;
+	char*** parsed = d2txt_parse(txtdata, length, &numRows);
+	d2data_load_miscs_common(parsed, numRows, data);
+	d2txt_destroy(parsed);
+}
 
+void d2data_load_miscs_from_file(const char* filename, d2data* data)
+{
+	size_t numRows;
+	char*** parsed = d2txt_parse_file(filename, &numRows);
+	d2data_load_miscs_common(parsed, numRows, data);
+	d2txt_destroy(parsed);
+}
+
+static d2data_load_itemstats_common(char*** parsed, d2data* data)
+{
 	int saveBitsCol = d2txt_find_index(parsed, "Save Bits");
 	int saveAddCol = d2txt_find_index(parsed, "Save Add");
 	int encodeCol = d2txt_find_index(parsed, "Encode");
@@ -150,8 +181,20 @@ void d2data_load_itemstats(const char* filename, d2data* data)
 
 		id++;
 	}
+}
 
-	d2txt_destroy_file(parsed);
+void d2data_load_itemstats(const char* txtdata, size_t length, d2data* data)
+{
+	char*** parsed = d2txt_parse(txtdata, length, NULL);
+	d2data_load_itemstats_common(parsed, data);
+	d2txt_destroy(parsed);
+}
+
+void d2data_load_itemstats_from_file(const char* filename, d2data* data)
+{
+	char*** parsed = d2txt_parse_file(filename, NULL);
+	d2data_load_itemstats_common(parsed, data);
+	d2txt_destroy(parsed);
 }
 
 void d2data_destroy(d2data* data)

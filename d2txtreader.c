@@ -178,7 +178,7 @@ void d2txt_destroy_row(char **parsed)
 	free(parsed);
 }
 
-void d2txt_destroy_file(char ***parsed)
+void d2txt_destroy(char ***parsed)
 {
 	for (char*** ptr = parsed; *ptr; ptr++)
 	{
@@ -227,6 +227,6 @@ int main(int argc, const char* argv[])
 	printf("%d\n", d2txt_find_index(data, "item"));
 	printf("%d\n", d2txt_find_index(data, "prop4"));
 	printf("%d\n", d2txt_find_index(data, "<<notfound>>"));
-	d2txt_destroy_file(data);
+	d2txt_destroy(data);
 }
 */
