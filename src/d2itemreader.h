@@ -66,6 +66,7 @@ enum d2filetype {
 	D2FILETYPE_D2_CHARACTER,
 	D2FILETYPE_PLUGY_SHARED_STASH,
 	D2FILETYPE_PLUGY_PERSONAL_STASH
+	// TODO: GoMule stash (.d2x)
 };
 
 enum d2filetype d2filetype_get(const unsigned char* data, size_t size);

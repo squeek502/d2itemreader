@@ -1,33 +1,16 @@
-#ifdef _WIN32
-#define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
-#include <crtdbg.h>
-#else
-#include <stdlib.h>
-#endif
-
 #include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-#include <assert.h>
-#include <inttypes.h>
 
-#include "bitreader.h"
 #include "d2itemreader.h"
-#include "d2txtreader.h"
 
-#define SSS_FILE "../_LOD_SharedStashSave.sss"
-#define D2X_FILE "../cool.d2x"
-#define D2S_FILE "../cool.d2s"
-#define D2S_FILE_GOLEM "../golem.d2s"
-#define D2S_FILE_CLASSIC "../classic.d2s"
+#define SSS_FILE "../save/_LOD_SharedStashSave.sss"
+#define D2X_FILE "../save/cool.d2x"
+#define D2S_FILE "../save/cool.d2s"
+#define D2S_FILE_GOLEM "../save/golem.d2s"
+#define D2S_FILE_CLASSIC "../save/classic.d2s"
 
 int main(int argc, const char* argv[])
 {
-#ifdef _WIN32
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#endif
-
 	printf("%d %d %d\n", d2filetype_of_file(SSS_FILE), d2filetype_of_file(D2X_FILE), d2filetype_of_file(D2S_FILE));
 
 	d2data_load_armors_from_file("../data/Armor.txt", &g_d2data);

@@ -1,15 +1,14 @@
 cmake_minimum_required (VERSION 2.6)
-project (d2grailcheck C)
+project (d2itemreader C)
 
 include_directories(src/)
-set(EXESRC "src/d2grailcheck.c")
 file(GLOB HEADERS "src/*.h")
 file(GLOB LIBSRC "src/*.c")
-list(REMOVE_ITEM LIBSRC ${EXESRC})
 
 add_library( d2itemreader ${LIBSRC} ${HEADERS} )
-add_executable( d2grailcheck ${EXESRC} )
-target_link_libraries( d2grailcheck PRIVATE d2itemreader )
+
+add_executable( example_simple examples/simple.c )
+target_link_libraries( example_simple PRIVATE d2itemreader )
 
 enable_testing()
 
