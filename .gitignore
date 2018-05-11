@@ -1,4 +1,6 @@
 build*/
+data/
+save/
 
 # Created by https://www.gitignore.io/api/macos,linux,cmake,windows
 
