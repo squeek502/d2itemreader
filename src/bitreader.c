@@ -49,6 +49,7 @@ void skip_bits(bit_reader* reader, size_t bitsToSkip)
 uint64_t read_bits(bit_reader* reader, size_t bitsToRead)
 {
 	advance_bits(reader, bitsToRead);
-	uint64_t n = (reader->buffer >> (reader->validBits)) & ((1 << bitsToRead) - 1);
+	uint64_t mask = ((uint64_t)1 << bitsToRead) - 1;
+	uint64_t n = (reader->buffer >> reader->validBits) & mask;
 	return bitsToRead > 1 ? reverse_bits(n, bitsToRead) : n;
 }

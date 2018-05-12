@@ -72,12 +72,21 @@ MU_TEST(simple_flag)
 	mu_check(br2.bitsRead == 38);
 }
 
+MU_TEST(item_uid)
+{
+	bit_reader br = { advancedItemData };
+	skip_bits(&br, 111);
+	uint32_t uid = (uint32_t)read_bits(&br, 32);
+	mu_check(uid == (uint32_t)0x103D7536);
+}
+
 MU_TEST_SUITE(test_bitreader)
 {
 	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
 	MU_RUN_TEST(item_data);
 	MU_RUN_TEST(simple_flag);
+	MU_RUN_TEST(item_uid);
 }
 
 int main(int argc, const char* argv[])

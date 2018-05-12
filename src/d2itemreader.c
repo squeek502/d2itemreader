@@ -294,6 +294,8 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 	if (!item->simpleItem)
 	{
 		// offset 111, item id is 8 chars, each 4 bit
+		// note: printf("%08X", item->id) will match what GoMule and
+		// Hero Editor display
 		item->id = (uint32_t)read_bits(&br, 32);
 		// offset 143
 		item->level = (uint8_t)read_bits(&br, 7);
