@@ -16,6 +16,7 @@ typedef struct strset_t
 	size_t numBuckets;
 	strset_bucket* buckets;
 	strset_hash_fn hash_fn;
+	size_t valueCount;
 } strset_t;
 
 strset_t* strset_new(size_t numBuckets, strset_hash_fn hash_fn)
@@ -27,6 +28,7 @@ strset_t* strset_new(size_t numBuckets, strset_hash_fn hash_fn)
 	}
 	set->numBuckets = numBuckets;
 	set->hash_fn = hash_fn;
+	set->valueCount = 0;
 	set->buckets = calloc(numBuckets, sizeof(strset_bucket));
 	if (set->buckets == NULL)
 	{
@@ -102,6 +104,27 @@ void strset_put(strset_t* set, const char* str)
 	char* value = malloc(strlen(str) + 1);
 	bucket->values[bucket->count] = strcpy(value, str);
 	bucket->count++;
+	set->valueCount++;
+}
+
+void strset_iterate(strset_t* set, void(*callback)(const char *str, void* context), void* context)
+{
+	if (set == NULL || callback == NULL) return;
+
+	for (size_t i = 0; i < set->numBuckets; i++)
+	{
+		strset_bucket* bucket = &set->buckets[i];
+		for (size_t j = 0; j < bucket->count; j++)
+		{
+			const char* value = bucket->values[j];
+			(*callback)(value, context);
+		}
+	}
+}
+
+size_t strset_count(strset_t* set)
+{
+	return set->valueCount;
 }
 
 // djb2 from http://www.cse.yorku.ca/~oz/hash.html
