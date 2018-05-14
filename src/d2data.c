@@ -5,41 +5,25 @@
 
 bool d2data_is_armor(const char* itemCode, const d2data* data)
 {
-	for (int i = 0; *(data->armors[i].code); i++)
-	{
-		if (strcmp(itemCode, data->armors[i].code) == 0)
-			return true;
-	}
-	return false;
+	return strset_has(data->armorsSet, itemCode);
 }
 
 bool d2data_is_weapon(const char* itemCode, const d2data* data)
 {
-	for (int i = 0; *(data->weapons[i].code); i++)
-	{
-		if (strcmp(itemCode, data->weapons[i].code) == 0)
-			return true;
-	}
-	return false;
+	return strset_has(data->weaponsSet, itemCode);
 }
 
 bool d2data_is_stackable(const char* itemCode, const d2data* data)
 {
-	for (int i = 0; *(data->weapons[i].code); i++)
-	{
-		if (data->weapons[i].stackable && strcmp(itemCode, data->weapons[i].code) == 0)
-			return true;
-	}
-	for (int i = 0; *(data->miscs[i].code); i++)
-	{
-		if (data->miscs[i].stackable && strcmp(itemCode, data->miscs[i].code) == 0)
-			return true;
-	}
-	return false;
+	return strset_has(data->stackablesSet, itemCode);
 }
 
 static void d2data_load_armors_common(char*** parsed, size_t numRows, d2data* data)
 {
+	if (data->armorsSet == NULL)
+	{
+		data->armorsSet = strset_new(100, &strset_hash_default);
+	}
 	data->armors = malloc(numRows * sizeof(*data->armors));
 	int codeCol = d2txt_find_index(parsed, "code");
 
@@ -51,6 +35,7 @@ static void d2data_load_armors_common(char*** parsed, size_t numRows, d2data* da
 		if (!code[0]) continue;
 
 		strcpy(data->armors[i].code, code);
+		strset_put(data->armorsSet, code);
 		i++;
 	}
 	data->armors[i].code[0] = 0;
@@ -74,6 +59,14 @@ void d2data_load_armors_from_file(const char* filename, d2data* data)
 
 static void d2data_load_weapons_common(char*** parsed, size_t numRows, d2data* data)
 {
+	if (data->weaponsSet == NULL)
+	{
+		data->weaponsSet = strset_new(100, &strset_hash_default);
+	}
+	if (data->stackablesSet == NULL)
+	{
+		data->stackablesSet = strset_new(100, &strset_hash_default);
+	}
 	data->weapons = malloc(numRows * sizeof(*data->weapons));
 	int codeCol = d2txt_find_index(parsed, "code");
 	int stackableCol = d2txt_find_index(parsed, "stackable");
@@ -87,6 +80,9 @@ static void d2data_load_weapons_common(char*** parsed, size_t numRows, d2data* d
 
 		strcpy(data->weapons[i].code, code);
 		data->weapons[i].stackable = row[stackableCol][0] == '1' ? true : false;
+		strset_put(data->weaponsSet, code);
+		if (data->weapons[i].stackable)
+			strset_put(data->stackablesSet, code);
 		i++;
 	}
 	data->weapons[i].code[0] = 0;
@@ -110,6 +106,10 @@ void d2data_load_weapons_from_file(const char* filename, d2data* data)
 
 static void d2data_load_miscs_common(char*** parsed, size_t numRows, d2data* data)
 {
+	if (data->stackablesSet == NULL)
+	{
+		data->stackablesSet = strset_new(100, &strset_hash_default);
+	}
 	data->miscs = malloc(numRows * sizeof(*data->miscs));
 	int codeCol = d2txt_find_index(parsed, "code");
 	int stackableCol = d2txt_find_index(parsed, "stackable");
@@ -123,6 +123,8 @@ static void d2data_load_miscs_common(char*** parsed, size_t numRows, d2data* dat
 
 		strcpy(data->miscs[i].code, code);
 		data->miscs[i].stackable = row[stackableCol][0] == '1' ? true : false;
+		if (data->miscs[i].stackable)
+			strset_put(data->stackablesSet, code);
 		i++;
 	}
 	data->miscs[i].code[0] = 0;
@@ -202,4 +204,7 @@ void d2data_destroy(d2data* data)
 	if (data->miscs) free(data->miscs);
 	if (data->armors) free(data->armors);
 	if (data->weapons) free(data->weapons);
+	if (data->armorsSet) strset_free(data->armorsSet);
+	if (data->weaponsSet) strset_free(data->weaponsSet);
+	if (data->stackablesSet) strset_free(data->stackablesSet);
 }

@@ -6,6 +6,7 @@ file(GLOB HEADERS "src/*.h")
 file(GLOB LIBSRC "src/*.c")
 
 add_library( d2itemreader ${LIBSRC} ${HEADERS} )
+target_compile_definitions( d2itemreader PUBLIC _CRT_SECURE_NO_WARNINGS )
 
 add_executable( example_simple examples/simple.c )
 target_link_libraries( example_simple PRIVATE d2itemreader )

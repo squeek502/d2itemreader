@@ -9,7 +9,7 @@
 static unsigned char* simpleItemData;
 static unsigned char* advancedItemData;
 
-static void test_setup()
+static void test_setup(void)
 {
 	size_t bytesRead;
 	read_full_file(ITEM_SIMPLE_FILE, &simpleItemData, &bytesRead);
@@ -26,7 +26,7 @@ static void test_setup()
 	}
 }
 
-static void test_teardown()
+static void test_teardown(void)
 {
 	free(simpleItemData);
 	free(advancedItemData);

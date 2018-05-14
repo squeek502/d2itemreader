@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "strset.h"
 
 #define D2_ITEM_CODE_STRLEN 4
 #define D2_ITEM_CODE_BYTELEN D2_ITEM_CODE_STRLEN+1
@@ -38,6 +39,9 @@ typedef struct d2data {
 	d2data_armor* armors;
 	d2data_weapon* weapons;
 	d2data_misc* miscs;
+	strset_t* armorsSet;
+	strset_t* weaponsSet;
+	strset_t* stackablesSet;
 	d2data_itemstat itemstats[D2DATA_MAX_ITEMSTATCOST_IDS];
 } d2data;
 

@@ -558,7 +558,6 @@ void d2sharedstash_parse(const char* filename, d2sharedstash *stash, uint32_t* o
 	}
 
 	assert(curByte == size);
-exit:
 	*out_bytesRead = curByte;
 	free(data);
 }
@@ -606,7 +605,6 @@ void d2personalstash_parse(const char* filename, d2personalstash *stash, uint32_
 	}
 
 	assert(curByte == size);
-exit:
 	*out_bytesRead = curByte;
 	free(data);
 }
