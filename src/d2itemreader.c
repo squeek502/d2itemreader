@@ -16,7 +16,7 @@ enum d2filetype d2filetype_get(const unsigned char* data, size_t size)
 	if (size < 4)
 		return D2FILETYPE_UNKNOWN;
 
-	uint32_t header = *((uint32_t*)data);
+	uint32_t header = *(uint32_t*)(data);
 
 	switch (header)
 	{
@@ -637,9 +637,9 @@ void d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRe
 		goto exit;
 	}
 
-	uint8_t statusBitfield = *((uint8_t*)data + D2S_STATUS_OFFSET);
+	uint8_t statusBitfield = *(uint8_t*)(data + D2S_STATUS_OFFSET);
 	bool isExpansion = statusBitfield & D2S_STATUS_EXPANSION_MASK;
-	uint32_t mercID = isExpansion ? *((uint32_t*)data + D2S_MERC_ID_OFFSET) : 0;
+	uint32_t mercID = isExpansion ? *(uint32_t*)(data + D2S_MERC_ID_OFFSET) : 0;
 
 	// skip to stats, as that's where things gets variable length
 	curByte = D2S_STATS_OFFSET;
