@@ -11,20 +11,6 @@
 #define D2DATA_ITEMSTAT_END_ID 0x1ff
 #define D2DATA_MAX_ITEMSTATCOST_IDS D2DATA_ITEMSTAT_END_ID
 
-typedef struct d2data_armor {
-	char code[D2_ITEM_CODE_BYTELEN];
-} d2data_armor;
-
-typedef struct d2data_weapon {
-	char code[D2_ITEM_CODE_BYTELEN];
-	bool stackable;
-} d2data_weapon;
-
-typedef struct d2data_misc {
-	char code[D2_ITEM_CODE_BYTELEN];
-	bool stackable;
-} d2data_misc;
-
 typedef struct d2data_itemstat {
 	uint16_t id;
 	uint8_t encode;
@@ -36,9 +22,6 @@ typedef struct d2data_itemstat {
 } d2data_itemstat;
 
 typedef struct d2data {
-	d2data_armor* armors;
-	d2data_weapon* weapons;
-	d2data_misc* miscs;
 	strset_t* armorsSet;
 	strset_t* weaponsSet;
 	strset_t* stackablesSet;

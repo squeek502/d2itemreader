@@ -39,6 +39,7 @@ extern d2data g_d2data;
 // TODO: remove this hardcoding, but first need to check
 // if the itemtype controls the save format, or if it actually
 // is hardcoded to these ids
+// Note: It might be controlled by the entries in Books.txt
 #define D2ITEMTYPE_TOME_TP "tbk"
 #define D2ITEMTYPE_TOME_ID "ibk"
 
