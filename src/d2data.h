@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "strset.h"
+#include "d2err.h"
+#include "util.h"
 
 #define D2_ITEM_CODE_STRLEN 4
 #define D2_ITEM_CODE_BYTELEN D2_ITEM_CODE_STRLEN+1
@@ -32,14 +34,15 @@ bool d2data_is_armor(const char* itemCode, const d2data* data);
 bool d2data_is_weapon(const char* itemCode, const d2data* data);
 bool d2data_is_stackable(const char* itemCode, const d2data* data);
 
-void d2data_load_armors(const char* txtdata, size_t length, d2data* data);
-void d2data_load_armors_from_file(const char* filename, d2data* data);
-void d2data_load_weapons(const char* txtdata, size_t length, d2data* data);
-void d2data_load_weapons_from_file(const char* filename, d2data* data);
-void d2data_load_miscs(const char* txtdata, size_t length, d2data* data);
-void d2data_load_miscs_from_file(const char* filename, d2data* data);
-void d2data_load_itemstats(const char* txtdata, size_t length, d2data* data);
-void d2data_load_itemstats_from_file(const char* filename, d2data* data);
+CHECK_RESULT d2err d2data_use_default(d2data* data);
+CHECK_RESULT d2err d2data_load_armors(const char* txtdata, size_t length, d2data* data);
+CHECK_RESULT d2err d2data_load_armors_from_file(const char* filename, d2data* data);
+CHECK_RESULT d2err d2data_load_weapons(const char* txtdata, size_t length, d2data* data);
+CHECK_RESULT d2err d2data_load_weapons_from_file(const char* filename, d2data* data);
+CHECK_RESULT d2err d2data_load_miscs(const char* txtdata, size_t length, d2data* data);
+CHECK_RESULT d2err d2data_load_miscs_from_file(const char* filename, d2data* data);
+CHECK_RESULT d2err d2data_load_itemstats(const char* txtdata, size_t length, d2data* data);
+CHECK_RESULT d2err d2data_load_itemstats_from_file(const char* filename, d2data* data);
 
 void d2data_destroy(d2data* data);
 

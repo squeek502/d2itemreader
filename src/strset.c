@@ -96,12 +96,22 @@ void strset_put(strset_t* set, const char* str)
 	// resize the bucket if needed
 	if (bucket->count == bucket->size)
 	{
-		bucket->size = bucket->size > 0 ? bucket->size << STRSET_BUCKET_RESIZE_BITS : STRSET_BUCKET_INITIAL_SIZE;
-		bucket->values = realloc(bucket->values, bucket->size * sizeof(*bucket->values));
+		size_t newSize = bucket->size > 0 ? bucket->size << STRSET_BUCKET_RESIZE_BITS : STRSET_BUCKET_INITIAL_SIZE;
+		void* tmp = realloc(bucket->values, newSize * sizeof(*bucket->values));
+		if (tmp == NULL)
+		{
+			return;
+		}
+		bucket->size = newSize;
+		bucket->values = tmp;
 	}
 
 	// copy the string and put it in the bucket
 	char* value = malloc(strlen(str) + 1);
+	if (value == NULL)
+	{
+		return;
+	}
 	bucket->values[bucket->count] = strcpy(value, str);
 	bucket->count++;
 	set->valueCount++;

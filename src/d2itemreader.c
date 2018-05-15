@@ -2,14 +2,15 @@
 #include "d2txtreader.h"
 #include "util.h"
 #include <stdlib.h>
-#include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
 d2data g_d2data = { NULL };
 
 #define BITS_PER_BYTE 8
 #define D2ITEMREADER_DATA (data + curByte)
-#define D2ITEMREADER_READ(T) *(T*)D2ITEMREADER_DATA; curByte += sizeof(T)
+#define D2ITEMREADER_SKIP(T) curByte += sizeof(T)
+#define D2ITEMREADER_READ(T) *(T*)D2ITEMREADER_DATA; D2ITEMREADER_SKIP(T)
 
 enum d2filetype d2filetype_get(const unsigned char* data, size_t size)
 {
@@ -35,7 +36,7 @@ enum d2filetype d2filetype_of_file(const char* filename)
 {
 	FILE* file = fopen(filename, "rb");
 
-	if (!file)
+	if (file == NULL)
 		return D2FILETYPE_UNKNOWN;
 
 	uint32_t header;
@@ -47,9 +48,13 @@ enum d2filetype d2filetype_of_file(const char* filename)
 
 // Parses the magical property list in the byte queue that belongs to an item
 // and returns the list of properties.
-void d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list)
+CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list)
 {
-	d2itemproplist_init(list);
+	d2err err;
+	if ((err = d2itemproplist_init(list)) != D2ERR_OK)
+	{
+		return err;
+	}
 
 	while (true)
 	{
@@ -62,14 +67,19 @@ void d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list)
 		d2data_itemstat* stat = &data->itemstats[id];
 		d2itemprop prop = { id };
 
-		// this is unrecoverably bad
-		assert(stat->saveBits > 0);
+		// saveBits being zero is unrecoverably bad, and
 		// encode type 4 is only used by stats that were never implemented (time-based stats)
-		assert(stat->encode != 4);
+		if (stat->saveBits == 0 || stat->encode == 4)
+		{
+			return D2ERR_PARSE;
+		}
 
 		if (stat->encode == 2)
 		{
-			assert(stat->saveBits == 7 && stat->saveParamBits == 16);
+			if (!(stat->saveBits == 7 && stat->saveParamBits == 16))
+			{
+				return D2ERR_PARSE;
+			}
 			prop.params[0] = (int)read_bits(br, 6) - stat->saveAdd;
 			prop.params[1] = (int)read_bits(br, 10) - stat->saveAdd;
 			prop.params[2] = (int)read_bits(br, stat->saveBits) - stat->saveAdd;
@@ -77,7 +87,10 @@ void d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list)
 		}
 		else if (stat->encode == 3)
 		{
-			assert(stat->saveBits == 16 && stat->saveParamBits == 16);
+			if (!(stat->saveBits == 16 && stat->saveParamBits == 16))
+			{
+				return D2ERR_PARSE;
+			}
 			prop.params[0] = (int)read_bits(br, 6) - stat->saveAdd;
 			prop.params[1] = (int)read_bits(br, 10) - stat->saveAdd;
 			prop.params[2] = (int)read_bits(br, 8) - stat->saveAdd;
@@ -99,30 +112,44 @@ void d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list)
 		while (stat->nextInChain && prop.numParams < D2_ITEMPROP_MAX_PARAMS)
 		{
 			stat = &data->itemstats[stat->nextInChain];
-			assert(stat->saveParamBits == 0);
+			if (stat->saveParamBits != 0)
+			{
+				return D2ERR_PARSE;
+			}
 			prop.params[prop.numParams] = (int)read_bits(br, stat->saveBits) - stat->saveAdd;
 			prop.numParams++;
 		}
 
-		d2itemproplist_append(list, prop);
+		if ((err = d2itemproplist_append(list, prop)) != D2ERR_OK)
+		{
+			return err;
+		}
 	}
+	return D2ERR_OK;
 }
 
-void d2itemproplist_init(d2itemproplist* list)
+CHECK_RESULT d2err d2itemproplist_init(d2itemproplist* list)
 {
 	list->count = 0;
 	list->_size = 4;
 	list->properties = malloc(list->_size * sizeof(*list->properties));
+	return list->properties != NULL ? D2ERR_OK : D2ERR_OUT_OF_MEMORY;
 }
 
-void d2itemproplist_append(d2itemproplist* list, d2itemprop prop)
+CHECK_RESULT d2err d2itemproplist_append(d2itemproplist* list, d2itemprop prop)
 {
 	if (list->count == list->_size)
 	{
 		list->_size *= 2;
-		list->properties = realloc(list->properties, list->_size * sizeof(*list->properties));
+		void* tmp = realloc(list->properties, list->_size * sizeof(*list->properties));
+		if (tmp == NULL)
+		{
+			return D2ERR_OUT_OF_MEMORY;
+		}
+		list->properties = tmp;
 	}
 	list->properties[list->count++] = prop;
+	return D2ERR_OK;
 }
 
 void d2itemproplist_destroy(d2itemproplist* list)
@@ -132,32 +159,54 @@ void d2itemproplist_destroy(d2itemproplist* list)
 	list->count = list->_size = 0;
 }
 
-void d2itemlist_parse(const unsigned char* const data, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead)
 {
+	d2err err;
 	uint32_t curByte = startByte;
 	uint16_t tag = D2ITEMREADER_READ(uint16_t);
-	assert(tag == D2_JM_TAG);
+	if (tag != D2_JM_TAG)
+	{
+		*out_bytesRead = 0;
+		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
+	}
 
 	uint16_t numItems = D2ITEMREADER_READ(uint16_t);
 
-	d2itemlist_init(items, numItems);
+	if ((err = d2itemlist_init(items, numItems)) != D2ERR_OK)
+	{
+		*out_bytesRead = 2;
+		return err;
+	}
 	d2item* lastSocketedItem = NULL;
 
 	for (uint16_t i = 0; i < numItems; i++)
 	{
 		uint32_t itemSizeBytes;
 		d2item item = { 0 };
-		d2item_parse(data, curByte, &item, &itemSizeBytes);
-		curByte += itemSizeBytes;
+		if ((err = d2item_parse(data, curByte, &item, &itemSizeBytes)) != D2ERR_OK)
+		{
+			curByte += itemSizeBytes;
+			goto err;
+		}
 
 		if (item.locationID == D2LOCATION_SOCKETED)
 		{
-			assert(lastSocketedItem != NULL);
-			d2itemlist_append(&lastSocketedItem->socketedItems, &item);
+			if (lastSocketedItem == NULL)
+			{
+				err = D2ERR_PARSE_UNEXPECTED_SOCKETED_ITEM;
+				goto err;
+			}
+			if ((err = d2itemlist_append(&lastSocketedItem->socketedItems, &item)) != D2ERR_OK)
+			{
+				goto err;
+			}
 		}
 		else
 		{
-			d2itemlist_append(items, &item);
+			if ((err = d2itemlist_append(items, &item)) != D2ERR_OK)
+			{
+				goto err;
+			}
 
 			if (item.numItemsInSockets > 0 && !item.simpleItem)
 			{
@@ -165,26 +214,51 @@ void d2itemlist_parse(const unsigned char* const data, uint32_t startByte, d2ite
 				numItems += item.numItemsInSockets;
 			}
 		}
+		curByte += itemSizeBytes;
 	}
 
 	*out_bytesRead = curByte - startByte;
+	return D2ERR_OK;
+
+err:
+	*out_bytesRead = curByte - startByte;
+	d2itemlist_destroy(items);
+	return err;
 }
 
-void d2itemlist_init(d2itemlist* list, size_t initialSize)
+CHECK_RESULT d2err d2itemlist_init(d2itemlist* list, size_t initialSize)
 {
 	list->count = 0;
 	list->_size = initialSize;
-	list->items = list->_size > 0 ? malloc(list->_size * sizeof(*list->items)) : NULL;
+	if (list->_size > 0)
+	{
+		list->items = malloc(list->_size * sizeof(*list->items));
+		if (list->items == NULL)
+		{
+			return D2ERR_OUT_OF_MEMORY;
+		}
+	}
+	else
+	{
+		list->items = NULL;
+	}
+	return D2ERR_OK;
 }
 
-void d2itemlist_append(d2itemlist* list, const d2item* const item)
+CHECK_RESULT d2err d2itemlist_append(d2itemlist* list, const d2item* const item)
 {
 	if (list->count == list->_size)
 	{
 		list->_size = list->_size > 0 ? list->_size * 2 : 4;
-		list->items = realloc(list->items, list->_size * sizeof(*list->items));
+		void* tmp = realloc(list->items, list->_size * sizeof(*list->items));
+		if (tmp == NULL)
+		{
+			return D2ERR_OUT_OF_MEMORY;
+		}
+		list->items = tmp;
 	}
 	list->items[list->count++] = *item;
+	return D2ERR_OK;
 }
 
 void d2itemlist_destroy(d2itemlist* list)
@@ -201,11 +275,16 @@ void d2itemlist_destroy(d2itemlist* list)
 	list->count = list->_size = 0;
 }
 
-void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* item, uint32_t* size_out)
+CHECK_RESULT d2err d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* item, uint32_t* out_bytesRead)
 {
+	d2err err;
 	uint32_t curByte = startByte;
 	uint16_t tag = D2ITEMREADER_READ(uint16_t);
-	assert(tag == D2_JM_TAG);
+	if (tag != D2_JM_TAG)
+	{
+		*out_bytesRead = 0;
+		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
+	}
 
 	bit_reader br = { data, curByte, 16 };
 	// offset: 16, unknown
@@ -274,7 +353,10 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 		// offset 108
 		// If sockets exist, read the items, they'll be 108 bit basic items * nrOfSockets
 		item->numItemsInSockets = (uint8_t)read_bits(&br, 3);
-		d2itemlist_init(&item->socketedItems, item->numItemsInSockets);
+		if ((err = d2itemlist_init(&item->socketedItems, item->numItemsInSockets)) != D2ERR_OK)
+		{
+			goto exit;
+		}
 	}
 	else
 	{
@@ -452,7 +534,10 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 
 		// MARK: Time to parse 9 bit magical property ids followed by their n bit
 		// length values, but only if the item is magical or above.
-		d2itemproplist_parse(&br, &g_d2data, &item->magicProperties);
+		if ((err = d2itemproplist_parse(&br, &g_d2data, &item->magicProperties)) != D2ERR_OK)
+		{
+			goto exit;
+		}
 
 		// Item has more magical property lists due to being a set item
 		if (setPropertyFlags)
@@ -462,7 +547,10 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 				unsigned short mask = 1 << i;
 				if (setPropertyFlags & mask)
 				{
-					d2itemproplist_parse(&br, &g_d2data, &item->setBonuses[item->numSetBonuses]);
+					if ((err = d2itemproplist_parse(&br, &g_d2data, &item->setBonuses[item->numSetBonuses])) != D2ERR_OK)
+					{
+						goto exit;
+					}
 					item->numSetBonuses++;
 				}
 			}
@@ -470,14 +558,17 @@ void d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* i
 
 		if (item->isRuneword)
 		{
-			d2itemproplist_parse(&br, &g_d2data, &item->runewordProperties);
+			if ((err = d2itemproplist_parse(&br, &g_d2data, &item->runewordProperties)) != D2ERR_OK)
+			{
+				goto exit;
+			}
 		}
 	}
 
-	uint32_t bytesRead = (uint32_t)(br.bitsRead / BITS_PER_BYTE + (br.bitsRead % BITS_PER_BYTE != 0));
-	curByte = startByte + bytesRead;
-
-	*size_out = curByte - startByte;
+	err = D2ERR_OK;
+exit:
+	*out_bytesRead = (uint32_t)(br.bitsRead / BITS_PER_BYTE + (br.bitsRead % BITS_PER_BYTE != 0));
+	return err;
 }
 
 void d2item_destroy(d2item *item)
@@ -492,11 +583,16 @@ void d2item_destroy(d2item *item)
 	}
 }
 
-void d2stashpage_parse(const unsigned char* const data, uint32_t startByte, d2stashpage *page, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, uint32_t startByte, d2stashpage *page, uint32_t* out_bytesRead)
 {
+	d2err err;
 	uint32_t curByte = startByte;
 	uint16_t tag = D2ITEMREADER_READ(uint16_t);
-	assert(tag == PLUGY_STASH_TAG);
+	if (tag != PLUGY_STASH_TAG)
+	{
+		*out_bytesRead = 0;
+		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
+	}
 
 	page->flags = 0;
 	size_t len = strlen((char*)&data[curByte]);
@@ -508,15 +604,25 @@ void d2stashpage_parse(const unsigned char* const data, uint32_t startByte, d2st
 	page->name[0] = 0;
 	char* namePtr = (char*)&data[curByte];
 	size_t nameLen = strlen(namePtr);
-	assert(nameLen <= D2_MAX_STASH_PAGE_NAME_STRLEN);
+	if (nameLen > D2_MAX_STASH_PAGE_NAME_STRLEN)
+	{
+		*out_bytesRead = curByte;
+		return D2ERR_PARSE_STRING_TOO_LONG;
+	}
 	if (nameLen)
 		strncpy(page->name, namePtr, nameLen + 1);
 	curByte += (uint32_t)(nameLen + 1);
 
 	uint32_t inventorySizeBytes;
-	d2itemlist_parse(data, curByte, &page->items, &inventorySizeBytes);
+	if ((err = d2itemlist_parse(data, curByte, &page->items, &inventorySizeBytes)) != D2ERR_OK)
+	{
+		goto exit;
+	}
 
+	err = D2ERR_OK;
+exit:
 	*out_bytesRead = curByte - startByte + inventorySizeBytes;
+	return err;
 }
 
 void d2stashpage_destroy(d2stashpage *page)
@@ -524,19 +630,35 @@ void d2stashpage_destroy(d2stashpage *page)
 	d2itemlist_destroy(&page->items);
 }
 
-void d2sharedstash_parse(const char* filename, d2sharedstash *stash, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2sharedstash_parse(const char* filename, d2sharedstash *stash, uint32_t* out_bytesRead)
 {
+	d2err err;
 	unsigned char* data;
 	size_t size;
-	read_full_file(filename, &data, &size);
+	err = d2util_read_file(filename, &data, &size);
+	if (err != D2ERR_OK)
+	{
+		*out_bytesRead = 0;
+		return err;
+	}
 
 	uint32_t curByte = 0;
 
 	uint32_t header = D2ITEMREADER_READ(uint32_t);
-	assert(header == PLUGY_SHAREDSTASH_HEADER);
+	if (header != PLUGY_SHAREDSTASH_HEADER)
+	{
+		*out_bytesRead = 0;
+		free(data);
+		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
+	}
 
 	stash->fileVersion = D2ITEMREADER_READ(uint16_t);
-	assert(stash->fileVersion == PLUGY_FILE_VERSION_01 || stash->fileVersion == PLUGY_FILE_VERSION_02);
+	if (!(stash->fileVersion == PLUGY_FILE_VERSION_01 || stash->fileVersion == PLUGY_FILE_VERSION_02))
+	{
+		*out_bytesRead = curByte - sizeof(uint16_t);
+		free(data);
+		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
+	}
 
 	stash->sharedGold = 0;
 	if (stash->fileVersion == PLUGY_FILE_VERSION_02)
@@ -545,21 +667,44 @@ void d2sharedstash_parse(const char* filename, d2sharedstash *stash, uint32_t* o
 	}
 
 	stash->numPages = D2ITEMREADER_READ(uint32_t);
-	stash->pages = stash->numPages > 0 ? malloc(stash->numPages * sizeof(*stash->pages)) : NULL;
+	stash->pages = NULL;
+	if (stash->numPages > 0)
+	{
+		stash->pages = malloc(stash->numPages * sizeof(*stash->pages));
+		if (stash->pages == NULL)
+		{
+			*out_bytesRead = curByte;
+			free(data);
+			return D2ERR_OUT_OF_MEMORY;
+		}
+	}
 
 	int pageNum = 0;
 	uint32_t stashSizeBytes;
 	while (curByte < size)
 	{
-		d2stashpage_parse(data, curByte, &stash->pages[pageNum], &stashSizeBytes);
+		if ((err = d2stashpage_parse(data, curByte, &stash->pages[pageNum], &stashSizeBytes)) != D2ERR_OK)
+		{
+			*out_bytesRead = curByte + stashSizeBytes;
+			free(data);
+			// need to make sure we destroy only the pages that have been parsed so far
+			stash->numPages = pageNum;
+			d2sharedstash_destroy(stash);
+			return err;
+		}
 		stash->pages[pageNum].pageNum = pageNum + 1;
 		curByte += stashSizeBytes;
 		pageNum++;
 	}
 
-	assert(curByte == size);
 	*out_bytesRead = curByte;
 	free(data);
+	if (curByte != size)
+	{
+		d2sharedstash_destroy(stash);
+		return D2ERR_PARSE_TRAILING_BYTES;
+	}
+	return D2ERR_OK;
 }
 
 void d2sharedstash_destroy(d2sharedstash *stash)
@@ -571,42 +716,82 @@ void d2sharedstash_destroy(d2sharedstash *stash)
 			d2stashpage_destroy(&stash->pages[i]);
 		}
 		free(stash->pages);
+		stash->pages = NULL;
 	}
 }
 
-void d2personalstash_parse(const char* filename, d2personalstash *stash, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2personalstash_parse(const char* filename, d2personalstash *stash, uint32_t* out_bytesRead)
 {
+	d2err err;
 	unsigned char* data;
 	size_t size;
-	read_full_file(filename, &data, &size);
+	err = d2util_read_file(filename, &data, &size);
+	if (err != D2ERR_OK)
+	{
+		*out_bytesRead = 0;
+		return err;
+	}
 
 	uint32_t curByte = 0;
 
 	uint32_t header = D2ITEMREADER_READ(uint32_t);
-	assert(header == PLUGY_PERSONALSTASH_HEADER);
+	if (header != PLUGY_PERSONALSTASH_HEADER)
+	{
+		*out_bytesRead = 0;
+		free(data);
+		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
+	}
 
 	stash->fileVersion = D2ITEMREADER_READ(uint16_t);
-	assert(stash->fileVersion == PLUGY_FILE_VERSION_01);
+	if (!(stash->fileVersion == PLUGY_FILE_VERSION_01))
+	{
+		*out_bytesRead = curByte - sizeof(uint16_t);
+		free(data);
+		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
+	}
 
 	// unused block
-	D2ITEMREADER_READ(uint32_t);
+	D2ITEMREADER_SKIP(uint32_t);
 
 	stash->numPages = D2ITEMREADER_READ(uint32_t);
-	stash->pages = stash->numPages > 0 ? malloc(stash->numPages * sizeof(*stash->pages)) : NULL;
+	stash->pages = NULL;
+	if (stash->numPages > 0)
+	{
+		stash->pages = malloc(stash->numPages * sizeof(*stash->pages));
+		if (stash->pages == NULL)
+		{
+			*out_bytesRead = curByte;
+			free(data);
+			return D2ERR_OUT_OF_MEMORY;
+		}
+	}
 
 	int pageNum = 0;
 	uint32_t stashSizeBytes;
 	while (curByte < size)
 	{
-		d2stashpage_parse(data, curByte, &stash->pages[pageNum], &stashSizeBytes);
+		if ((err = d2stashpage_parse(data, curByte, &stash->pages[pageNum], &stashSizeBytes)) != D2ERR_OK)
+		{
+			*out_bytesRead = curByte + stashSizeBytes;
+			free(data);
+			// need to make sure we destroy only the pages that have been parsed so far
+			stash->numPages = pageNum;
+			d2personalstash_destroy(stash);
+			return err;
+		}
 		stash->pages[pageNum].pageNum = pageNum + 1;
 		curByte += stashSizeBytes;
 		pageNum++;
 	}
 
-	assert(curByte == size);
 	*out_bytesRead = curByte;
 	free(data);
+	if (curByte != size)
+	{
+		d2personalstash_destroy(stash);
+		return D2ERR_PARSE_TRAILING_BYTES;
+	}
+	return D2ERR_OK;
 }
 
 void d2personalstash_destroy(d2personalstash *stash)
@@ -621,20 +806,25 @@ void d2personalstash_destroy(d2personalstash *stash)
 	}
 }
 
-void d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRead)
 {
+	d2err err;
 	unsigned char* data;
 	size_t size;
-	read_full_file(filename, &data, &size);
+	err = d2util_read_file(filename, &data, &size);
+	if (err != D2ERR_OK)
+	{
+		*out_bytesRead = 0;
+		return err;
+	}
 
 	uint32_t curByte = 0;
 
 	if (size < D2S_STATS_OFFSET)
 	{
-		d2itemlist_init(&character->items, 0);
-		d2itemlist_init(&character->itemsCorpse, 0);
-		d2itemlist_init(&character->itemsMerc, 0);
-		goto exit;
+		*out_bytesRead = (uint32_t)size;
+		free(data);
+		return D2ERR_PARSE_NOT_ENOUGH_BYTES;
 	}
 
 	uint8_t statusBitfield = *(uint8_t*)(data + D2S_STATUS_OFFSET);
@@ -645,7 +835,12 @@ void d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRe
 	curByte = D2S_STATS_OFFSET;
 
 	uint16_t header = D2ITEMREADER_READ(uint16_t);
-	assert(header == D2S_STATS_HEADER);
+	if (header != D2S_STATS_HEADER)
+	{
+		curByte -= sizeof(uint16_t);
+		err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
+		goto err;
+	}
 
 	bit_reader br = { data, curByte };
 
@@ -659,7 +854,12 @@ void d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRe
 		d2data_itemstat* stat = &g_d2data.itemstats[id];
 
 		// this is unrecoverably bad
-		assert(stat->charSaveBits > 0);
+		if (stat->charSaveBits == 0)
+		{
+			curByte = (uint32_t)br.cursor;
+			err = D2ERR_PARSE;
+			goto err;
+		}
 
 		skip_bits(&br, stat->charSaveBits);
 	}
@@ -667,12 +867,21 @@ void d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRe
 	curByte = (uint32_t)(br.cursor + D2S_SKILLS_BYTELEN);
 
 	uint32_t bytesRead;
-	d2itemlist_parse(data, curByte, &character->items, &bytesRead);
+	if ((err = d2itemlist_parse(data, curByte, &character->items, &bytesRead)) != D2ERR_OK)
+	{
+		curByte += bytesRead;
+		goto err;
+	}
 
 	curByte += bytesRead;
 
 	uint16_t corpseHeader = D2ITEMREADER_READ(uint16_t);
-	assert(corpseHeader == D2_JM_TAG);
+	if (corpseHeader != D2_JM_TAG)
+	{
+		curByte -= sizeof(uint16_t);
+		err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
+		goto err_after_items;
+	}
 
 	uint16_t isDead = D2ITEMREADER_READ(uint16_t);
 	if (isDead)
@@ -680,46 +889,86 @@ void d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRe
 		// 12 unknown bytes
 		curByte += 12;
 		// itemlist
-		d2itemlist_parse(data, curByte, &character->itemsCorpse, &bytesRead);
+		err = d2itemlist_parse(data, curByte, &character->itemsCorpse, &bytesRead);
 		curByte += bytesRead;
 	}
 	else
-		d2itemlist_init(&character->itemsCorpse, 0);
+		err = d2itemlist_init(&character->itemsCorpse, 0);
+
+	if (err != D2ERR_OK)
+	{
+		goto err_after_items;
+	}
 
 	if (isExpansion)
 	{
 		uint16_t mercHeader = D2ITEMREADER_READ(uint16_t);
-		assert(mercHeader == D2S_MERC_HEADER);
+		if (mercHeader != D2S_MERC_HEADER)
+		{
+			err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
+			goto err_after_corpse;
+		}
 
 		if (mercID)
 		{
-			d2itemlist_parse(data, curByte, &character->itemsMerc, &bytesRead);
+			err = d2itemlist_parse(data, curByte, &character->itemsMerc, &bytesRead);
 			curByte += bytesRead;
 		}
 		else
-			d2itemlist_init(&character->itemsMerc, 0);
+			err = d2itemlist_init(&character->itemsMerc, 0);
+
+		if (err != D2ERR_OK)
+		{
+			goto err_after_corpse;
+		}
 
 		uint16_t ironGolemHeader = D2ITEMREADER_READ(uint16_t);
-		assert(ironGolemHeader == D2S_IRON_GOLEM_HEADER);
+		if (ironGolemHeader != D2S_IRON_GOLEM_HEADER)
+		{
+			curByte -= sizeof(uint16_t);
+			err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
+			goto err_after_merc;
+		}
 
 		uint8_t hasIronGolem = D2ITEMREADER_READ(uint8_t);
 		if (hasIronGolem)
 		{
 			d2item ironGolemItem = {0};
-			d2item_parse(data, curByte, &ironGolemItem, &bytesRead);
+			if ((err = d2item_parse(data, curByte, &ironGolemItem, &bytesRead)) != D2ERR_OK)
+			{
+				goto err_after_merc;
+			}
 			d2item_destroy(&ironGolemItem);
 			curByte += bytesRead;
 		}
 	}
 	else
 	{
-		d2itemlist_init(&character->itemsMerc, 0);
+		if ((err = d2itemlist_init(&character->itemsMerc, 0)) != D2ERR_OK)
+		{
+			goto err_after_corpse;
+		}
 	}
 
-	assert(curByte == size);
-exit:
 	*out_bytesRead = curByte;
 	free(data);
+	if (curByte != size)
+	{
+		d2char_destroy(character);
+		return D2ERR_PARSE_TRAILING_BYTES;
+	}
+	return D2ERR_OK;
+
+err_after_merc:
+	d2itemlist_destroy(&character->itemsMerc);
+err_after_corpse:
+	d2itemlist_destroy(&character->itemsCorpse);
+err_after_items:
+	d2itemlist_destroy(&character->items);
+err:
+	*out_bytesRead = curByte;
+	free(data);
+	return err;
 }
 
 void d2char_destroy(d2char *character)

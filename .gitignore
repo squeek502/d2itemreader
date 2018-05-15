@@ -1,6 +1,10 @@
 build*/
 data/
 save/
+.vs/
+*.txt
+!CMakeLists.txt
+*.exe
 
 # Created by https://www.gitignore.io/api/macos,linux,cmake,windows
 
@@ -14,6 +18,7 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
+CMakeSettings.json
 
 ### Linux ###
 *~

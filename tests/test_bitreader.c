@@ -12,13 +12,13 @@ static unsigned char* advancedItemData;
 static void test_setup(void)
 {
 	size_t bytesRead;
-	read_full_file(ITEM_SIMPLE_FILE, &simpleItemData, &bytesRead);
+	d2util_read_file(ITEM_SIMPLE_FILE, &simpleItemData, &bytesRead);
 	if (bytesRead == 0)
 	{
 		fprintf(stderr, "setup: Failed to read %s\n", ITEM_SIMPLE_FILE);
 		exit(1);
 	}
-	read_full_file(ITEM_ADVANCED_FILE, &advancedItemData, &bytesRead);
+	d2util_read_file(ITEM_ADVANCED_FILE, &advancedItemData, &bytesRead);
 	if (bytesRead == 0)
 	{
 		fprintf(stderr, "setup: Failed to read %s\n", ITEM_ADVANCED_FILE);
