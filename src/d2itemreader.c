@@ -1040,7 +1040,7 @@ CHECK_RESULT d2err d2atmastash_parse(const char* filename, d2atmastash* stash, u
 
 	*out_bytesRead = curByte;
 	free(data);
-	if (curByte != size)
+	if (err == D2ERR_OK && curByte != size)
 	{
 		d2atmastash_destroy(stash);
 		return D2ERR_PARSE_TRAILING_BYTES;
