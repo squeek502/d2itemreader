@@ -833,7 +833,9 @@ CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, ui
 		*out_bytesRead = 0;
 		return err;
 	}
-	return d2char_parse(data, size, character, out_bytesRead);
+	d2err err = d2char_parse(data, size, character, out_bytesRead);
+	free(data);
+	return err;
 }
 
 CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2char *character, uint32_t* out_bytesRead)
@@ -844,7 +846,6 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 	if (size < D2S_STATS_OFFSET)
 	{
 		*out_bytesRead = (uint32_t)size;
-		free(data);
 		return D2ERR_PARSE_NOT_ENOUGH_BYTES;
 	}
 
@@ -975,7 +976,6 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 	}
 
 	*out_bytesRead = curByte;
-	free(data);
 	if (curByte != size)
 	{
 		d2char_destroy(character);
@@ -991,7 +991,6 @@ err_after_items:
 	d2itemlist_destroy(&character->items);
 err:
 	*out_bytesRead = curByte;
-	free(data);
 	return err;
 }
 
