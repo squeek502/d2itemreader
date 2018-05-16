@@ -38,6 +38,9 @@ extern d2data g_d2data;
 #define PLUGY_FILE_VERSION_02 0x3230 //"02"
 #define PLUGY_STASH_TAG 0x5453 //"ST"
 
+// ATMA/GoMule
+#define GOMULE_D2X_FILE_VERSION 96
+
 // TODO: remove this hardcoding, but first need to check
 // if the itemtype controls the save format, or if it actually
 // is hardcoded to these ids
@@ -68,8 +71,8 @@ enum d2filetype {
 	D2FILETYPE_UNKNOWN,
 	D2FILETYPE_D2_CHARACTER,
 	D2FILETYPE_PLUGY_SHARED_STASH,
-	D2FILETYPE_PLUGY_PERSONAL_STASH
-	// TODO: GoMule stash (.d2x)
+	D2FILETYPE_PLUGY_PERSONAL_STASH,
+	D2FILETYPE_ATMA_STASH
 };
 
 enum d2filetype d2filetype_get(const unsigned char* data, size_t size);
@@ -91,7 +94,7 @@ typedef struct d2itemlist {
 *          If this function returns D2ERR_OK, then `items` will need to be cleaned up with d2itemlist_destroy.
 *          If this function returns something other than D2ERR_OK, then items will remain uninitialized.
 *
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the itemlist.
+*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item list.
 *                  On error, set to the number of bytes successfully parsed before the error.
 *
 * Return value: D2ERR_OK on success
@@ -232,7 +235,7 @@ typedef struct d2stashpage {
 *         If this function returns D2ERR_OK, then `page` will need to be cleaned up with d2stashpage_destroy.
 *         If this function returns something other than D2ERR_OK, then `page` will remain uninitialized.
 *
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item.
+*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the stash page.
 *                  On error, set to the number of bytes successfully parsed before the error.
 *
 * Return value: D2ERR_OK on success
@@ -256,7 +259,7 @@ typedef struct d2sharedstash {
 *          If this function returns D2ERR_OK, then `stash` will need to be cleaned up with d2sharedstash_destroy.
 *          If this function returns something other than D2ERR_OK, then `stash` will remain uninitialized.
 *
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item.
+*   out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file.
 *                  On error, set to the number of bytes successfully parsed before the error.
 *
 * Return value: D2ERR_OK on success
@@ -279,7 +282,7 @@ typedef struct d2personalstash {
 *          If this function returns D2ERR_OK, then `stash` will need to be cleaned up with d2personalstash_destroy.
 *          If this function returns something other than D2ERR_OK, then `stash` will remain uninitialized.
 *
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item.
+*   out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file.
 *                  On error, set to the number of bytes successfully parsed before the error.
 *
 * Return value: D2ERR_OK on success
@@ -299,15 +302,37 @@ typedef struct d2char {
 * Parameters:
 *
 *   stash: A pointer to an uninitialized d2char object.
-*          If this function returns D2ERR_OK, then `stash` will need to be cleaned up with d2char_destroy.
-*          If this function returns something other than D2ERR_OK, then `stash` will remain uninitialized.
+*          If this function returns D2ERR_OK, then `character` will need to be cleaned up with d2char_destroy.
+*          If this function returns something other than D2ERR_OK, then `character` will remain uninitialized.
 *
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item.
+*   out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file.
 *                  On error, set to the number of bytes successfully parsed before the error.
 *
 * Return value: D2ERR_OK on success
 */
 CHECK_RESULT d2err d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRead);
 void d2char_destroy(d2char *character);
+
+typedef struct d2atmastash {
+	uint16_t fileVersion;
+	d2itemlist items;
+} d2atmastash;
+
+/*
+* Parse the d2x ATMA stash in `filename`, and store the result in `stash`
+*
+* Parameters:
+*
+*   stash: A pointer to an uninitialized d2atmastash object.
+*          If this function returns D2ERR_OK, then `stash` will need to be cleaned up with d2atmastash_destroy.
+*          If this function returns something other than D2ERR_OK, then `stash` will remain uninitialized.
+*
+*   out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file.
+*                  On error, set to the number of bytes successfully parsed before the error.
+*
+* Return value: D2ERR_OK on success
+*/
+CHECK_RESULT d2err d2atmastash_parse(const char* filename, d2atmastash* stash, uint32_t* out_bytesRead);
+void d2atmastash_destroy(d2atmastash* stash);
 
 #endif

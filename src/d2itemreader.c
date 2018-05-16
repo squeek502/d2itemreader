@@ -17,8 +17,12 @@ enum d2filetype d2filetype_get(const unsigned char* data, size_t size)
 	if (size < 4)
 		return D2FILETYPE_UNKNOWN;
 
-	uint32_t header = *(uint32_t*)(data);
+	if (data[0] == 'D' && data[1] == '2' && data[2] == 'X')
+	{
+		return D2FILETYPE_ATMA_STASH;
+	}
 
+	uint32_t header = *(uint32_t*)(data);
 	switch (header)
 	{
 	case D2S_HEADER:
@@ -159,24 +163,17 @@ void d2itemproplist_destroy(d2itemproplist* list)
 	list->count = list->_size = 0;
 }
 
-CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead)
+// Parse the items directly, once the number of items (not including socketed items) is known.
+static CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, uint32_t startByte, d2itemlist* items, uint16_t numItems, uint32_t* out_bytesRead)
 {
 	d2err err;
-	uint32_t curByte = startByte;
-	uint16_t tag = D2ITEMREADER_READ(uint16_t);
-	if (tag != D2_JM_TAG)
-	{
-		*out_bytesRead = 0;
-		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
-	}
-
-	uint16_t numItems = D2ITEMREADER_READ(uint16_t);
-
 	if ((err = d2itemlist_init(items, numItems)) != D2ERR_OK)
 	{
-		*out_bytesRead = 2;
+		*out_bytesRead = 0;
 		return err;
 	}
+
+	uint32_t curByte = startByte;
 	d2item* lastSocketedItem = NULL;
 
 	for (uint16_t i = 0; i < numItems; i++)
@@ -223,6 +220,25 @@ CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, uint32_t st
 err:
 	*out_bytesRead = curByte - startByte;
 	d2itemlist_destroy(items);
+	return err;
+}
+
+CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead)
+{
+	d2err err;
+	uint32_t curByte = startByte;
+	uint16_t tag = D2ITEMREADER_READ(uint16_t);
+	if (tag != D2_JM_TAG)
+	{
+		*out_bytesRead = 0;
+		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
+	}
+
+	uint16_t numItems = D2ITEMREADER_READ(uint16_t);
+
+	uint32_t bytesRead;
+	err = d2itemlist_parse_items(data, curByte, items, numItems, &bytesRead);
+	*out_bytesRead = curByte + bytesRead - startByte;
 	return err;
 }
 
@@ -983,4 +999,60 @@ void d2char_destroy(d2char *character)
 	d2itemlist_destroy(&character->items);
 	d2itemlist_destroy(&character->itemsCorpse);
 	d2itemlist_destroy(&character->itemsMerc);
+}
+
+CHECK_RESULT d2err d2atmastash_parse(const char* filename, d2atmastash* stash, uint32_t* out_bytesRead)
+{
+	d2err err;
+	unsigned char* data;
+	size_t size;
+	err = d2util_read_file(filename, &data, &size);
+	if (err != D2ERR_OK)
+	{
+		*out_bytesRead = 0;
+		return err;
+	}
+
+	uint32_t curByte = 0;
+
+	char header[3];
+	header[0] = D2ITEMREADER_READ(char);
+	header[1] = D2ITEMREADER_READ(char);
+	header[2] = D2ITEMREADER_READ(char);
+	if (!(header[0] == 'D' && header[1] == '2' && header[2] == 'X'))
+	{
+		*out_bytesRead = 0;
+		free(data);
+		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
+	}
+
+	uint16_t numItems = D2ITEMREADER_READ(uint16_t);
+	stash->fileVersion = D2ITEMREADER_READ(uint16_t);
+	if (stash->fileVersion != GOMULE_D2X_FILE_VERSION)
+	{
+		*out_bytesRead = curByte - sizeof(uint16_t);
+		free(data);
+		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
+	}
+
+	// 32 bit checksum
+	D2ITEMREADER_SKIP(uint32_t);
+
+	uint32_t bytesRead;
+	err = d2itemlist_parse_items(data, curByte, &stash->items, numItems, &bytesRead);
+	curByte += bytesRead;
+
+	*out_bytesRead = curByte;
+	free(data);
+	if (curByte != size)
+	{
+		d2atmastash_destroy(stash);
+		return D2ERR_PARSE_TRAILING_BYTES;
+	}
+	return err;
+}
+
+void d2atmastash_destroy(d2atmastash* stash)
+{
+	d2itemlist_destroy(&stash->items);
 }

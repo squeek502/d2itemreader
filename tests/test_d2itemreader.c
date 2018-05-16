@@ -36,12 +36,22 @@ MU_TEST(badcorpseheader)
 	mu_check(err == D2ERR_PARSE_BAD_HEADER_OR_TAG);
 }
 
+MU_TEST(atma)
+{
+	d2atmastash stash;
+	uint32_t bytesRead;
+	d2err err = d2atmastash_parse("data/atma.d2x", &stash, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	d2atmastash_destroy(&stash);
+}
+
 MU_TEST_SUITE(test_d2itemreader)
 {
 	MU_RUN_TEST(classic);
 	MU_RUN_TEST(golem);
 	MU_RUN_TEST(nomerc);
 	MU_RUN_TEST(badcorpseheader);
+	MU_RUN_TEST(atma);
 }
 
 int main(int argc, const char* argv[])

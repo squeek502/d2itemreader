@@ -71,6 +71,18 @@ int main(int argc, const char* argv[])
 		}
 		d2sharedstash_destroy(&stash);
 	}
+	else if (type == D2FILETYPE_ATMA_STASH)
+	{
+		d2atmastash stash;
+		d2err err = d2atmastash_parse(filename, &stash, &bytesRead);
+		if (err != D2ERR_OK)
+		{
+			fprintf(stderr, "Failed to parse %s: %s at byte 0x%X\n", filename, d2err_str(err), bytesRead);
+			return 1;
+		}
+		itemCount += stash.items.count;
+		d2atmastash_destroy(&stash);
+	}
 
 	printf("%zu items found in %s\n", itemCount, filename);
 
