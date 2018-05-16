@@ -5,7 +5,7 @@ MU_TEST(classic)
 {
 	d2char character;
 	uint32_t bytesRead;
-	d2err err = d2char_parse("data/classic.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/classic.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	d2char_destroy(&character);
 }
@@ -14,7 +14,7 @@ MU_TEST(golem)
 {
 	d2char character;
 	uint32_t bytesRead;
-	d2err err = d2char_parse("data/golem.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/golem.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	d2char_destroy(&character);
 }
@@ -23,7 +23,7 @@ MU_TEST(nomerc)
 {
 	d2char character;
 	uint32_t bytesRead;
-	d2err err = d2char_parse("data/nomerc.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/nomerc.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	d2char_destroy(&character);
 }
@@ -32,7 +32,7 @@ MU_TEST(badcorpseheader)
 {
 	d2char character;
 	uint32_t bytesRead;
-	d2err err = d2char_parse("data/badcorpseheader.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/badcorpseheader.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_PARSE_BAD_HEADER_OR_TAG);
 }
 

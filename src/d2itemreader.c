@@ -822,7 +822,7 @@ void d2personalstash_destroy(d2personalstash *stash)
 	}
 }
 
-CHECK_RESULT d2err d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, uint32_t* out_bytesRead)
 {
 	d2err err;
 	unsigned char* data;
@@ -833,7 +833,12 @@ CHECK_RESULT d2err d2char_parse(const char* filename, d2char *character, uint32_
 		*out_bytesRead = 0;
 		return err;
 	}
+	return d2char_parse(data, size, character, out_bytesRead);
+}
 
+CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2char *character, uint32_t* out_bytesRead)
+{
+	d2err err;
 	uint32_t curByte = 0;
 
 	if (size < D2S_STATS_OFFSET)

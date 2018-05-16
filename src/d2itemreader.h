@@ -310,7 +310,8 @@ typedef struct d2char {
 *
 * Return value: D2ERR_OK on success
 */
-CHECK_RESULT d2err d2char_parse(const char* filename, d2char *character, uint32_t* out_bytesRead);
+CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, uint32_t* out_bytesRead);
+CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2char *character, uint32_t* out_bytesRead);
 void d2char_destroy(d2char *character);
 
 typedef struct d2atmastash {

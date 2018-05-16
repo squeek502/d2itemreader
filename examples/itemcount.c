@@ -28,7 +28,7 @@ int main(int argc, const char* argv[])
 	if (type == D2FILETYPE_D2_CHARACTER)
 	{
 		d2char character;
-		d2err err = d2char_parse(filename, &character, &bytesRead);
+		d2err err = d2char_parse_file(filename, &character, &bytesRead);
 		if (err != D2ERR_OK)
 		{
 			fprintf(stderr, "Failed to parse %s: %s at byte 0x%X\n", filename, d2err_str(err), bytesRead);
