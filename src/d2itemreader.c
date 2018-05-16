@@ -833,7 +833,7 @@ CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, ui
 		*out_bytesRead = 0;
 		return err;
 	}
-	d2err err = d2char_parse(data, size, character, out_bytesRead);
+	err = d2char_parse(data, size, character, out_bytesRead);
 	free(data);
 	return err;
 }
