@@ -949,20 +949,16 @@ CHECK_RESULT d2err d2char_parse(const char* filename, d2char *character, uint32_
 		uint8_t hasIronGolem = D2ITEMREADER_READ(uint8_t);
 		if (hasIronGolem)
 		{
-			d2item ironGolemItem = {0};
 			// the iron golem item can have items socketed in it, so we need to parse
 			// those as well
-			int numIronGolemItems = 1;
-			for (int i = 0; i < numIronGolemItems; i++)
+			d2itemlist ironGolemItems;
+			err = d2itemlist_parse_items(data, curByte, &ironGolemItems, 1, &bytesRead);
+			if (err != D2ERR_OK)
 			{
-				if ((err = d2item_parse(data, curByte, &ironGolemItem, &bytesRead)) != D2ERR_OK)
-				{
-					goto err_after_merc;
-				}
-				numIronGolemItems += ironGolemItem.numItemsInSockets;
-				d2item_destroy(&ironGolemItem);
-				curByte += bytesRead;
+				goto err_after_merc;
 			}
+			d2itemlist_destroy(&ironGolemItems);
+			curByte += bytesRead;
 		}
 	}
 	else
