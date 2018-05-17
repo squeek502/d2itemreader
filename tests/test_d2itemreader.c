@@ -59,6 +59,7 @@ MU_TEST(unexpected_eof)
 	err = d2atmastash_parse(data, dataSizeBytes / 2, &stash, &bytesRead);
 
 	mu_check(err == D2ERR_PARSE_UNEXPECTED_EOF);
+	free(data);
 }
 
 MU_TEST_SUITE(test_d2itemreader)

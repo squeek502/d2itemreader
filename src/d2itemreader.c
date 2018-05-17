@@ -67,7 +67,8 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemprop
 
 		if (br->cursor == BIT_READER_CURSOR_BEYOND_EOF)
 		{
-			return D2ERR_PARSE_UNEXPECTED_EOF;
+			err = D2ERR_PARSE_UNEXPECTED_EOF;
+			goto err;
 		}
 
 		// If all 9 bits are set, we've hit the end of the list
@@ -76,7 +77,8 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemprop
 
 		if (id > D2DATA_ITEMSTAT_END_ID)
 		{
-			return D2ERR_PARSE;
+			err = D2ERR_PARSE;
+			goto err;
 		}
 
 		d2data_itemstat* stat = &data->itemstats[id];
@@ -86,14 +88,16 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemprop
 		// encode type 4 is only used by stats that were never implemented (time-based stats)
 		if (stat->saveBits == 0 || stat->encode == 4)
 		{
-			return D2ERR_PARSE;
+			err = D2ERR_PARSE;
+			goto err;
 		}
 
 		if (stat->encode == 2)
 		{
 			if (!(stat->saveBits == 7 && stat->saveParamBits == 16))
 			{
-				return D2ERR_PARSE;
+				err = D2ERR_PARSE;
+				goto err;
 			}
 			prop.params[0] = (int)read_bits(br, 6) - stat->saveAdd;
 			prop.params[1] = (int)read_bits(br, 10) - stat->saveAdd;
@@ -104,7 +108,8 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemprop
 		{
 			if (!(stat->saveBits == 16 && stat->saveParamBits == 16))
 			{
-				return D2ERR_PARSE;
+				err = D2ERR_PARSE;
+				goto err;
 			}
 			prop.params[0] = (int)read_bits(br, 6) - stat->saveAdd;
 			prop.params[1] = (int)read_bits(br, 10) - stat->saveAdd;
@@ -129,7 +134,8 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemprop
 			stat = &data->itemstats[stat->nextInChain];
 			if (stat->saveParamBits != 0)
 			{
-				return D2ERR_PARSE;
+				err = D2ERR_PARSE;
+				goto err;
 			}
 			prop.params[prop.numParams] = (int)read_bits(br, stat->saveBits) - stat->saveAdd;
 			prop.numParams++;
@@ -137,10 +143,14 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemprop
 
 		if ((err = d2itemproplist_append(list, prop)) != D2ERR_OK)
 		{
-			return err;
+			goto err;
 		}
 	}
 	return D2ERR_OK;
+
+err:
+	d2itemproplist_destroy(list);
+	return err;
 }
 
 CHECK_RESULT d2err d2itemproplist_init(d2itemproplist* list)
@@ -169,7 +179,10 @@ CHECK_RESULT d2err d2itemproplist_append(d2itemproplist* list, d2itemprop prop)
 
 void d2itemproplist_destroy(d2itemproplist* list)
 {
-	free(list->properties);
+	if (list->properties)
+	{
+		free(list->properties);
+	}
 	list->properties = NULL;
 	list->count = list->_size = 0;
 }
@@ -567,6 +580,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 		// length values, but only if the item is magical or above.
 		if ((err = d2itemproplist_parse(&br, &g_d2data, &item->magicProperties)) != D2ERR_OK)
 		{
+			d2item_destroy(item);
 			goto exit;
 		}
 
@@ -580,6 +594,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 				{
 					if ((err = d2itemproplist_parse(&br, &g_d2data, &item->setBonuses[item->numSetBonuses])) != D2ERR_OK)
 					{
+						d2item_destroy(item);
 						goto exit;
 					}
 					item->numSetBonuses++;
@@ -591,18 +606,18 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 		{
 			if ((err = d2itemproplist_parse(&br, &g_d2data, &item->runewordProperties)) != D2ERR_OK)
 			{
+				d2item_destroy(item);
 				goto exit;
 			}
 		}
 	}
 
+	err = D2ERR_OK;
+exit:
 	if (br.cursor == BIT_READER_CURSOR_BEYOND_EOF)
 	{
 		goto eof;
 	}
-
-	err = D2ERR_OK;
-exit:
 	*out_bytesRead = (uint32_t)(br.bitsRead / BITS_PER_BYTE + (br.bitsRead % BITS_PER_BYTE != 0));
 	return err;
 
