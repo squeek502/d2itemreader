@@ -214,11 +214,13 @@ static CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data
 		{
 			if (lastSocketedItem == NULL)
 			{
+				d2item_destroy(&item);
 				err = D2ERR_PARSE_UNEXPECTED_SOCKETED_ITEM;
 				goto err;
 			}
 			if ((err = d2itemlist_append(&lastSocketedItem->socketedItems, &item)) != D2ERR_OK)
 			{
+				d2item_destroy(&item);
 				goto err;
 			}
 		}
@@ -226,6 +228,7 @@ static CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data
 		{
 			if ((err = d2itemlist_append(items, &item)) != D2ERR_OK)
 			{
+				d2item_destroy(&item);
 				goto err;
 			}
 
