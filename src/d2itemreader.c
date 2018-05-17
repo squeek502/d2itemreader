@@ -938,6 +938,11 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSize
 	{
 		uint16_t id = (uint16_t)read_bits(&br, 9);
 
+		if (br.cursor == BIT_READER_CURSOR_BEYOND_EOF)
+		{
+			goto eof;
+		}
+
 		if (id == D2DATA_ITEMSTAT_END_ID)
 			break;
 
