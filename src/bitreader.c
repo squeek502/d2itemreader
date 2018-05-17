@@ -29,6 +29,12 @@ static void advance_bits(bit_reader* reader, size_t bitsToAdvance)
 {
 	while (bitsToAdvance > reader->validBits)
 	{
+		if (reader->cursor >= reader->dataSizeBytes)
+		{
+			reader->cursor = BIT_READER_CURSOR_BEYOND_EOF;
+			return;
+		}
+
 		unsigned char byte = *(reader->data + reader->cursor);
 		byte = reverse_byte(byte);
 
@@ -43,11 +49,21 @@ static void advance_bits(bit_reader* reader, size_t bitsToAdvance)
 
 void skip_bits(bit_reader* reader, size_t bitsToSkip)
 {
+	if (reader->cursor == BIT_READER_CURSOR_BEYOND_EOF)
+	{
+		return;
+	}
+
 	advance_bits(reader, bitsToSkip);
 }
 
 uint64_t read_bits(bit_reader* reader, size_t bitsToRead)
 {
+	if (reader->cursor == BIT_READER_CURSOR_BEYOND_EOF)
+	{
+		return 0;
+	}
+
 	advance_bits(reader, bitsToRead);
 	uint64_t mask = ((uint64_t)1 << bitsToRead) - 1;
 	uint64_t n = (reader->buffer >> reader->validBits) & mask;

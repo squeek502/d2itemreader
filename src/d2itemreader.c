@@ -9,8 +9,9 @@ d2data g_d2data = { NULL };
 
 #define BITS_PER_BYTE 8
 #define D2ITEMREADER_DATA (data + curByte)
-#define D2ITEMREADER_SKIP(T) curByte += sizeof(T)
-#define D2ITEMREADER_READ(T) *(T*)D2ITEMREADER_DATA; D2ITEMREADER_SKIP(T)
+#define D2ITEMREADER_INC(T) curByte += sizeof(T)
+#define D2ITEMREADER_SKIP(T) if (curByte+sizeof(T)<=dataSizeBytes) { D2ITEMREADER_INC(T); }
+#define D2ITEMREADER_READ(T) (curByte+sizeof(T)<=dataSizeBytes ? *(T*)D2ITEMREADER_DATA : (T)0); D2ITEMREADER_SKIP(T)
 
 enum d2filetype d2filetype_get(const unsigned char* data, size_t size)
 {
@@ -64,9 +65,19 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemprop
 	{
 		uint16_t id = (uint16_t)read_bits(br, 9);
 
+		if (br->cursor == BIT_READER_CURSOR_BEYOND_EOF)
+		{
+			return D2ERR_PARSE_UNEXPECTED_EOF;
+		}
+
 		// If all 9 bits are set, we've hit the end of the list
 		if (id == D2DATA_ITEMSTAT_END_ID)
 			break;
+
+		if (id > D2DATA_ITEMSTAT_END_ID)
+		{
+			return D2ERR_PARSE;
+		}
 
 		d2data_itemstat* stat = &data->itemstats[id];
 		d2itemprop prop = { id };
@@ -164,7 +175,7 @@ void d2itemproplist_destroy(d2itemproplist* list)
 }
 
 // Parse the items directly, once the number of items (not including socketed items) is known.
-static CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, uint32_t startByte, d2itemlist* items, uint16_t numItems, uint32_t* out_bytesRead)
+static CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2itemlist* items, uint16_t numItems, uint32_t* out_bytesRead)
 {
 	d2err err;
 	if ((err = d2itemlist_init(items, numItems)) != D2ERR_OK)
@@ -180,7 +191,7 @@ static CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data
 	{
 		uint32_t itemSizeBytes;
 		d2item item = { 0 };
-		if ((err = d2item_parse(data, curByte, &item, &itemSizeBytes)) != D2ERR_OK)
+		if ((err = d2item_parse(data, dataSizeBytes, curByte, &item, &itemSizeBytes)) != D2ERR_OK)
 		{
 			curByte += itemSizeBytes;
 			goto err;
@@ -223,23 +234,27 @@ err:
 	return err;
 }
 
-CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead)
 {
 	d2err err;
 	uint32_t curByte = startByte;
-	uint16_t tag = D2ITEMREADER_READ(uint16_t);
+	uint16_t tag = D2ITEMREADER_READ(uint16_t) else { goto eof; }
 	if (tag != D2_JM_TAG)
 	{
 		*out_bytesRead = 0;
 		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
 	}
 
-	uint16_t numItems = D2ITEMREADER_READ(uint16_t);
+	uint16_t numItems = D2ITEMREADER_READ(uint16_t) else { goto eof; }
 
 	uint32_t bytesRead;
-	err = d2itemlist_parse_items(data, curByte, items, numItems, &bytesRead);
+	err = d2itemlist_parse_items(data, dataSizeBytes, curByte, items, numItems, &bytesRead);
 	*out_bytesRead = curByte + bytesRead - startByte;
 	return err;
+
+eof:
+	*out_bytesRead = (uint32_t)dataSizeBytes - startByte;
+	return D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
 CHECK_RESULT d2err d2itemlist_init(d2itemlist* list, size_t initialSize)
@@ -291,18 +306,18 @@ void d2itemlist_destroy(d2itemlist* list)
 	list->count = list->_size = 0;
 }
 
-CHECK_RESULT d2err d2item_parse(const unsigned char* const data, uint32_t startByte, d2item* item, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2item* item, uint32_t* out_bytesRead)
 {
 	d2err err;
 	uint32_t curByte = startByte;
-	uint16_t tag = D2ITEMREADER_READ(uint16_t);
+	uint16_t tag = D2ITEMREADER_READ(uint16_t) else { goto eof; }
 	if (tag != D2_JM_TAG)
 	{
 		*out_bytesRead = 0;
 		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
 	}
 
-	bit_reader br = { data, curByte, 16 };
+	bit_reader br = { data, dataSizeBytes, curByte, 16 };
 	// offset: 16, unknown
 	skip_bits(&br, 4);
 	// offset: 20
@@ -581,10 +596,19 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, uint32_t startB
 		}
 	}
 
+	if (br.cursor == BIT_READER_CURSOR_BEYOND_EOF)
+	{
+		goto eof;
+	}
+
 	err = D2ERR_OK;
 exit:
 	*out_bytesRead = (uint32_t)(br.bitsRead / BITS_PER_BYTE + (br.bitsRead % BITS_PER_BYTE != 0));
 	return err;
+
+eof:
+	*out_bytesRead = (uint32_t)dataSizeBytes - startByte;
+	return D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
 void d2item_destroy(d2item *item)
@@ -599,11 +623,11 @@ void d2item_destroy(d2item *item)
 	}
 }
 
-CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, uint32_t startByte, d2stashpage *page, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2stashpage *page, uint32_t* out_bytesRead)
 {
 	d2err err;
 	uint32_t curByte = startByte;
-	uint16_t tag = D2ITEMREADER_READ(uint16_t);
+	uint16_t tag = D2ITEMREADER_READ(uint16_t) else { goto eof; }
 	if (tag != PLUGY_STASH_TAG)
 	{
 		*out_bytesRead = 0;
@@ -611,15 +635,25 @@ CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, uint32_t s
 	}
 
 	page->flags = 0;
-	size_t len = strlen((char*)&data[curByte]);
+	size_t len = strnlen((char*)&data[curByte], dataSizeBytes - curByte - 1);
+	// check that we won't read past the end of data here
+	if (curByte + len + 1 + sizeof(uint16_t) > dataSizeBytes)
+	{
+		goto eof;
+	}
 	if (*(uint16_t*)&data[curByte + len + 1] != D2_JM_TAG)
 	{
-		page->flags = D2ITEMREADER_READ(uint32_t);
+		page->flags = D2ITEMREADER_READ(uint32_t) else { goto eof; }
 	}
 
+	// need to make sure we have at least one byte available to read
+	if (curByte >= dataSizeBytes)
+	{
+		goto eof;
+	}
 	page->name[0] = 0;
 	char* namePtr = (char*)&data[curByte];
-	size_t nameLen = strlen(namePtr);
+	size_t nameLen = strnlen(namePtr, dataSizeBytes - curByte - 1);
 	if (nameLen > D2_MAX_STASH_PAGE_NAME_STRLEN)
 	{
 		*out_bytesRead = curByte;
@@ -630,7 +664,7 @@ CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, uint32_t s
 	curByte += (uint32_t)(nameLen + 1);
 
 	uint32_t inventorySizeBytes;
-	if ((err = d2itemlist_parse(data, curByte, &page->items, &inventorySizeBytes)) != D2ERR_OK)
+	if ((err = d2itemlist_parse(data, dataSizeBytes, curByte, &page->items, &inventorySizeBytes)) != D2ERR_OK)
 	{
 		goto exit;
 	}
@@ -639,6 +673,10 @@ CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, uint32_t s
 exit:
 	*out_bytesRead = curByte - startByte + inventorySizeBytes;
 	return err;
+
+eof:
+	*out_bytesRead = (uint32_t)dataSizeBytes - startByte;
+	return D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
 void d2stashpage_destroy(d2stashpage *page)
@@ -646,43 +684,48 @@ void d2stashpage_destroy(d2stashpage *page)
 	d2itemlist_destroy(&page->items);
 }
 
-CHECK_RESULT d2err d2sharedstash_parse(const char* filename, d2sharedstash *stash, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2sharedstash_parse_file(const char* filename, d2sharedstash *stash, uint32_t* out_bytesRead)
 {
 	d2err err;
 	unsigned char* data;
-	size_t size;
-	err = d2util_read_file(filename, &data, &size);
+	size_t dataSizeBytes;
+	err = d2util_read_file(filename, &data, &dataSizeBytes);
 	if (err != D2ERR_OK)
 	{
 		*out_bytesRead = 0;
 		return err;
 	}
+	err = d2sharedstash_parse(data, dataSizeBytes, stash, out_bytesRead);
+	free(data);
+	return err;
+}
 
+CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2sharedstash *stash, uint32_t* out_bytesRead)
+{
+	d2err err;
 	uint32_t curByte = 0;
 
-	uint32_t header = D2ITEMREADER_READ(uint32_t);
+	uint32_t header = D2ITEMREADER_READ(uint32_t) else { goto eof; }
 	if (header != PLUGY_SHAREDSTASH_HEADER)
 	{
 		*out_bytesRead = 0;
-		free(data);
 		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
 	}
 
-	stash->fileVersion = D2ITEMREADER_READ(uint16_t);
+	stash->fileVersion = D2ITEMREADER_READ(uint16_t) else { goto eof; }
 	if (!(stash->fileVersion == PLUGY_FILE_VERSION_01 || stash->fileVersion == PLUGY_FILE_VERSION_02))
 	{
 		*out_bytesRead = curByte - sizeof(uint16_t);
-		free(data);
 		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
 	}
 
 	stash->sharedGold = 0;
 	if (stash->fileVersion == PLUGY_FILE_VERSION_02)
 	{
-		stash->sharedGold = D2ITEMREADER_READ(uint32_t);
+		stash->sharedGold = D2ITEMREADER_READ(uint32_t) else { goto eof; }
 	}
 
-	stash->numPages = D2ITEMREADER_READ(uint32_t);
+	stash->numPages = D2ITEMREADER_READ(uint32_t) else { goto eof; }
 	stash->pages = NULL;
 	if (stash->numPages > 0)
 	{
@@ -690,19 +733,17 @@ CHECK_RESULT d2err d2sharedstash_parse(const char* filename, d2sharedstash *stas
 		if (stash->pages == NULL)
 		{
 			*out_bytesRead = curByte;
-			free(data);
 			return D2ERR_OUT_OF_MEMORY;
 		}
 	}
 
 	int pageNum = 0;
 	uint32_t stashSizeBytes;
-	while (curByte < size)
+	while (curByte < dataSizeBytes)
 	{
-		if ((err = d2stashpage_parse(data, curByte, &stash->pages[pageNum], &stashSizeBytes)) != D2ERR_OK)
+		if ((err = d2stashpage_parse(data, dataSizeBytes, curByte, &stash->pages[pageNum], &stashSizeBytes)) != D2ERR_OK)
 		{
 			*out_bytesRead = curByte + stashSizeBytes;
-			free(data);
 			// need to make sure we destroy only the pages that have been parsed so far
 			stash->numPages = pageNum;
 			d2sharedstash_destroy(stash);
@@ -714,13 +755,16 @@ CHECK_RESULT d2err d2sharedstash_parse(const char* filename, d2sharedstash *stas
 	}
 
 	*out_bytesRead = curByte;
-	free(data);
-	if (curByte != size)
+	if (curByte != dataSizeBytes)
 	{
 		d2sharedstash_destroy(stash);
 		return D2ERR_PARSE_TRAILING_BYTES;
 	}
 	return D2ERR_OK;
+
+eof:
+	*out_bytesRead = (uint32_t)dataSizeBytes;
+	return D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
 void d2sharedstash_destroy(d2sharedstash *stash)
@@ -736,40 +780,45 @@ void d2sharedstash_destroy(d2sharedstash *stash)
 	}
 }
 
-CHECK_RESULT d2err d2personalstash_parse(const char* filename, d2personalstash *stash, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2personalstash_parse_file(const char* filename, d2personalstash *stash, uint32_t* out_bytesRead)
 {
 	d2err err;
 	unsigned char* data;
-	size_t size;
-	err = d2util_read_file(filename, &data, &size);
+	size_t dataSizeBytes;
+	err = d2util_read_file(filename, &data, &dataSizeBytes);
 	if (err != D2ERR_OK)
 	{
 		*out_bytesRead = 0;
 		return err;
 	}
+	err = d2personalstash_parse(data, dataSizeBytes, stash, out_bytesRead);
+	free(data);
+	return err;
+}
 
+CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2personalstash *stash, uint32_t* out_bytesRead)
+{
+	d2err err;
 	uint32_t curByte = 0;
 
-	uint32_t header = D2ITEMREADER_READ(uint32_t);
+	uint32_t header = D2ITEMREADER_READ(uint32_t) else { goto eof; }
 	if (header != PLUGY_PERSONALSTASH_HEADER)
 	{
 		*out_bytesRead = 0;
-		free(data);
 		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
 	}
 
-	stash->fileVersion = D2ITEMREADER_READ(uint16_t);
+	stash->fileVersion = D2ITEMREADER_READ(uint16_t) else { goto eof; }
 	if (!(stash->fileVersion == PLUGY_FILE_VERSION_01))
 	{
 		*out_bytesRead = curByte - sizeof(uint16_t);
-		free(data);
 		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
 	}
 
 	// unused block
-	D2ITEMREADER_SKIP(uint32_t);
+	D2ITEMREADER_SKIP(uint32_t) else { goto eof; }
 
-	stash->numPages = D2ITEMREADER_READ(uint32_t);
+	stash->numPages = D2ITEMREADER_READ(uint32_t) else { goto eof; }
 	stash->pages = NULL;
 	if (stash->numPages > 0)
 	{
@@ -777,19 +826,17 @@ CHECK_RESULT d2err d2personalstash_parse(const char* filename, d2personalstash *
 		if (stash->pages == NULL)
 		{
 			*out_bytesRead = curByte;
-			free(data);
 			return D2ERR_OUT_OF_MEMORY;
 		}
 	}
 
 	int pageNum = 0;
 	uint32_t stashSizeBytes;
-	while (curByte < size)
+	while (curByte < dataSizeBytes)
 	{
-		if ((err = d2stashpage_parse(data, curByte, &stash->pages[pageNum], &stashSizeBytes)) != D2ERR_OK)
+		if ((err = d2stashpage_parse(data, dataSizeBytes, curByte, &stash->pages[pageNum], &stashSizeBytes)) != D2ERR_OK)
 		{
 			*out_bytesRead = curByte + stashSizeBytes;
-			free(data);
 			// need to make sure we destroy only the pages that have been parsed so far
 			stash->numPages = pageNum;
 			d2personalstash_destroy(stash);
@@ -801,13 +848,16 @@ CHECK_RESULT d2err d2personalstash_parse(const char* filename, d2personalstash *
 	}
 
 	*out_bytesRead = curByte;
-	free(data);
-	if (curByte != size)
+	if (curByte != dataSizeBytes)
 	{
 		d2personalstash_destroy(stash);
 		return D2ERR_PARSE_TRAILING_BYTES;
 	}
 	return D2ERR_OK;
+
+eof:
+	*out_bytesRead = (uint32_t)dataSizeBytes;
+	return D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
 void d2personalstash_destroy(d2personalstash *stash)
@@ -826,26 +876,26 @@ CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, ui
 {
 	d2err err;
 	unsigned char* data;
-	size_t size;
-	err = d2util_read_file(filename, &data, &size);
+	size_t dataSizeBytes;
+	err = d2util_read_file(filename, &data, &dataSizeBytes);
 	if (err != D2ERR_OK)
 	{
 		*out_bytesRead = 0;
 		return err;
 	}
-	err = d2char_parse(data, size, character, out_bytesRead);
+	err = d2char_parse(data, dataSizeBytes, character, out_bytesRead);
 	free(data);
 	return err;
 }
 
-CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2char *character, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSizeBytes, d2char *character, uint32_t* out_bytesRead)
 {
 	d2err err;
 	uint32_t curByte = 0;
 
-	if (size < D2S_STATS_OFFSET)
+	if (dataSizeBytes < D2S_STATS_OFFSET)
 	{
-		*out_bytesRead = (uint32_t)size;
+		*out_bytesRead = (uint32_t)dataSizeBytes;
 		return D2ERR_PARSE_NOT_ENOUGH_BYTES;
 	}
 
@@ -856,7 +906,7 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 	// skip to stats, as that's where things gets variable length
 	curByte = D2S_STATS_OFFSET;
 
-	uint16_t header = D2ITEMREADER_READ(uint16_t);
+	uint16_t header = D2ITEMREADER_READ(uint16_t) else { goto eof; }
 	if (header != D2S_STATS_HEADER)
 	{
 		curByte -= sizeof(uint16_t);
@@ -864,7 +914,7 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 		goto err;
 	}
 
-	bit_reader br = { data, curByte };
+	bit_reader br = { data, dataSizeBytes, curByte };
 
 	while (true)
 	{
@@ -872,6 +922,13 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 
 		if (id == D2DATA_ITEMSTAT_END_ID)
 			break;
+
+		if (id > D2DATA_ITEMSTAT_END_ID)
+		{
+			curByte = (uint32_t)br.cursor;
+			err = D2ERR_PARSE;
+			goto err;
+		}
 
 		d2data_itemstat* stat = &g_d2data.itemstats[id];
 
@@ -888,8 +945,13 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 
 	curByte = (uint32_t)(br.cursor + D2S_SKILLS_BYTELEN);
 
+	if (curByte > dataSizeBytes || br.cursor == BIT_READER_CURSOR_BEYOND_EOF)
+	{
+		goto eof;
+	}
+
 	uint32_t bytesRead;
-	if ((err = d2itemlist_parse(data, curByte, &character->items, &bytesRead)) != D2ERR_OK)
+	if ((err = d2itemlist_parse(data, dataSizeBytes, curByte, &character->items, &bytesRead)) != D2ERR_OK)
 	{
 		curByte += bytesRead;
 		goto err;
@@ -897,7 +959,7 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 
 	curByte += bytesRead;
 
-	uint16_t corpseHeader = D2ITEMREADER_READ(uint16_t);
+	uint16_t corpseHeader = D2ITEMREADER_READ(uint16_t) else { goto eof; }
 	if (corpseHeader != D2_JM_TAG)
 	{
 		curByte -= sizeof(uint16_t);
@@ -905,13 +967,13 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 		goto err_after_items;
 	}
 
-	uint16_t isDead = D2ITEMREADER_READ(uint16_t);
+	uint16_t isDead = D2ITEMREADER_READ(uint16_t) else { goto eof; }
 	if (isDead)
 	{
 		// 12 unknown bytes
 		curByte += 12;
 		// itemlist
-		err = d2itemlist_parse(data, curByte, &character->itemsCorpse, &bytesRead);
+		err = d2itemlist_parse(data, dataSizeBytes, curByte, &character->itemsCorpse, &bytesRead);
 		curByte += bytesRead;
 	}
 	else
@@ -919,12 +981,13 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 
 	if (err != D2ERR_OK)
 	{
+		// itemsCorpse is not initialized on error, so just destroy items
 		goto err_after_items;
 	}
 
 	if (isExpansion)
 	{
-		uint16_t mercHeader = D2ITEMREADER_READ(uint16_t);
+		uint16_t mercHeader = D2ITEMREADER_READ(uint16_t) else { goto eof_after_corpse; }
 		if (mercHeader != D2S_MERC_HEADER)
 		{
 			err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
@@ -933,7 +996,7 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 
 		if (mercID)
 		{
-			err = d2itemlist_parse(data, curByte, &character->itemsMerc, &bytesRead);
+			err = d2itemlist_parse(data, dataSizeBytes, curByte, &character->itemsMerc, &bytesRead);
 			curByte += bytesRead;
 		}
 		else
@@ -941,10 +1004,11 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 
 		if (err != D2ERR_OK)
 		{
+			// itemsMerc is not initialized on error, so just destroy corpse+items
 			goto err_after_corpse;
 		}
 
-		uint16_t ironGolemHeader = D2ITEMREADER_READ(uint16_t);
+		uint16_t ironGolemHeader = D2ITEMREADER_READ(uint16_t) else { goto eof_after_merc; }
 		if (ironGolemHeader != D2S_IRON_GOLEM_HEADER)
 		{
 			curByte -= sizeof(uint16_t);
@@ -952,13 +1016,13 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 			goto err_after_merc;
 		}
 
-		uint8_t hasIronGolem = D2ITEMREADER_READ(uint8_t);
+		uint8_t hasIronGolem = D2ITEMREADER_READ(uint8_t) else { goto eof_after_merc; }
 		if (hasIronGolem)
 		{
 			// the iron golem item can have items socketed in it, so we need to parse
 			// those as well
 			d2itemlist ironGolemItems;
-			err = d2itemlist_parse_items(data, curByte, &ironGolemItems, 1, &bytesRead);
+			err = d2itemlist_parse_items(data, dataSizeBytes, curByte, &ironGolemItems, 1, &bytesRead);
 			if (err != D2ERR_OK)
 			{
 				goto err_after_merc;
@@ -976,7 +1040,7 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t size, d2
 	}
 
 	*out_bytesRead = curByte;
-	if (curByte != size)
+	if (curByte != dataSizeBytes)
 	{
 		d2char_destroy(character);
 		return D2ERR_PARSE_TRAILING_BYTES;
@@ -992,6 +1056,15 @@ err_after_items:
 err:
 	*out_bytesRead = curByte;
 	return err;
+
+eof_after_merc:
+	d2itemlist_destroy(&character->itemsMerc);
+eof_after_corpse:
+	d2itemlist_destroy(&character->itemsCorpse);
+	d2itemlist_destroy(&character->items);
+eof:
+	*out_bytesRead = (uint32_t)dataSizeBytes;
+	return D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
 void d2char_destroy(d2char *character)
@@ -1001,55 +1074,64 @@ void d2char_destroy(d2char *character)
 	d2itemlist_destroy(&character->itemsMerc);
 }
 
-CHECK_RESULT d2err d2atmastash_parse(const char* filename, d2atmastash* stash, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2atmastash_parse_file(const char* filename, d2atmastash* stash, uint32_t* out_bytesRead)
 {
 	d2err err;
 	unsigned char* data;
-	size_t size;
-	err = d2util_read_file(filename, &data, &size);
+	size_t dataSizeBytes;
+	err = d2util_read_file(filename, &data, &dataSizeBytes);
 	if (err != D2ERR_OK)
 	{
 		*out_bytesRead = 0;
 		return err;
 	}
+	err = d2atmastash_parse(data, dataSizeBytes, stash, out_bytesRead);
+	free(data);
+	return err;
+}
 
+CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dataSizeBytes, d2atmastash* stash, uint32_t* out_bytesRead)
+{
+	d2err err;
 	uint32_t curByte = 0;
 
 	char header[3];
-	header[0] = D2ITEMREADER_READ(char);
-	header[1] = D2ITEMREADER_READ(char);
-	header[2] = D2ITEMREADER_READ(char);
+	header[0] = D2ITEMREADER_READ(char) else { goto eof; }
+	header[1] = D2ITEMREADER_READ(char) else { goto eof; }
+	header[2] = D2ITEMREADER_READ(char) else { goto eof; }
 	if (!(header[0] == 'D' && header[1] == '2' && header[2] == 'X'))
 	{
 		*out_bytesRead = 0;
-		free(data);
 		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
 	}
 
-	uint16_t numItems = D2ITEMREADER_READ(uint16_t);
-	stash->fileVersion = D2ITEMREADER_READ(uint16_t);
+	uint16_t numItems = D2ITEMREADER_READ(uint16_t) else { goto eof; }
+	stash->fileVersion = D2ITEMREADER_READ(uint16_t) else { goto eof; }
 	if (stash->fileVersion != GOMULE_D2X_FILE_VERSION)
 	{
 		*out_bytesRead = curByte - sizeof(uint16_t);
-		free(data);
 		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
 	}
 
 	// 32 bit checksum
-	D2ITEMREADER_SKIP(uint32_t);
+	D2ITEMREADER_SKIP(uint32_t) else { goto eof; }
 
 	uint32_t bytesRead;
-	err = d2itemlist_parse_items(data, curByte, &stash->items, numItems, &bytesRead);
+	err = d2itemlist_parse_items(data, dataSizeBytes, curByte, &stash->items, numItems, &bytesRead);
 	curByte += bytesRead;
 
 	*out_bytesRead = curByte;
-	free(data);
-	if (err == D2ERR_OK && curByte != size)
+	if (err == D2ERR_OK && curByte != dataSizeBytes)
 	{
+		// we only need to destroy here since stash->items only gets initialized on D2ERR_OK
 		d2atmastash_destroy(stash);
-		return D2ERR_PARSE_TRAILING_BYTES;
+		err = D2ERR_PARSE_TRAILING_BYTES;
 	}
 	return err;
+
+eof:
+	*out_bytesRead = (uint32_t)dataSizeBytes;
+	return D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
 void d2atmastash_destroy(d2atmastash* stash)

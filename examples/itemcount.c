@@ -42,7 +42,7 @@ int main(int argc, const char* argv[])
 	else if (type == D2FILETYPE_PLUGY_PERSONAL_STASH)
 	{
 		d2personalstash stash;
-		d2err err = d2personalstash_parse(filename, &stash, &bytesRead);
+		d2err err = d2personalstash_parse_file(filename, &stash, &bytesRead);
 		if (err != D2ERR_OK)
 		{
 			fprintf(stderr, "Failed to parse %s: %s at byte 0x%X\n", filename, d2err_str(err), bytesRead);
@@ -58,7 +58,7 @@ int main(int argc, const char* argv[])
 	else if (type == D2FILETYPE_PLUGY_SHARED_STASH)
 	{
 		d2sharedstash stash;
-		d2err err = d2sharedstash_parse(filename, &stash, &bytesRead);
+		d2err err = d2sharedstash_parse_file(filename, &stash, &bytesRead);
 		if (err != D2ERR_OK)
 		{
 			fprintf(stderr, "Failed to parse %s: %s at byte 0x%X\n", filename, d2err_str(err), bytesRead);
@@ -74,7 +74,7 @@ int main(int argc, const char* argv[])
 	else if (type == D2FILETYPE_ATMA_STASH)
 	{
 		d2atmastash stash;
-		d2err err = d2atmastash_parse(filename, &stash, &bytesRead);
+		d2err err = d2atmastash_parse_file(filename, &stash, &bytesRead);
 		if (err != D2ERR_OK)
 		{
 			fprintf(stderr, "Failed to parse %s: %s at byte 0x%X\n", filename, d2err_str(err), bytesRead);

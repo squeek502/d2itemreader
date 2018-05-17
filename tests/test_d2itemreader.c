@@ -40,9 +40,25 @@ MU_TEST(atma)
 {
 	d2atmastash stash;
 	uint32_t bytesRead;
-	d2err err = d2atmastash_parse("data/atma.d2x", &stash, &bytesRead);
+	d2err err = d2atmastash_parse_file("data/atma.d2x", &stash, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	d2atmastash_destroy(&stash);
+}
+
+MU_TEST(unexpected_eof)
+{
+	d2err err;
+
+	unsigned char* data;
+	size_t dataSizeBytes;
+	err = d2util_read_file("data/atma.d2x", &data, &dataSizeBytes);
+	mu_check(err == D2ERR_OK);
+
+	d2atmastash stash;
+	uint32_t bytesRead;
+	err = d2atmastash_parse(data, dataSizeBytes / 2, &stash, &bytesRead);
+
+	mu_check(err == D2ERR_PARSE_UNEXPECTED_EOF);
 }
 
 MU_TEST_SUITE(test_d2itemreader)
@@ -52,6 +68,7 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(nomerc);
 	MU_RUN_TEST(badcorpseheader);
 	MU_RUN_TEST(atma);
+	MU_RUN_TEST(unexpected_eof);
 }
 
 int main(int argc, const char* argv[])

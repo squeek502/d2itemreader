@@ -4,8 +4,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#define BIT_READER_CURSOR_BEYOND_EOF SIZE_MAX
+
 typedef struct bit_reader {
 	const unsigned char* const data;
+	size_t dataSizeBytes;
 	size_t cursor;
 	size_t bitsRead;
 	uint64_t buffer;
