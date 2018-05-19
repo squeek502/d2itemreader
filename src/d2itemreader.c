@@ -226,6 +226,13 @@ static CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data
 		}
 		else
 		{
+			if (lastSocketedItem != NULL && lastSocketedItem->socketedItems.count != lastSocketedItem->numItemsInSockets)
+			{
+				d2item_destroy(&item);
+				err = D2ERR_PARSE_UNEXPECTED_NONSOCKETED_ITEM;
+				goto err;
+			}
+
 			if ((err = d2itemlist_append(items, &item)) != D2ERR_OK)
 			{
 				d2item_destroy(&item);
@@ -236,6 +243,10 @@ static CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data
 			{
 				lastSocketedItem = &(items->items[items->count - 1]);
 				numItems += item.numItemsInSockets;
+			}
+			else
+			{
+				lastSocketedItem = NULL;
 			}
 		}
 		curByte += itemSizeBytes;
