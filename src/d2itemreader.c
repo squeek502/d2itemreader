@@ -982,7 +982,7 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSize
 
 	curByte += bytesRead;
 
-	uint16_t corpseHeader = D2ITEMREADER_READ(uint16_t) else { goto eof; }
+	uint16_t corpseHeader = D2ITEMREADER_READ(uint16_t) else { goto eof_after_items; }
 	if (corpseHeader != D2_JM_TAG)
 	{
 		curByte -= sizeof(uint16_t);
@@ -990,7 +990,7 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSize
 		goto err_after_items;
 	}
 
-	uint16_t isDead = D2ITEMREADER_READ(uint16_t) else { goto eof; }
+	uint16_t isDead = D2ITEMREADER_READ(uint16_t) else { goto eof_after_items; }
 	if (isDead)
 	{
 		// 12 unknown bytes
@@ -1084,6 +1084,7 @@ eof_after_merc:
 	d2itemlist_destroy(&character->itemsMerc);
 eof_after_corpse:
 	d2itemlist_destroy(&character->itemsCorpse);
+eof_after_items:
 	d2itemlist_destroy(&character->items);
 eof:
 	*out_bytesRead = (uint32_t)dataSizeBytes;
