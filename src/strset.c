@@ -143,7 +143,7 @@ size_t strset_hash_default(const unsigned char* key)
 	size_t hash = 5381;
 	int c;
 
-	while (c = *key++)
+	while ((c = *key++))
 		hash = ((hash << 5) + hash) + c;
 
 	return hash;

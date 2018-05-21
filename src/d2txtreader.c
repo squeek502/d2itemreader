@@ -160,7 +160,7 @@ oom:
 	return D2ERR_OUT_OF_MEMORY;
 }
 
-CHECK_RESULT d2err d2txt_parse(const char *data, size_t length, d2txt_file* out_parsed, size_t *out_numRows)
+CHECK_RESULT d2err d2txt_parse(const char *data, size_t UNUSED(length), d2txt_file* out_parsed, size_t *out_numRows)
 {
 	d2err err;
 	static char line[D2TXT_MAX_LINE_LEN];

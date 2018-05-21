@@ -105,9 +105,13 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(unexpected_eof);
 }
 
-int main(int argc, const char* argv[])
+int main()
 {
-	d2data_use_default(&g_d2data);
+	d2err err = d2data_use_default(&g_d2data);
+	if (err != D2ERR_OK)
+	{
+		return 1;
+	}
 	MU_RUN_SUITE(test_d2itemreader);
 	MU_REPORT();
 	d2data_destroy(&g_d2data);

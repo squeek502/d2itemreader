@@ -13,6 +13,11 @@ CHECK_RESULT d2err d2util_read_file(const char* filepath, unsigned char** data_o
 
 	fseek(file, 0, SEEK_END);
 	long size = ftell(file);
+	if (size < 0)
+	{
+		err = D2ERR_FILE;
+		goto nothing_read;
+	}
 	rewind(file);
 	*data_out = (unsigned char*)malloc((size_t)size+1);
 	if (*data_out == NULL)
@@ -26,7 +31,7 @@ CHECK_RESULT d2err d2util_read_file(const char* filepath, unsigned char** data_o
 	size_t _bytesRead = fread(*data_out, 1, size, file);
 	fclose(file);
 
-	if (_bytesRead != size)
+	if (_bytesRead != (size_t)size)
 	{
 		free(*data_out);
 		err = D2ERR_FILE;

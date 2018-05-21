@@ -13,14 +13,15 @@ static size_t advancedItemDataSize;
 
 static void test_setup(void)
 {
-	d2util_read_file(ITEM_SIMPLE_FILE, &simpleItemData, &simpleItemDataSize);
-	if (simpleItemDataSize == 0)
+	d2err err;
+	err = d2util_read_file(ITEM_SIMPLE_FILE, &simpleItemData, &simpleItemDataSize);
+	if (err != D2ERR_OK || simpleItemDataSize == 0)
 	{
 		fprintf(stderr, "setup: Failed to read %s\n", ITEM_SIMPLE_FILE);
 		exit(1);
 	}
-	d2util_read_file(ITEM_ADVANCED_FILE, &advancedItemData, &advancedItemDataSize);
-	if (advancedItemDataSize == 0)
+	err = d2util_read_file(ITEM_ADVANCED_FILE, &advancedItemData, &advancedItemDataSize);
+	if (err != D2ERR_OK || advancedItemDataSize == 0)
 	{
 		fprintf(stderr, "setup: Failed to read %s\n", ITEM_ADVANCED_FILE);
 		exit(1);
@@ -114,7 +115,7 @@ MU_TEST_SUITE(test_bitreader)
 	MU_RUN_TEST(overflow);
 }
 
-int main(int argc, const char* argv[])
+int main()
 {
 	MU_RUN_SUITE(test_bitreader);
 	MU_REPORT();

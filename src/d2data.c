@@ -39,7 +39,7 @@ static CHECK_RESULT d2err d2data_init(d2data* data)
 	return D2ERR_OK;
 }
 
-static CHECK_RESULT d2err d2data_load_armors_common(char*** parsed, size_t numRows, d2data* data)
+static CHECK_RESULT d2err d2data_load_armors_common(char*** parsed, size_t UNUSED(numRows), d2data* data)
 {
 	d2err err;
 	if ((err = d2data_init(data)) != D2ERR_OK)
@@ -93,7 +93,7 @@ CHECK_RESULT d2err d2data_load_armors_from_file(const char* filename, d2data* da
 	return err;
 }
 
-static CHECK_RESULT d2err d2data_load_weapons_common(char*** parsed, size_t numRows, d2data* data)
+static CHECK_RESULT d2err d2data_load_weapons_common(char*** parsed, size_t UNUSED(numRows), d2data* data)
 {
 	d2err err;
 	if ((err = d2data_init(data)) != D2ERR_OK)
@@ -152,7 +152,7 @@ CHECK_RESULT d2err d2data_load_weapons_from_file(const char* filename, d2data* d
 	return err;
 }
 
-static CHECK_RESULT d2err d2data_load_miscs_common(char*** parsed, size_t numRows, d2data* data)
+static CHECK_RESULT d2err d2data_load_miscs_common(char*** parsed, size_t UNUSED(numRows), d2data* data)
 {
 	d2err err;
 	if ((err = d2data_init(data)) != D2ERR_OK)
@@ -309,19 +309,19 @@ CHECK_RESULT d2err d2data_use_default(d2data* data)
 	{
 		return err;
 	}
-	for (int i = 0; i < d2data_default_count(d2data_default_armors); i++)
+	for (size_t i = 0; i < d2data_default_count(d2data_default_armors); i++)
 	{
 		strset_put(data->armorsSet, d2data_default_armors[i]);
 	}
-	for (int i = 0; i < d2data_default_count(d2data_default_weapons); i++)
+	for (size_t i = 0; i < d2data_default_count(d2data_default_weapons); i++)
 	{
 		strset_put(data->weaponsSet, d2data_default_weapons[i]);
 	}
-	for (int i = 0; i < d2data_default_count(d2data_default_stackables); i++)
+	for (size_t i = 0; i < d2data_default_count(d2data_default_stackables); i++)
 	{
 		strset_put(data->stackablesSet, d2data_default_stackables[i]);
 	}
-	for (int i = 0; i < d2data_default_count(d2data_default_itemstats); i++)
+	for (size_t i = 0; i < d2data_default_count(d2data_default_itemstats); i++)
 	{
 		data->itemstats[i] = d2data_default_itemstats[i];
 	}

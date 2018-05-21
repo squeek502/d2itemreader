@@ -11,7 +11,7 @@ if (MSVC)
 endif()
 
 if (("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU"))
-  set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wall -Wextra")
+  set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-missing-field-initializers")
 elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
   set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} /W3 /sdl")
 endif()
