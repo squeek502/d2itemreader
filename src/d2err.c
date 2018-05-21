@@ -11,7 +11,8 @@
 	XX(D2ERR_PARSE_NOT_ENOUGH_BYTES, "not enough bytes in file") \
 	XX(D2ERR_PARSE_STRING_TOO_LONG, "string data too long") \
 	XX(D2ERR_PARSE_UNEXPECTED_EOF, "unexpected end of file") \
-	XX(D2ERR_PARSE_UNEXPECTED_NONSOCKETED_ITEM, "unexpected non-socket item")
+	XX(D2ERR_PARSE_UNEXPECTED_NONSOCKETED_ITEM, "unexpected non-socket item") \
+	XX(D2ERR_PARSE_TOO_MANY_STASH_PAGES, "impossibly large number of stash pages")
 
 #define D2ERR_STR_GEN(name, msg) case name: return msg;
 const char* d2err_str(d2err err)

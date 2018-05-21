@@ -755,6 +755,12 @@ CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t d
 	}
 
 	stash->numPages = D2ITEMREADER_READ(uint32_t) else { goto eof; }
+	// basic sanity check for impossible page numbers
+	if (stash->numPages > dataSizeBytes)
+	{
+		*out_bytesRead = curByte - sizeof(uint32_t);
+		return D2ERR_PARSE_TOO_MANY_STASH_PAGES;
+	}
 	stash->pages = NULL;
 	if (stash->numPages > 0)
 	{
@@ -848,6 +854,12 @@ CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t
 	D2ITEMREADER_SKIP(uint32_t) else { goto eof; }
 
 	stash->numPages = D2ITEMREADER_READ(uint32_t) else { goto eof; }
+	// basic sanity check for impossible page numbers
+	if (stash->numPages > dataSizeBytes)
+	{
+		*out_bytesRead = curByte - sizeof(uint32_t);
+		return D2ERR_PARSE_TOO_MANY_STASH_PAGES;
+	}
 	stash->pages = NULL;
 	if (stash->numPages > 0)
 	{
