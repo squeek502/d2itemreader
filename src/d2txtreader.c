@@ -66,7 +66,7 @@ static const char* d2txt_strtokbuf(const char* str, const char* delims, char* bu
 }
 
 // returns the number of fields inserted (0 or 1)
-static size_t d2txt_insert_field(d2txt_row row, d2txt_field field, size_t len)
+static size_t d2txt_insert_field(d2txt_row row, const d2txt_field field, size_t len)
 {
 	*row = malloc(len + 1);
 	if (*row != NULL)
@@ -89,7 +89,7 @@ CHECK_RESULT d2err d2txt_parse_row(char *line, d2txt_row* out_parsed, size_t num
 	size_t tokLen;
 	for (const char* tok = d2txt_strsep(line, "\t", &tokLen); tok != NULL && parsedCount < numFields; tok = d2txt_strsep(NULL, "\t", &tokLen))
 	{
-		if (!d2txt_insert_field(&parsed[parsedCount], tok, tokLen))
+		if (!d2txt_insert_field(&parsed[parsedCount], (const d2txt_field)tok, tokLen))
 		{
 			goto oom_and_free;
 		}
@@ -128,7 +128,7 @@ CHECK_RESULT d2err d2txt_parse_header(char *line, d2txt_row* out_parsed, size_t 
 	size_t tokLen;
 	for (const char* tok = d2txt_strsep(line, "\t", &tokLen); tok != NULL; tok = d2txt_strsep(NULL, "\t", &tokLen))
 	{
-		if (!d2txt_insert_field(&parsed[parsedCount], tok, tokLen))
+		if (!d2txt_insert_field(&parsed[parsedCount], (const d2txt_field)tok, tokLen))
 		{
 			goto oom_and_free;
 		}
@@ -231,7 +231,7 @@ CHECK_RESULT d2err d2txt_parse_file(const char *filename, d2txt_file* out_parsed
 	{
 		return err;
 	}
-	err = d2txt_parse(data, size, out_parsed, out_numRows);
+	err = d2txt_parse((char*)data, size, out_parsed, out_numRows);
 	free(data);
 	return err;
 }

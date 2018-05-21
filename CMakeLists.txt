@@ -10,6 +10,12 @@ if (MSVC)
   target_compile_definitions( d2itemreader PUBLIC _CRT_SECURE_NO_WARNINGS )
 endif()
 
+if (("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU"))
+  set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -Wall -Wextra")
+elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
+  set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} /W3 /sdl")
+endif()
+
 add_subdirectory(examples)
 add_subdirectory(tools)
 

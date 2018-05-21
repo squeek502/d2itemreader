@@ -222,7 +222,7 @@ static CHECK_RESULT d2err d2data_load_itemstats_common(char*** parsed, d2data* d
 		return D2ERR_PARSE;
 	}
 
-	int id = 0;
+	uint16_t id = 0;
 	for (int iRow = 1; parsed[iRow] && id < D2DATA_MAX_ITEMSTATCOST_IDS; iRow++)
 	{
 		char** row = parsed[iRow];
@@ -233,11 +233,11 @@ static CHECK_RESULT d2err d2data_load_itemstats_common(char*** parsed, d2data* d
 		char* charSaveBits = row[charSaveBitsCol];
 
 		data->itemstats[id].id = id;
-		data->itemstats[id].saveBits = saveBits[0] ? atoi(saveBits) : 0;
-		data->itemstats[id].saveAdd = saveAdd[0] ? atoi(saveAdd) : 0;
+		data->itemstats[id].saveBits = (uint16_t)(saveBits[0] ? atoi(saveBits) : 0);
+		data->itemstats[id].saveAdd = (uint16_t)(saveAdd[0] ? atoi(saveAdd) : 0);
 		data->itemstats[id].encode = (uint8_t)(encode[0] ? atoi(encode) : 0);
-		data->itemstats[id].saveParamBits = saveParamBits[0] ? atoi(saveParamBits) : 0;
-		data->itemstats[id].charSaveBits = charSaveBits[0] ? atoi(charSaveBits) : 0;
+		data->itemstats[id].saveParamBits = (uint16_t)(saveParamBits[0] ? atoi(saveParamBits) : 0);
+		data->itemstats[id].charSaveBits = (uint16_t)(charSaveBits[0] ? atoi(charSaveBits) : 0);
 
 		// these specific ids are melded together with the next ID, but there's no signifier of this in the
 		// .txt file, so we have to hardcode this list

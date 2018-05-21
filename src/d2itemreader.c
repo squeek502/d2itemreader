@@ -781,7 +781,6 @@ CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t d
 		}
 	}
 
-	int pageNum = 0;
 	uint32_t stashSizeBytes;
 	while (stash->numPages < expectedNumPages && curByte < dataSizeBytes)
 	{

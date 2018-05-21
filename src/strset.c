@@ -71,7 +71,7 @@ static int strset_bucket_has(strset_bucket* bucket, const char* str)
 
 static inline strset_bucket* strset_get_bucket(strset_t* set, const char* str)
 {
-	size_t hash = (*set->hash_fn)(str);
+	size_t hash = (*set->hash_fn)((const unsigned char*)str);
 	return &set->buckets[hash % set->numBuckets];
 }
 
