@@ -66,7 +66,7 @@ static const char* d2txt_strtokbuf(const char* str, const char* delims, char* bu
 }
 
 // returns the number of fields inserted (0 or 1)
-static size_t d2txt_insert_field(char** row, const char* field, size_t len)
+static size_t d2txt_insert_field(d2txt_row row, d2txt_field field, size_t len)
 {
 	*row = malloc(len + 1);
 	if (*row != NULL)
@@ -236,7 +236,7 @@ CHECK_RESULT d2err d2txt_parse_file(const char *filename, d2txt_file* out_parsed
 	return err;
 }
 
-void d2txt_destroy_row(char **parsed)
+void d2txt_destroy_row(d2txt_row parsed)
 {
 	for (char** ptr = parsed; *ptr; ptr++)
 	{
@@ -245,7 +245,7 @@ void d2txt_destroy_row(char **parsed)
 	free(parsed);
 }
 
-void d2txt_destroy(char ***parsed)
+void d2txt_destroy(d2txt_file parsed)
 {
 	for (char*** ptr = parsed; *ptr; ptr++)
 	{
@@ -254,7 +254,7 @@ void d2txt_destroy(char ***parsed)
 	free(parsed);
 }
 
-int d2txt_find_index(char*** parsed, const char* needle)
+int d2txt_find_index(d2txt_file parsed, const char* needle)
 {
 	char** header = *parsed;
 	if (header)
