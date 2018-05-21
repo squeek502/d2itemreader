@@ -7,6 +7,9 @@ MU_TEST(classic)
 	uint32_t bytesRead;
 	d2err err = d2char_parse_file("data/classic.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_OK);
+	mu_check(character.items.count == 7);
+	mu_check(character.itemsCorpse.count == 0);
+	mu_check(character.itemsMerc.count == 0);
 	d2char_destroy(&character);
 }
 
@@ -16,6 +19,9 @@ MU_TEST(golem)
 	uint32_t bytesRead;
 	d2err err = d2char_parse_file("data/golem.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_OK);
+	mu_check(character.items.count == 7);
+	mu_check(character.itemsCorpse.count == 0);
+	mu_check(character.itemsMerc.count == 0);
 	d2char_destroy(&character);
 }
 
@@ -25,6 +31,9 @@ MU_TEST(nomerc)
 	uint32_t bytesRead;
 	d2err err = d2char_parse_file("data/nomerc.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_OK);
+	mu_check(character.items.count == 2);
+	mu_check(character.itemsCorpse.count == 0);
+	mu_check(character.itemsMerc.count == 0);
 	d2char_destroy(&character);
 }
 
@@ -42,7 +51,29 @@ MU_TEST(atma)
 	uint32_t bytesRead;
 	d2err err = d2atmastash_parse_file("data/atma.d2x", &stash, &bytesRead);
 	mu_check(err == D2ERR_OK);
+	mu_check(stash.items.count == 6);
 	d2atmastash_destroy(&stash);
+}
+
+MU_TEST(plugy_sss)
+{
+	d2sharedstash stash;
+	uint32_t bytesRead;
+	d2err err = d2sharedstash_parse_file("data/simple.sss", &stash, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	mu_check(stash.sharedGold == 10);
+	mu_check(stash.numPages == 20);
+	d2sharedstash_destroy(&stash);
+}
+
+MU_TEST(plugy_d2x)
+{
+	d2personalstash stash;
+	uint32_t bytesRead;
+	d2err err = d2personalstash_parse_file("data/simple.d2x", &stash, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	mu_check(stash.numPages == 1);
+	d2personalstash_destroy(&stash);
 }
 
 MU_TEST(unexpected_eof)
@@ -69,6 +100,8 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(nomerc);
 	MU_RUN_TEST(badcorpseheader);
 	MU_RUN_TEST(atma);
+	MU_RUN_TEST(plugy_sss);
+	MU_RUN_TEST(plugy_d2x);
 	MU_RUN_TEST(unexpected_eof);
 }
 
