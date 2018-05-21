@@ -783,7 +783,7 @@ CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t d
 
 	int pageNum = 0;
 	uint32_t stashSizeBytes;
-	while (pageNum < stash->numPages && curByte < dataSizeBytes)
+	while (stash->numPages < expectedNumPages && curByte < dataSizeBytes)
 	{
 		if ((err = d2stashpage_parse(data, dataSizeBytes, curByte, &stash->pages[stash->numPages], &stashSizeBytes)) != D2ERR_OK)
 		{
