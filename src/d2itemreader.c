@@ -858,17 +858,21 @@ CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t
 	// unused block
 	D2ITEMREADER_SKIP(uint32_t) else { goto eof; }
 
-	stash->numPages = D2ITEMREADER_READ(uint32_t) else { goto eof; }
+	// stash->numPages is incremented as pages are successfully parsed to
+	// ensure that calling d2personalstash_destroy doesn't attempt to free pages
+	// that haven't been initialized
+	stash->numPages = 0;
+	uint32_t expectedNumPages = D2ITEMREADER_READ(uint32_t) else { goto eof; }
 	// basic sanity check for impossible page numbers
-	if (stash->numPages > dataSizeBytes)
+	if (expectedNumPages > dataSizeBytes)
 	{
 		*out_bytesRead = curByte - sizeof(uint32_t);
 		return D2ERR_PARSE_TOO_MANY_STASH_PAGES;
 	}
 	stash->pages = NULL;
-	if (stash->numPages > 0)
+	if (expectedNumPages > 0)
 	{
-		stash->pages = malloc(stash->numPages * sizeof(*stash->pages));
+		stash->pages = malloc(expectedNumPages * sizeof(*stash->pages));
 		if (stash->pages == NULL)
 		{
 			*out_bytesRead = curByte;
@@ -876,24 +880,26 @@ CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t
 		}
 	}
 
-	int pageNum = 0;
 	uint32_t stashSizeBytes;
-	while (pageNum < stash->numPages && curByte < dataSizeBytes)
+	while (stash->numPages < expectedNumPages && curByte < dataSizeBytes)
 	{
-		if ((err = d2stashpage_parse(data, dataSizeBytes, curByte, &stash->pages[pageNum], &stashSizeBytes)) != D2ERR_OK)
+		if ((err = d2stashpage_parse(data, dataSizeBytes, curByte, &stash->pages[stash->numPages], &stashSizeBytes)) != D2ERR_OK)
 		{
 			*out_bytesRead = curByte + stashSizeBytes;
-			// need to make sure we destroy only the pages that have been parsed so far
-			stash->numPages = pageNum;
 			d2personalstash_destroy(stash);
 			return err;
 		}
-		stash->pages[pageNum].pageNum = pageNum + 1;
+		stash->pages[stash->numPages].pageNum = stash->numPages + 1;
 		curByte += stashSizeBytes;
-		pageNum++;
+		stash->numPages++;
 	}
 
 	*out_bytesRead = curByte;
+	if (stash->numPages != expectedNumPages)
+	{
+		d2personalstash_destroy(stash);
+		return D2ERR_PARSE_TOO_FEW_STASH_PAGES;
+	}
 	if (curByte != dataSizeBytes)
 	{
 		d2personalstash_destroy(stash);
