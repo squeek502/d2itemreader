@@ -774,7 +774,7 @@ CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t d
 
 	int pageNum = 0;
 	uint32_t stashSizeBytes;
-	while (curByte < dataSizeBytes)
+	while (pageNum < stash->numPages && curByte < dataSizeBytes)
 	{
 		if ((err = d2stashpage_parse(data, dataSizeBytes, curByte, &stash->pages[pageNum], &stashSizeBytes)) != D2ERR_OK)
 		{
@@ -873,7 +873,7 @@ CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t
 
 	int pageNum = 0;
 	uint32_t stashSizeBytes;
-	while (curByte < dataSizeBytes)
+	while (pageNum < stash->numPages && curByte < dataSizeBytes)
 	{
 		if ((err = d2stashpage_parse(data, dataSizeBytes, curByte, &stash->pages[pageNum], &stashSizeBytes)) != D2ERR_OK)
 		{
