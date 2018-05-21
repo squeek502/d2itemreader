@@ -664,6 +664,11 @@ CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, size_t dat
 	}
 
 	page->flags = 0;
+	// need to make sure we have at least one byte available to read
+	if (curByte >= dataSizeBytes)
+	{
+		goto eof;
+	}
 	size_t len = strnlen((char*)&data[curByte], dataSizeBytes - curByte - 1);
 	// check that we won't read past the end of data here
 	if (curByte + len + 1 + sizeof(uint16_t) > dataSizeBytes)
