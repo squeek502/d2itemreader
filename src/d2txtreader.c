@@ -238,7 +238,7 @@ CHECK_RESULT d2err d2txt_parse_file(const char *filename, d2txt_file* out_parsed
 
 void d2txt_destroy_row(d2txt_row parsed)
 {
-	for (char** ptr = parsed; *ptr; ptr++)
+	for (d2txt_field* ptr = parsed; *ptr; ptr++)
 	{
 		free(*ptr);
 	}
@@ -247,7 +247,7 @@ void d2txt_destroy_row(d2txt_row parsed)
 
 void d2txt_destroy(d2txt_file parsed)
 {
-	for (char*** ptr = parsed; *ptr; ptr++)
+	for (d2txt_row* ptr = parsed; *ptr; ptr++)
 	{
 		d2txt_destroy_row(*ptr);
 	}
@@ -256,7 +256,7 @@ void d2txt_destroy(d2txt_file parsed)
 
 int d2txt_find_index(d2txt_file parsed, const char* needle)
 {
-	char** header = *parsed;
+	d2txt_row header = *parsed;
 	if (header)
 	{
 		for (int i = 0; header[i]; i++)

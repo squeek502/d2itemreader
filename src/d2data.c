@@ -39,7 +39,7 @@ static CHECK_RESULT d2err d2data_init(d2data* data)
 	return D2ERR_OK;
 }
 
-static CHECK_RESULT d2err d2data_load_armors_common(char*** parsed, size_t UNUSED(numRows), d2data* data)
+static CHECK_RESULT d2err d2data_load_armors_common(d2txt_file parsed, size_t UNUSED(numRows), d2data* data)
 {
 	d2err err;
 	if ((err = d2data_init(data)) != D2ERR_OK)
@@ -55,8 +55,8 @@ static CHECK_RESULT d2err d2data_load_armors_common(char*** parsed, size_t UNUSE
 	int i = 0;
 	for (int iRow = 1; parsed[iRow]; iRow++)
 	{
-		char** row = parsed[iRow];
-		char* code = row[codeCol];
+		d2txt_row row = parsed[iRow];
+		d2txt_field code = row[codeCol];
 		if (!code[0]) continue;
 
 		strset_put(data->armorsSet, code);
@@ -93,7 +93,7 @@ CHECK_RESULT d2err d2data_load_armors_from_file(const char* filename, d2data* da
 	return err;
 }
 
-static CHECK_RESULT d2err d2data_load_weapons_common(char*** parsed, size_t UNUSED(numRows), d2data* data)
+static CHECK_RESULT d2err d2data_load_weapons_common(d2txt_file parsed, size_t UNUSED(numRows), d2data* data)
 {
 	d2err err;
 	if ((err = d2data_init(data)) != D2ERR_OK)
@@ -110,8 +110,8 @@ static CHECK_RESULT d2err d2data_load_weapons_common(char*** parsed, size_t UNUS
 	int i = 0;
 	for (int iRow = 1; parsed[iRow]; iRow++)
 	{
-		char** row = parsed[iRow];
-		char* code = row[codeCol];
+		d2txt_row row = parsed[iRow];
+		d2txt_field code = row[codeCol];
 		if (!code[0]) continue;
 
 		strset_put(data->weaponsSet, code);
@@ -152,7 +152,7 @@ CHECK_RESULT d2err d2data_load_weapons_from_file(const char* filename, d2data* d
 	return err;
 }
 
-static CHECK_RESULT d2err d2data_load_miscs_common(char*** parsed, size_t UNUSED(numRows), d2data* data)
+static CHECK_RESULT d2err d2data_load_miscs_common(d2txt_file parsed, size_t UNUSED(numRows), d2data* data)
 {
 	d2err err;
 	if ((err = d2data_init(data)) != D2ERR_OK)
@@ -169,8 +169,8 @@ static CHECK_RESULT d2err d2data_load_miscs_common(char*** parsed, size_t UNUSED
 	int i = 0;
 	for (int iRow = 1; parsed[iRow]; iRow++)
 	{
-		char** row = parsed[iRow];
-		char* code = row[codeCol];
+		d2txt_row row = parsed[iRow];
+		d2txt_field code = row[codeCol];
 		if (!code[0]) continue;
 
 		if (row[stackableCol][0] == '1')
@@ -210,7 +210,7 @@ CHECK_RESULT d2err d2data_load_miscs_from_file(const char* filename, d2data* dat
 	return err;
 }
 
-static CHECK_RESULT d2err d2data_load_itemstats_common(char*** parsed, d2data* data)
+static CHECK_RESULT d2err d2data_load_itemstats_common(d2txt_file parsed, d2data* data)
 {
 	int saveBitsCol = d2txt_find_index(parsed, "Save Bits");
 	int saveAddCol = d2txt_find_index(parsed, "Save Add");
@@ -225,12 +225,12 @@ static CHECK_RESULT d2err d2data_load_itemstats_common(char*** parsed, d2data* d
 	uint16_t id = 0;
 	for (int iRow = 1; parsed[iRow] && id < D2DATA_MAX_ITEMSTATCOST_IDS; iRow++)
 	{
-		char** row = parsed[iRow];
-		char* saveBits = row[saveBitsCol];
-		char* saveAdd = row[saveAddCol];
-		char* encode = row[encodeCol];
-		char* saveParamBits = row[saveParamBitsCol];
-		char* charSaveBits = row[charSaveBitsCol];
+		d2txt_row row = parsed[iRow];
+		d2txt_field saveBits = row[saveBitsCol];
+		d2txt_field saveAdd = row[saveAddCol];
+		d2txt_field encode = row[encodeCol];
+		d2txt_field saveParamBits = row[saveParamBitsCol];
+		d2txt_field charSaveBits = row[charSaveBitsCol];
 
 		data->itemstats[id].id = id;
 		data->itemstats[id].saveBits = (uint16_t)(saveBits[0] ? atoi(saveBits) : 0);
