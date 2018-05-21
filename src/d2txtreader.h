@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "util.h"
+#include "d2util.h"
 #include "d2err.h"
 
 typedef char* d2txt_field;

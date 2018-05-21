@@ -1,4 +1,4 @@
-#include "util.h"
+#include "d2util.h"
 #include <stdio.h>
 
 CHECK_RESULT d2err d2util_read_file(const char* filepath, unsigned char** data_out, size_t* bytesRead)

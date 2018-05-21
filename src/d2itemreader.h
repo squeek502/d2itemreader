@@ -10,7 +10,7 @@ extern "C" {
 #include "bitreader.h"
 #include "d2data.h"
 #include "d2err.h"
-#include "util.h"
+#include "d2util.h"
 
 extern d2data g_d2data;
 

@@ -10,7 +10,7 @@ extern "C" {
 #include <stdint.h>
 #include "strset.h"
 #include "d2err.h"
-#include "util.h"
+#include "d2util.h"
 
 #define D2_ITEM_CODE_STRLEN 4
 #define D2_ITEM_CODE_BYTELEN D2_ITEM_CODE_STRLEN+1

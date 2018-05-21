@@ -1,6 +1,6 @@
 #include "d2itemreader.h"
 #include "d2txtreader.h"
-#include "util.h"
+#include "d2util.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

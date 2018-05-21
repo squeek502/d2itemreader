@@ -1,5 +1,5 @@
 #include "bitreader.h"
-#include "util.h"
+#include "d2util.h"
 #include "minunit.h"
 #include <stdbool.h>
 
