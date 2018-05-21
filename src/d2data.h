@@ -1,6 +1,10 @@
 #ifndef D2DATA_H_
 #define D2DATA_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -45,5 +49,9 @@ CHECK_RESULT d2err d2data_load_itemstats(const char* txtdata, size_t length, d2d
 CHECK_RESULT d2err d2data_load_itemstats_from_file(const char* filename, d2data* data);
 
 void d2data_destroy(d2data* data);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

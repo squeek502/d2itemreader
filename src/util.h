@@ -1,6 +1,10 @@
 #ifndef D2ITEMREADER_UTIL_H
 #define D2ITEMREADER_UTIL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 #include "d2err.h"
 
@@ -13,5 +17,9 @@
 #endif
 
 CHECK_RESULT d2err d2util_read_file(const char* filepath, unsigned char** data_out, size_t* bytesRead);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

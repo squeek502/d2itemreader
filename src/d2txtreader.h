@@ -1,6 +1,10 @@
 #ifndef D2TXTREADER_H
 #define D2TXTREADER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "util.h"
 #include "d2err.h"
 
@@ -31,5 +35,9 @@ void d2txt_destroy_row(d2txt_row parsed);
 
 // find the index of the header column with the given name
 int d2txt_find_index(d2txt_file parsed, const char* needle);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

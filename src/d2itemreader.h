@@ -1,6 +1,10 @@
 #ifndef D2ITEMREADER_H
 #define D2ITEMREADER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include "bitreader.h"
@@ -336,5 +340,9 @@ typedef struct d2atmastash {
 CHECK_RESULT d2err d2atmastash_parse_file(const char* filename, d2atmastash* stash, uint32_t* out_bytesRead);
 CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dataSizeBytes, d2atmastash* stash, uint32_t* out_bytesRead);
 void d2atmastash_destroy(d2atmastash* stash);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

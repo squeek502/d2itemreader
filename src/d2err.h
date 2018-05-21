@@ -1,6 +1,10 @@
 #ifndef D2ERR_H_
 #define D2ERR_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum d2err {
 	D2ERR_OK,
 	D2ERR_FILE,
@@ -21,5 +25,9 @@ typedef enum d2err {
 * Get a human readable representation for the error code
 */
 const char* d2err_str(d2err err);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
