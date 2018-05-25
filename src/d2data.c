@@ -49,6 +49,7 @@ static CHECK_RESULT d2err d2data_load_armors_common(d2txt_file parsed, size_t UN
 	int codeCol = d2txt_find_index(parsed, "code");
 	if (codeCol < 0)
 	{
+		d2data_destroy(data);
 		return D2ERR_PARSE;
 	}
 
@@ -62,6 +63,7 @@ static CHECK_RESULT d2err d2data_load_armors_common(d2txt_file parsed, size_t UN
 		strset_put(data->armorsSet, code);
 		i++;
 	}
+	data->initState |= D2DATA_INIT_STATE_ARMORS;
 	return D2ERR_OK;
 }
 
@@ -104,6 +106,7 @@ static CHECK_RESULT d2err d2data_load_weapons_common(d2txt_file parsed, size_t U
 	int stackableCol = d2txt_find_index(parsed, "stackable");
 	if (codeCol < 0 || stackableCol < 0)
 	{
+		d2data_destroy(data);
 		return D2ERR_PARSE;
 	}
 
@@ -121,6 +124,7 @@ static CHECK_RESULT d2err d2data_load_weapons_common(d2txt_file parsed, size_t U
 		}
 		i++;
 	}
+	data->initState |= D2DATA_INIT_STATE_WEAPONS;
 	return D2ERR_OK;
 }
 
@@ -163,6 +167,7 @@ static CHECK_RESULT d2err d2data_load_miscs_common(d2txt_file parsed, size_t UNU
 	int stackableCol = d2txt_find_index(parsed, "stackable");
 	if (codeCol < 0 || stackableCol < 0)
 	{
+		d2data_destroy(data);
 		return D2ERR_PARSE;
 	}
 
@@ -179,6 +184,7 @@ static CHECK_RESULT d2err d2data_load_miscs_common(d2txt_file parsed, size_t UNU
 		}
 		i++;
 	}
+	data->initState |= D2DATA_INIT_STATE_MISCS;
 	return D2ERR_OK;
 }
 
@@ -252,6 +258,7 @@ static CHECK_RESULT d2err d2data_load_itemstats_common(d2txt_file parsed, d2data
 
 		id++;
 	}
+	data->initState |= D2DATA_INIT_STATE_ITEMSTATS;
 	return D2ERR_OK;
 }
 
@@ -298,11 +305,12 @@ void d2data_destroy(d2data* data)
 		strset_free(data->stackablesSet);
 		data->stackablesSet = NULL;
 	}
+	data->initState = D2DATA_INIT_STATE_NONE;
 }
 
 #include "d2data_default.inc"
 #define d2data_default_count(x) (sizeof(x) / sizeof((x)[0]))
-CHECK_RESULT d2err d2data_use_default(d2data* data)
+CHECK_RESULT d2err d2data_load_defaults(d2data* data)
 {
 	d2err err = d2data_init(data);
 	if (err != D2ERR_OK)
@@ -325,5 +333,6 @@ CHECK_RESULT d2err d2data_use_default(d2data* data)
 	{
 		data->itemstats[i] = d2data_default_itemstats[i];
 	}
+	data->initState = D2DATA_INIT_STATE_ALL;
 	return D2ERR_OK;
 }

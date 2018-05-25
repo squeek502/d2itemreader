@@ -1,6 +1,14 @@
 #include "d2itemreader.h"
 #include "minunit.h"
 
+MU_TEST(nodata)
+{
+	d2char character;
+	uint32_t bytesRead;
+	d2err err = d2char_parse_file("data/classic.d2s", &character, &bytesRead);
+	mu_check(err == D2ERR_DATA_NOT_LOADED);
+}
+
 MU_TEST(classic)
 {
 	d2char character;
@@ -95,6 +103,9 @@ MU_TEST(unexpected_eof)
 
 MU_TEST_SUITE(test_d2itemreader)
 {
+	MU_RUN_TEST(nodata);
+	d2err err = d2itemreader_init_default();
+	mu_check(err == D2ERR_OK);
 	MU_RUN_TEST(classic);
 	MU_RUN_TEST(golem);
 	MU_RUN_TEST(nomerc);
@@ -103,17 +114,12 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(plugy_sss);
 	MU_RUN_TEST(plugy_d2x);
 	MU_RUN_TEST(unexpected_eof);
+	d2itemreader_destroy();
 }
 
 int main()
 {
-	d2err err = d2data_use_default(&g_d2data);
-	if (err != D2ERR_OK)
-	{
-		return 1;
-	}
 	MU_RUN_SUITE(test_d2itemreader);
 	MU_REPORT();
-	d2data_destroy(&g_d2data);
 	return 0;
 }

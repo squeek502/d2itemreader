@@ -5,13 +5,67 @@
 #include <string.h>
 #include <stdio.h>
 
-d2data g_d2data = { NULL };
+d2data g_d2itemreader_data = { 0 };
 
 #define BITS_PER_BYTE 8
 #define D2ITEMREADER_DATA (data + curByte)
 #define D2ITEMREADER_INC(T) curByte += sizeof(T)
 #define D2ITEMREADER_SKIP(T) if (curByte+sizeof(T)<=dataSizeBytes) { D2ITEMREADER_INC(T); }
 #define D2ITEMREADER_READ(T) (curByte+sizeof(T)<=dataSizeBytes ? *(T*)D2ITEMREADER_DATA : (T)0); D2ITEMREADER_SKIP(T)
+
+CHECK_RESULT d2err d2itemreader_init_default()
+{
+	return d2data_load_defaults(&g_d2itemreader_data);
+}
+
+CHECK_RESULT d2err d2itemreader_init_files(d2datafiles files)
+{
+	d2err err;
+	if ((err = d2data_load_armors_from_file(files.armorTxtFilepath, &g_d2itemreader_data)) != D2ERR_OK)
+	{
+		return err;
+	}
+	if ((err = d2data_load_weapons_from_file(files.weaponsTxtFilepath, &g_d2itemreader_data)) != D2ERR_OK)
+	{
+		return err;
+	}
+	if ((err = d2data_load_miscs_from_file(files.miscTxtFilepath, &g_d2itemreader_data)) != D2ERR_OK)
+	{
+		return err;
+	}
+	if ((err = d2data_load_itemstats_from_file(files.itemStatCostTxtFilepath, &g_d2itemreader_data)) != D2ERR_OK)
+	{
+		return err;
+	}
+	return D2ERR_OK;
+}
+
+CHECK_RESULT d2err d2itemreader_init_bufs(d2databufs bufs)
+{
+	d2err err;
+	if ((err = d2data_load_armors(bufs.armorTxt, bufs.armorTxtSize, &g_d2itemreader_data)) != D2ERR_OK)
+	{
+		return err;
+	}
+	if ((err = d2data_load_weapons(bufs.weaponsTxt, bufs.weaponsTxtSize, &g_d2itemreader_data)) != D2ERR_OK)
+	{
+		return err;
+	}
+	if ((err = d2data_load_miscs(bufs.miscTxt, bufs.miscTxtSize, &g_d2itemreader_data)) != D2ERR_OK)
+	{
+		return err;
+	}
+	if ((err = d2data_load_itemstats(bufs.itemStatCostTxt, bufs.itemStatCostTxtSize, &g_d2itemreader_data)) != D2ERR_OK)
+	{
+		return err;
+	}
+	return D2ERR_OK;
+}
+
+void d2itemreader_destroy()
+{
+	d2data_destroy(&g_d2itemreader_data);
+}
 
 enum d2filetype d2filetype_get(const unsigned char* data, size_t size)
 {
@@ -55,6 +109,11 @@ enum d2filetype d2filetype_of_file(const char* filename)
 // and returns the list of properties.
 CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list)
 {
+	if (g_d2itemreader_data.initState != D2DATA_INIT_STATE_ALL)
+	{
+		return D2ERR_DATA_NOT_LOADED;
+	}
+
 	d2err err;
 	if ((err = d2itemproplist_init(list)) != D2ERR_OK)
 	{
@@ -335,6 +394,11 @@ void d2itemlist_destroy(d2itemlist* list)
 
 CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2item* item, uint32_t* out_bytesRead)
 {
+	if (g_d2itemreader_data.initState != D2DATA_INIT_STATE_ALL)
+	{
+		*out_bytesRead = 0;
+		return D2ERR_DATA_NOT_LOADED;
+	}
 	d2err err;
 	uint32_t curByte = startByte;
 	uint16_t tag = D2ITEMREADER_READ(uint16_t) else { goto eof; }
@@ -545,15 +609,16 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 		// and the item specific data
 		item->timestamp = read_bits(&br, 1);
 
-		if (d2data_is_armor(item->code, &g_d2data))
+		if (d2data_is_armor(item->code, &g_d2itemreader_data))
 		{
-			// If the item is an armor, it will have this field of defense data.
-			// We need to subtract 10 defense rating from all armors for
-			// some reason, I'm not sure why.
+			// The -10 here matches ItemStatCost.txt's "Save Add" for the armor stat
+			// (see `d2itemproplist_parse`)
+			// TODO: Find out if this is actually linked, or if this -10 is hardcoded
+			//       separate from the ItemStatCost.txt values
 			item->defenseRating = (uint16_t)read_bits(&br, 11) - 10;
 		}
 
-		if (d2data_is_armor(item->code, &g_d2data) || d2data_is_weapon(item->code, &g_d2data))
+		if (d2data_is_armor(item->code, &g_d2itemreader_data) || d2data_is_weapon(item->code, &g_d2itemreader_data))
 		{
 			item->maxDurability = (uint8_t)read_bits(&br, 8);
 			// Some weapons like phase blades don't have durability, so we'll
@@ -567,7 +632,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 			}
 		}
 
-		if (d2data_is_stackable(item->code, &g_d2data))
+		if (d2data_is_stackable(item->code, &g_d2itemreader_data))
 		{
 			// If the item is a stacked item, e.g. a javelin or something, these 9
 			// bits will contain the quantity.
@@ -592,7 +657,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 
 		// MARK: Time to parse 9 bit magical property ids followed by their n bit
 		// length values, but only if the item is magical or above.
-		if ((err = d2itemproplist_parse(&br, &g_d2data, &item->magicProperties)) != D2ERR_OK)
+		if ((err = d2itemproplist_parse(&br, &g_d2itemreader_data, &item->magicProperties)) != D2ERR_OK)
 		{
 			d2item_destroy(item);
 			goto exit;
@@ -606,7 +671,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 				unsigned short mask = 1 << i;
 				if (setPropertyFlags & mask)
 				{
-					if ((err = d2itemproplist_parse(&br, &g_d2data, &item->setBonuses[item->numSetBonuses])) != D2ERR_OK)
+					if ((err = d2itemproplist_parse(&br, &g_d2itemreader_data, &item->setBonuses[item->numSetBonuses])) != D2ERR_OK)
 					{
 						d2item_destroy(item);
 						goto exit;
@@ -618,7 +683,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 
 		if (item->isRuneword)
 		{
-			if ((err = d2itemproplist_parse(&br, &g_d2data, &item->runewordProperties)) != D2ERR_OK)
+			if ((err = d2itemproplist_parse(&br, &g_d2itemreader_data, &item->runewordProperties)) != D2ERR_OK)
 			{
 				d2item_destroy(item);
 				goto exit;
@@ -948,6 +1013,12 @@ CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, ui
 
 CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSizeBytes, d2char *character, uint32_t* out_bytesRead)
 {
+	if (g_d2itemreader_data.initState != D2DATA_INIT_STATE_ALL)
+	{
+		*out_bytesRead = 0;
+		return D2ERR_DATA_NOT_LOADED;
+	}
+
 	d2err err;
 	uint32_t curByte = 0;
 
@@ -993,7 +1064,7 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSize
 			goto err;
 		}
 
-		d2data_itemstat* stat = &g_d2data.itemstats[id];
+		d2data_itemstat* stat = &g_d2itemreader_data.itemstats[id];
 
 		// this is unrecoverably bad
 		if (stat->charSaveBits == 0)

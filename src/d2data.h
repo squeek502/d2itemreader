@@ -17,6 +17,13 @@ extern "C" {
 #define D2DATA_ITEMSTAT_END_ID 0x1ff
 #define D2DATA_MAX_ITEMSTATCOST_IDS D2DATA_ITEMSTAT_END_ID
 
+#define D2DATA_INIT_STATE_NONE 0
+#define D2DATA_INIT_STATE_ARMORS (1 << 0)
+#define D2DATA_INIT_STATE_WEAPONS (1 << 1)
+#define D2DATA_INIT_STATE_MISCS (1 << 2)
+#define D2DATA_INIT_STATE_ITEMSTATS (1 << 3)
+#define D2DATA_INIT_STATE_ALL (D2DATA_INIT_STATE_ARMORS|D2DATA_INIT_STATE_WEAPONS|D2DATA_INIT_STATE_MISCS|D2DATA_INIT_STATE_ITEMSTATS)
+
 typedef struct d2data_itemstat {
 	uint16_t id;
 	uint8_t encode;
@@ -28,6 +35,7 @@ typedef struct d2data_itemstat {
 } d2data_itemstat;
 
 typedef struct d2data {
+	uint16_t initState;
 	strset_t* armorsSet;
 	strset_t* weaponsSet;
 	strset_t* stackablesSet;
@@ -38,7 +46,7 @@ bool d2data_is_armor(const char* itemCode, const d2data* data);
 bool d2data_is_weapon(const char* itemCode, const d2data* data);
 bool d2data_is_stackable(const char* itemCode, const d2data* data);
 
-CHECK_RESULT d2err d2data_use_default(d2data* data);
+CHECK_RESULT d2err d2data_load_defaults(d2data* data);
 CHECK_RESULT d2err d2data_load_armors(const char* txtdata, size_t length, d2data* data);
 CHECK_RESULT d2err d2data_load_armors_from_file(const char* filename, d2data* data);
 CHECK_RESULT d2err d2data_load_weapons(const char* txtdata, size_t length, d2data* data);

@@ -13,7 +13,8 @@
 	XX(D2ERR_PARSE_UNEXPECTED_EOF, "unexpected end of file") \
 	XX(D2ERR_PARSE_UNEXPECTED_NONSOCKETED_ITEM, "unexpected non-socket item") \
 	XX(D2ERR_PARSE_TOO_MANY_STASH_PAGES, "impossibly large number of stash pages") \
-	XX(D2ERR_PARSE_TOO_FEW_STASH_PAGES, "actual number of stash pages lower than number given in header")
+	XX(D2ERR_PARSE_TOO_FEW_STASH_PAGES, "actual number of stash pages lower than number given in header") \
+	XX(D2ERR_DATA_NOT_LOADED, "game data (.txt files) not loaded")
 
 #define D2ERR_STR_GEN(name, msg) case name: return msg;
 const char* d2err_str(d2err err)

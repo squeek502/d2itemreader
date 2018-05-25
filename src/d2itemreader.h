@@ -12,12 +12,12 @@ extern "C" {
 #include "d2err.h"
 #include "d2util.h"
 
-extern d2data g_d2data;
+extern d2data g_d2itemreader_data;
 
 // D2
 #define D2S_HEADER 0xAA55AA55 // "U.U." where '.' = (unsigned char)170
 #define D2S_STATUS_OFFSET 36
-#define D2S_STATUS_EXPANSION_MASK 1 << 5
+#define D2S_STATUS_EXPANSION_MASK (1 << 5)
 #define D2S_MERC_ID_OFFSET 179
 #define D2S_STATS_OFFSET 765
 #define D2S_STATS_HEADER 0x6667 //"gf"
@@ -26,16 +26,16 @@ extern d2data g_d2data;
 #define D2S_IRON_GOLEM_HEADER 0x666B //"kf"
 #define D2_JM_TAG 0x4D4A //"JM"
 #define D2_MAX_CHAR_NAME_STRLEN 15
-#define D2_MAX_CHAR_NAME_BYTELEN D2_MAX_CHAR_NAME_STRLEN+1
+#define D2_MAX_CHAR_NAME_BYTELEN (D2_MAX_CHAR_NAME_STRLEN+1)
 #define D2_MAX_SET_PROPERTIES 5
 #define D2_ITEMPROP_MAX_PARAMS 4
 #define D2_MAX_RARE_PREFIXES 3
 #define D2_MAX_RARE_SUFFIXES 3
-#define D2_MAX_RARE_AFFIXES D2_MAX_RARE_PREFIXES+D2_MAX_RARE_SUFFIXES
+#define D2_MAX_RARE_AFFIXES (D2_MAX_RARE_PREFIXES+D2_MAX_RARE_SUFFIXES)
 
 // PlugY
 #define D2_MAX_STASH_PAGE_NAME_STRLEN 15
-#define D2_MAX_STASH_PAGE_NAME_BYTELEN D2_MAX_STASH_PAGE_NAME_STRLEN+1
+#define D2_MAX_STASH_PAGE_NAME_BYTELEN (D2_MAX_STASH_PAGE_NAME_STRLEN+1)
 #define PLUGY_SHAREDSTASH_HEADER 0x00535353 //"SSS\0"
 #define PLUGY_PERSONALSTASH_HEADER 0x4D545343 //"CSTM"
 #define PLUGY_FILE_VERSION_01 0x3130 //"01"
@@ -51,6 +51,46 @@ extern d2data g_d2data;
 // Note: It might be controlled by the entries in Books.txt
 #define D2ITEMTYPE_TOME_TP "tbk"
 #define D2ITEMTYPE_TOME_ID "ibk"
+
+typedef struct d2datafiles {
+	const char* armorTxtFilepath;
+	const char* weaponsTxtFilepath;
+	const char* miscTxtFilepath;
+	const char* itemStatCostTxtFilepath;
+} d2datafiles;
+
+typedef struct d2databufs {
+	char* armorTxt;
+	size_t armorTxtSize;
+	char* weaponsTxt;
+	size_t weaponsTxtSize;
+	char* miscTxt;
+	size_t miscTxtSize;
+	char* itemStatCostTxt;
+	size_t itemStatCostTxtSize;
+} d2databufs;
+
+/*
+* Load the game data needed by d2itemreader. ONE of the following should be called at startup:
+* 
+* d2itemreader_init_default: Load the default data packaged with d2itemreader
+*                            (should work for recent-ish un-modded D2 versions)
+* d2itemreader_init_files: Load the data from the file paths given in `files`
+* d2itemreader_init_bufs: Load the data from the buffers given in `bufs`
+*
+* IMPORTANT: d2itemreader_destroy() only needs to be called if the init function returns D2ERR_OK
+*
+* Return value: D2ERR_OK on success
+*/
+CHECK_RESULT d2err d2itemreader_init_default();
+CHECK_RESULT d2err d2itemreader_init_files(d2datafiles files);
+CHECK_RESULT d2err d2itemreader_init_bufs(d2databufs bufs);
+/*
+* Cleanup memory used by d2itemreader.
+*
+* IMPORTANT: d2itemreader_destroy() only needs to be called if the init function returns D2ERR_OK
+*/
+void d2itemreader_destroy();
 
 enum d2rarity {
 	D2RARITY_LOW_QUALITY = 0x01,
