@@ -345,9 +345,9 @@ typedef struct d2char {
 *
 * Parameters:
 *
-*   stash: A pointer to an uninitialized d2char object.
-*          If this function returns D2ERR_OK, then `character` will need to be cleaned up with d2char_destroy.
-*          If this function returns something other than D2ERR_OK, then `character` will remain uninitialized.
+*   character: A pointer to an uninitialized d2char object.
+*              If this function returns D2ERR_OK, then `character` will need to be cleaned up with d2char_destroy.
+*              If this function returns something other than D2ERR_OK, then `character` will remain uninitialized.
 *
 *   out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file.
 *                  On error, set to the number of bytes successfully parsed before the error.
