@@ -37,17 +37,42 @@ static char* d2txt_strsep(char* str, const char* delims, size_t* out_tokLen)
 	return ret;
 }
 
-// like strtok but non-destructive; instead,  the token is copied to buf and
+// like strcspn but works for non-null-terminated strings
+size_t d2txt_strcspn(const char *str, size_t len, const char *chars)
+{
+	size_t i;
+	for (i = 0; i < len && str[i]; i++)
+	{
+		if (strchr(chars, str[i]))
+			break;
+	}
+	return i;
+}
+
+// like strspn but works for non-null-terminated strings
+size_t d2txt_strspn(const char* str, size_t len, const char* chars)
+{
+	size_t i;
+	for (i = 0; i < len && str[i]; i++)
+	{
+		if (!strchr(chars, str[i]))
+			break;
+	}
+	return i;
+}
+
+// like strtok but non-destructive; instead, the token is copied to buf and
 // returns the pointer to the beginning of the next token, or NULL if
 // the current token's length is 0
-static const char* d2txt_strtokbuf(const char* str, const char* delims, char* buf, size_t bufSizeInBytes)
+// NOTE: strLen is modified by this function (reduced by the number of characters that were read)
+static const char* d2txt_strtokbuf(const char* str, size_t* strLen, const char* delims, char* buf, size_t bufSizeInBytes)
 {
 	static char* src = NULL;
 
 	if (str != NULL)
 		src = (char*)str;
 
-	size_t length = strcspn(src, delims);
+	size_t length = d2txt_strcspn(src, *strLen, delims);
 	assert(length < bufSizeInBytes);
 	memcpy(buf, src, length);
 	buf[length] = '\0';
@@ -55,7 +80,10 @@ static const char* d2txt_strtokbuf(const char* str, const char* delims, char* bu
 	if (length != 0)
 	{
 		src += length;
-		src += strspn(src, delims);
+		*strLen -= length;
+		size_t spn = d2txt_strspn(src, *strLen, delims);
+		src += spn;
+		*strLen -= spn;
 	}
 	else
 	{
@@ -101,7 +129,6 @@ CHECK_RESULT d2err d2txt_parse_row(char *line, d2txt_row* out_parsed, size_t num
 		{
 			goto oom_and_free;
 		}
-		parsedCount++;
 	}
 	parsed[numFields] = NULL;
 
@@ -160,7 +187,7 @@ oom:
 	return D2ERR_OUT_OF_MEMORY;
 }
 
-CHECK_RESULT d2err d2txt_parse(const char *data, size_t UNUSED(length), d2txt_file* out_parsed, size_t *out_numRows)
+CHECK_RESULT d2err d2txt_parse(const char *data, size_t length, d2txt_file* out_parsed, size_t *out_numRows)
 {
 	d2err err;
 	static char line[D2TXT_MAX_LINE_LEN];
@@ -174,7 +201,7 @@ CHECK_RESULT d2err d2txt_parse(const char *data, size_t UNUSED(length), d2txt_fi
 		goto err;
 	}
 
-	if (d2txt_strtokbuf(data, "\r\n", line, D2TXT_MAX_LINE_LEN))
+	if (d2txt_strtokbuf(data, &length, "\r\n", line, D2TXT_MAX_LINE_LEN))
 	{
 		size_t numFieldsPerRow;
 		err = d2txt_parse_header(line, &parsed[parsedCount], &numFieldsPerRow);
@@ -184,7 +211,7 @@ CHECK_RESULT d2err d2txt_parse(const char *data, size_t UNUSED(length), d2txt_fi
 		}
 		parsedCount++;
 
-		while (d2txt_strtokbuf(NULL, "\r\n", line, D2TXT_MAX_LINE_LEN))
+		while (d2txt_strtokbuf(NULL, &length, "\r\n", line, D2TXT_MAX_LINE_LEN))
 		{
 			err = d2txt_parse_row(line, &parsed[parsedCount], numFieldsPerRow);
 			if (err != D2ERR_OK)
