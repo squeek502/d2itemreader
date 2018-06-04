@@ -49,12 +49,13 @@ More info:
 
 ## Bugs found via fuzzing so far
 
-- https://github.com/squeek502/d2itemreader/commit/4324bd0568aefb35d077fd91af12078930f295de
-- https://github.com/squeek502/d2itemreader/commit/ec40071115efd50f0a64c1d910c71d8307059c31
-- https://github.com/squeek502/d2itemreader/commit/c59b9db6c7ae010f7fb9e5d471c778b090f94835
-- https://github.com/squeek502/d2itemreader/commit/9b1ca7883e0f4589203871ff7f649821c4ce3c62
-- https://github.com/squeek502/d2itemreader/commit/5ac6f44d8078481e3ce4c437b9450d0026c03a5f
-- https://github.com/squeek502/d2itemreader/commit/341956eb23bc8dedc685712a48130c6e29b43d45
-- https://github.com/squeek502/d2itemreader/commit/1fa7512e8eed7d30c28d6e7df026c765f91615d9
-- https://github.com/squeek502/d2itemreader/commit/133f6e04a47b57ba7c4c6e7c9b283eca84f18fd4
-- https://github.com/squeek502/d2itemreader/commit/29c8fd5f14ea3f327e64dacbf2616ff47b533f87
+- [`4324bd0568aefb35d077fd91af12078930f295de`](https://github.com/squeek502/d2itemreader/commit/4324bd0568aefb35d077fd91af12078930f295de)
+- [`ec40071115efd50f0a64c1d910c71d8307059c31`](https://github.com/squeek502/d2itemreader/commit/ec40071115efd50f0a64c1d910c71d8307059c31)
+- [`c59b9db6c7ae010f7fb9e5d471c778b090f94835`](https://github.com/squeek502/d2itemreader/commit/c59b9db6c7ae010f7fb9e5d471c778b090f94835)
+- [`9b1ca7883e0f4589203871ff7f649821c4ce3c62`](https://github.com/squeek502/d2itemreader/commit/9b1ca7883e0f4589203871ff7f649821c4ce3c62)
+- [`5ac6f44d8078481e3ce4c437b9450d0026c03a5f`](https://github.com/squeek502/d2itemreader/commit/5ac6f44d8078481e3ce4c437b9450d0026c03a5f)
+- [`341956eb23bc8dedc685712a48130c6e29b43d45`](https://github.com/squeek502/d2itemreader/commit/341956eb23bc8dedc685712a48130c6e29b43d45)
+- [`1fa7512e8eed7d30c28d6e7df026c765f91615d9`](https://github.com/squeek502/d2itemreader/commit/1fa7512e8eed7d30c28d6e7df026c765f91615d9)
+- [`133f6e04a47b57ba7c4c6e7c9b283eca84f18fd4`](https://github.com/squeek502/d2itemreader/commit/133f6e04a47b57ba7c4c6e7c9b283eca84f18fd4)
+- [`29c8fd5f14ea3f327e64dacbf2616ff47b533f87`](https://github.com/squeek502/d2itemreader/commit/29c8fd5f14ea3f327e64dacbf2616ff47b533f87)
+- [`6621fa33fa76c8d9023787913eb90860aa2229ee`](https://github.com/squeek502/d2itemreader/commit/6621fa33fa76c8d9023787913eb90860aa2229ee)
