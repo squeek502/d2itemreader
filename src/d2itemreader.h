@@ -215,11 +215,12 @@ enum d2lowquality {
 typedef struct d2ear {
 	unsigned int class : 3;
 	unsigned int level : 7;
+	// null-terminated player name
 	char name[D2_MAX_CHAR_NAME_BYTELEN];
 } d2ear;
 
 typedef struct d2item {
-	// boolean flags
+
 	bool identified;
 	bool socketed;
 	bool isNew;
@@ -228,19 +229,16 @@ typedef struct d2item {
 	bool simpleItem;
 	bool ethereal;
 	bool personalized;
-	// Diablo II does not save any info that *directly* maps to a Runes.txt row.
+	// Diablo II does not save any info that *directly* maps an item to a Runes.txt row.
 	// Instead, which runeword the item has is determined by the runes socketed in it, and can
-	// be checked against Runes.txt's RuneX columns (in order) to determine which row matches the item
+	// be checked against Runes.txt's RuneX columns (in order) to determine which row matches the item's
+	// runes
 	//
 	// Note: The game performs this sanity check on every runeword item on load, and removes any that
 	// are invalid
 	bool isRuneword;
-	bool multiplePictures;
-	bool classSpecific;
-	bool timestamp;
-	// random unique ID assigned to this item
-	// typically displayed using printf("%08X", id)
-	uint32_t id;
+	// 0 = pre-1.08, 1 = classic, 100 = expansion, 101 = expansion 1.10+ 
+	uint8_t version;
 	// see the d2location enum
 	uint8_t locationID;
 	// see the d2equiplocation enum
@@ -252,12 +250,31 @@ typedef struct d2item {
 	// the ID of the page the item is on (main inventory, stash, cube, etc)
 	// only set if the item's locationID != D2LOCATION_STORED
 	uint8_t panelID;
+
+	// only initialized if isEar is true
+	// NOTE: Anything below this will be unitialized when isEar is true
+	d2ear ear;
+
+	// null-terminated item code, typical string length is 3-4 characters
+	// note: space characters are treated as null characters when parsing this string
+	char code[D2_ITEM_CODE_BYTELEN];
 	uint8_t numItemsInSockets;
+	d2itemlist socketedItems;
+
+	/*
+	* NOTE: All of the following are only set if simpleItem is false
+	*/
+
+	// random unique ID assigned to this item
+	// typically displayed using printf("%08X", id)
+	uint32_t id;
 	// item level
 	uint8_t level;
 	// see the d2rarity enum
 	uint8_t rarity;
+	bool multiplePictures;
 	uint8_t pictureID;
+	bool classSpecific;
 	// only set if classSpecific is true
 	// automagicID = the row in automagic.txt, where the first non-header row
 	// is ID 0, and no rows are skipped when incrementing ID
@@ -280,15 +297,6 @@ typedef struct d2item {
 	// uniqueID = the row in UniqueItems.txt, where the first non-header row
 	// is ID 0, and only the "Expansion" row is skipped when incrementing ID
 	uint16_t uniqueID;
-	// the armor value; only set if the item code is in Armor.txt
-	uint16_t defenseRating;
-	// only set if the item code has durability (i.e. is in Armor.txt or Weapons.txt)
-	// but can be 0 for items that don't have durability (i.e. phase blade)
-	uint8_t maxDurability;
-	// only set if the item code has durability (i.e. is in Armor.txt or Weapons.txt)
-	uint8_t currentDurability;
-	// number of total sockets in the item (regardless of their filled states)
-	uint8_t numSockets;
 	// rare or crafted prefix
 	// nameID1 = the row in RarePrefix.txt, where the first non-header row
 	// is (the max ID in RareSuffix.txt)+1, and no rows are skipped when incrementing ID
@@ -301,26 +309,32 @@ typedef struct d2item {
 	// is ID 1, and no rows are skipped when incrementing ID
 	// (ID 0 is no suffix)
 	uint8_t nameID2;
-	// only set for stackable items (i.e. the stackable column in its .txt is 1)
-	uint16_t quantity;
-	// 0 = pre-1.08, 1 = classic, 100 = expansion, 101 = expansion 1.10+ 
-	uint8_t version;
-	// null-terminated item code, typical string length is 3-4 characters
-	// note: space characters are treated as null characters when parsing this string
-	char code[D2_ITEM_CODE_BYTELEN];
+	// list of magic prefixes used by this rare/crafted item (see magicPrefix)
+	uint16_t rarePrefixes[D2_MAX_RARE_PREFIXES];
+	uint8_t numRarePrefixes;
+	// list of magic suffixes used by this rare/crafted item (see magicSuffix)
+	uint16_t rareSuffixes[D2_MAX_RARE_SUFFIXES];
+	uint8_t numRareSuffixes;
 	// null-terminated name, not including the 's suffix added by the game
 	char personalizedName[D2_MAX_CHAR_NAME_BYTELEN];
-	// only initialized if isEar is true
-	d2ear ear;
+	bool timestamp;
+	// the armor value; only set if the item code is in Armor.txt
+	uint16_t defenseRating;
+	// only set if the item code has durability (i.e. is in Armor.txt or Weapons.txt)
+	// but can be 0 for items that don't have durability (i.e. phase blade)
+	uint8_t maxDurability;
+	// only set if maxDurability > 0
+	uint8_t currentDurability;
+	// only set for stackable items (i.e. the stackable column in its .txt is 1)
+	uint16_t quantity;
+	// number of total sockets in the item (regardless of their filled state)
+	uint8_t numSockets;
+	// list of magic properties
 	d2itemproplist magicProperties;
 	d2itemproplist setBonuses[D2_MAX_SET_PROPERTIES];
 	uint8_t numSetBonuses;
 	d2itemproplist runewordProperties;
-	uint16_t rarePrefixes[D2_MAX_RARE_PREFIXES];
-	uint8_t numRarePrefixes;
-	uint16_t rareSuffixes[D2_MAX_RARE_SUFFIXES];
-	uint8_t numRareSuffixes;
-	d2itemlist socketedItems;
+
 } d2item;
 
 /*

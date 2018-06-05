@@ -541,6 +541,9 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 		case D2RARITY_SET:
 			item->setID = (uint16_t)read_bits(&br, 12);
 			break;
+		case D2RARITY_UNIQUE:
+			item->uniqueID = (uint16_t)read_bits(&br, 12);
+			break;
 		case D2RARITY_RARE:
 		case D2RARITY_CRAFTED:
 		case D2RARITY_TEMPERED:
@@ -573,14 +576,11 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 				}
 			}
 			break;
-		case D2RARITY_UNIQUE:
-			item->uniqueID = (uint16_t)read_bits(&br, 12);
-			break;
 		}
 
 		if (item->isRuneword)
 		{
-			// These 16 bits (12 bit uint + 4 extra bits) are used in some way as lookup keys for string entries in the game's .tbl files,
+			// These 16 bits (12 bit uint + 4 extra bits) are used in some way as a lookup for string entries in the game's .tbl files,
 			// so they are not useful in determining which runeword an item is, as the .tbl files can change
 			//
 			// Instead, the game seems to check runewords on load based on the socketed runes (and removes any invalid items)
@@ -692,8 +692,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 			setPropertyFlags = (uint8_t)read_bits(&br, 5);
 		}
 
-		// MARK: Time to parse 9 bit magical property ids followed by their n bit
-		// length values, but only if the item is magical or above.
+		// magical properties
 		if ((err = d2itemproplist_parse(&br, &g_d2itemreader_data, &item->magicProperties)) != D2ERR_OK)
 		{
 			d2item_destroy(item);
@@ -718,6 +717,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 			}
 		}
 
+		// runewords have their own list of magical properties
 		if (item->isRuneword)
 		{
 			if ((err = d2itemproplist_parse(&br, &g_d2itemreader_data, &item->runewordProperties)) != D2ERR_OK)
