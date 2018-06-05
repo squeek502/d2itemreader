@@ -4,7 +4,7 @@
 MU_TEST(nodata)
 {
 	d2char character;
-	uint32_t bytesRead;
+	size_t bytesRead;
 	d2err err = d2char_parse_file("data/classic.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_DATA_NOT_LOADED);
 }
@@ -12,7 +12,7 @@ MU_TEST(nodata)
 MU_TEST(classic)
 {
 	d2char character;
-	uint32_t bytesRead;
+	size_t bytesRead;
 	d2err err = d2char_parse_file("data/classic.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(character.items.count == 7);
@@ -24,7 +24,7 @@ MU_TEST(classic)
 MU_TEST(golem)
 {
 	d2char character;
-	uint32_t bytesRead;
+	size_t bytesRead;
 	d2err err = d2char_parse_file("data/golem.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(character.items.count == 7);
@@ -36,7 +36,7 @@ MU_TEST(golem)
 MU_TEST(nomerc)
 {
 	d2char character;
-	uint32_t bytesRead;
+	size_t bytesRead;
 	d2err err = d2char_parse_file("data/nomerc.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(character.items.count == 2);
@@ -48,7 +48,7 @@ MU_TEST(nomerc)
 MU_TEST(badcorpseheader)
 {
 	d2char character;
-	uint32_t bytesRead;
+	size_t bytesRead;
 	d2err err = d2char_parse_file("data/badcorpseheader.d2s", &character, &bytesRead);
 	mu_check(err == D2ERR_PARSE_BAD_HEADER_OR_TAG);
 }
@@ -56,7 +56,7 @@ MU_TEST(badcorpseheader)
 MU_TEST(atma)
 {
 	d2atmastash stash;
-	uint32_t bytesRead;
+	size_t bytesRead;
 	d2err err = d2atmastash_parse_file("data/atma.d2x", &stash, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(stash.items.count == 6);
@@ -66,7 +66,7 @@ MU_TEST(atma)
 MU_TEST(plugy_sss)
 {
 	d2sharedstash stash;
-	uint32_t bytesRead;
+	size_t bytesRead;
 	d2err err = d2sharedstash_parse_file("data/simple.sss", &stash, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(stash.sharedGold == 10);
@@ -77,7 +77,7 @@ MU_TEST(plugy_sss)
 MU_TEST(plugy_d2x)
 {
 	d2personalstash stash;
-	uint32_t bytesRead;
+	size_t bytesRead;
 	d2err err = d2personalstash_parse_file("data/simple.d2x", &stash, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(stash.numPages == 1);
@@ -94,7 +94,7 @@ MU_TEST(unexpected_eof)
 	mu_check(err == D2ERR_OK);
 
 	d2atmastash stash;
-	uint32_t bytesRead;
+	size_t bytesRead;
 	err = d2atmastash_parse(data, dataSizeBytes / 2, &stash, &bytesRead);
 
 	mu_check(err == D2ERR_PARSE_UNEXPECTED_EOF);
@@ -109,7 +109,7 @@ MU_TEST(d2i)
 	mu_check(err == D2ERR_OK);
 
 	d2itemlist d2i;
-	uint32_t bytesRead;
+	size_t bytesRead;
 	err = d2itemlist_parse_items(data, dataSizeBytes, 0, &d2i, 1, &bytesRead);
 	mu_check(err == D2ERR_OK);
 

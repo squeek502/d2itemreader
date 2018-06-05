@@ -124,7 +124,7 @@ typedef struct d2itemlist {
 *
 * Return value: D2ERR_OK on success
 */
-CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead);
+CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, size_t* out_bytesRead);
 /*
 * Parse the itemlist containing exactly `numItems` items (not including items in sockets)
 * in `data` starting at `startByte`, and store the result in `items`
@@ -142,7 +142,7 @@ CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t data
 *
 * Return value: D2ERR_OK on success
 */
-CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2itemlist* items, uint16_t numItems, uint32_t* out_bytesRead);
+CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, uint16_t numItems, size_t* out_bytesRead);
 CHECK_RESULT d2err d2itemlist_init(d2itemlist* list, size_t initialSize);
 CHECK_RESULT d2err d2itemlist_append(d2itemlist* list, const d2item* const item);
 void d2itemlist_destroy(d2itemlist* list);
@@ -369,7 +369,7 @@ typedef struct d2item {
 *
 * Return value: D2ERR_OK on success
 */
-CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2item* item, uint32_t* out_bytesRead);
+CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, size_t* out_bytesRead);
 void d2item_destroy(d2item *item);
 
 typedef struct d2stashpage {
@@ -393,7 +393,7 @@ typedef struct d2stashpage {
 *
 * Return value: D2ERR_OK on success
 */
-CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2stashpage *page, uint32_t* out_bytesRead);
+CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2stashpage *page, size_t* out_bytesRead);
 void d2stashpage_destroy(d2stashpage *page);
 
 typedef struct d2sharedstash {
@@ -417,8 +417,8 @@ typedef struct d2sharedstash {
 *
 * Return value: D2ERR_OK on success
 */
-CHECK_RESULT d2err d2sharedstash_parse_file(const char* filename, d2sharedstash *stash, uint32_t* out_bytesRead);
-CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2sharedstash *stash, uint32_t* out_bytesRead);
+CHECK_RESULT d2err d2sharedstash_parse_file(const char* filename, d2sharedstash *stash, size_t* out_bytesRead);
+CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2sharedstash *stash, size_t* out_bytesRead);
 void d2sharedstash_destroy(d2sharedstash *stash);
 
 typedef struct d2personalstash {
@@ -441,8 +441,8 @@ typedef struct d2personalstash {
 *
 * Return value: D2ERR_OK on success
 */
-CHECK_RESULT d2err d2personalstash_parse_file(const char* filename, d2personalstash *stash, uint32_t* out_bytesRead);
-CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2personalstash *stash, uint32_t* out_bytesRead);
+CHECK_RESULT d2err d2personalstash_parse_file(const char* filename, d2personalstash *stash, size_t* out_bytesRead);
+CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2personalstash *stash, size_t* out_bytesRead);
 void d2personalstash_destroy(d2personalstash *stash);
 
 typedef struct d2char {
@@ -465,8 +465,8 @@ typedef struct d2char {
 *
 * Return value: D2ERR_OK on success
 */
-CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, uint32_t* out_bytesRead);
-CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSizeBytes, d2char *character, uint32_t* out_bytesRead);
+CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, size_t* out_bytesRead);
+CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSizeBytes, d2char *character, size_t* out_bytesRead);
 void d2char_destroy(d2char *character);
 
 typedef struct d2atmastash {
@@ -488,8 +488,8 @@ typedef struct d2atmastash {
 *
 * Return value: D2ERR_OK on success
 */
-CHECK_RESULT d2err d2atmastash_parse_file(const char* filename, d2atmastash* stash, uint32_t* out_bytesRead);
-CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dataSizeBytes, d2atmastash* stash, uint32_t* out_bytesRead);
+CHECK_RESULT d2err d2atmastash_parse_file(const char* filename, d2atmastash* stash, size_t* out_bytesRead);
+CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dataSizeBytes, d2atmastash* stash, size_t* out_bytesRead);
 void d2atmastash_destroy(d2atmastash* stash);
 
 #ifdef __cplusplus

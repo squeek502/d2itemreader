@@ -28,7 +28,7 @@ int main(int argc, const char* argv[])
 	}
 
 	size_t itemCount = 0;
-	static uint32_t bytesRead;
+	size_t bytesRead;
 
 	if (type == D2FILETYPE_D2_CHARACTER)
 	{
@@ -36,7 +36,7 @@ int main(int argc, const char* argv[])
 		err = d2char_parse_file(filename, &character, &bytesRead);
 		if (err != D2ERR_OK)
 		{
-			fprintf(stderr, "Failed to parse %s: %s at byte 0x%X\n", filename, d2err_str(err), bytesRead);
+			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
 			return 1;
 		}
 		itemCount += character.items.count;
@@ -50,7 +50,7 @@ int main(int argc, const char* argv[])
 		err = d2personalstash_parse_file(filename, &stash, &bytesRead);
 		if (err != D2ERR_OK)
 		{
-			fprintf(stderr, "Failed to parse %s: %s at byte 0x%X\n", filename, d2err_str(err), bytesRead);
+			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
 			return 1;
 		}
 		for (size_t i = 0; i<stash.numPages; i++)
@@ -66,7 +66,7 @@ int main(int argc, const char* argv[])
 		err = d2sharedstash_parse_file(filename, &stash, &bytesRead);
 		if (err != D2ERR_OK)
 		{
-			fprintf(stderr, "Failed to parse %s: %s at byte 0x%X\n", filename, d2err_str(err), bytesRead);
+			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
 			return 1;
 		}
 		for (size_t i = 0; i<stash.numPages; i++)
@@ -82,7 +82,7 @@ int main(int argc, const char* argv[])
 		err = d2atmastash_parse_file(filename, &stash, &bytesRead);
 		if (err != D2ERR_OK)
 		{
-			fprintf(stderr, "Failed to parse %s: %s at byte 0x%X\n", filename, d2err_str(err), bytesRead);
+			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
 			return 1;
 		}
 		itemCount += stash.items.count;
