@@ -7,43 +7,9 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "bitreader.h"
-#include "d2data.h"
 #include "d2err.h"
 #include "d2util.h"
-
-extern d2data g_d2itemreader_data;
-
-// D2
-#define D2S_HEADER 0xAA55AA55 // "U.U." where '.' = (unsigned char)170
-#define D2S_STATUS_OFFSET 36
-#define D2S_STATUS_EXPANSION_MASK (1 << 5)
-#define D2S_MERC_ID_OFFSET 179
-#define D2S_STATS_OFFSET 765
-#define D2S_STATS_HEADER 0x6667 //"gf"
-#define D2S_SKILLS_BYTELEN 32 // 2 byte header + 30 bytes
-#define D2S_MERC_HEADER 0x666A //"jf"
-#define D2S_IRON_GOLEM_HEADER 0x666B //"kf"
-#define D2_JM_TAG 0x4D4A //"JM"
-#define D2_MAX_CHAR_NAME_STRLEN 15
-#define D2_MAX_CHAR_NAME_BYTELEN (D2_MAX_CHAR_NAME_STRLEN+1)
-#define D2_MAX_SET_PROPERTIES 5
-#define D2_ITEMPROP_MAX_PARAMS 4
-#define D2_MAX_RARE_PREFIXES 3
-#define D2_MAX_RARE_SUFFIXES 3
-#define D2_MAX_RARE_AFFIXES (D2_MAX_RARE_PREFIXES+D2_MAX_RARE_SUFFIXES)
-
-// PlugY
-#define D2_MAX_STASH_PAGE_NAME_STRLEN 15
-#define D2_MAX_STASH_PAGE_NAME_BYTELEN (D2_MAX_STASH_PAGE_NAME_STRLEN+1)
-#define PLUGY_SHAREDSTASH_HEADER 0x00535353 //"SSS\0"
-#define PLUGY_PERSONALSTASH_HEADER 0x4D545343 //"CSTM"
-#define PLUGY_FILE_VERSION_01 0x3130 //"01"
-#define PLUGY_FILE_VERSION_02 0x3230 //"02"
-#define PLUGY_STASH_TAG 0x5453 //"ST"
-
-// ATMA/GoMule
-#define GOMULE_D2X_FILE_VERSION 96
+#include "d2const.h"
 
 // TODO: remove this hardcoding, but first need to check
 // if the itemtype controls the save format, or if it actually
@@ -51,6 +17,9 @@ extern d2data g_d2itemreader_data;
 // Note: It might be controlled by the entries in Books.txt
 #define D2ITEMTYPE_TOME_TP "tbk"
 #define D2ITEMTYPE_TOME_ID "ibk"
+
+// forward declaration
+typedef struct bit_reader bit_reader;
 
 typedef struct d2datafiles {
 	const char* armorTxtFilepath;
@@ -170,7 +139,7 @@ typedef struct d2itemproplist {
 *
 * Return value: D2ERR_OK on success
 */
-CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list);
+CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2itemproplist* list);
 CHECK_RESULT d2err d2itemproplist_init(d2itemproplist* list);
 CHECK_RESULT d2err d2itemproplist_append(d2itemproplist* list, d2itemprop prop);
 void d2itemproplist_destroy(d2itemproplist* list);

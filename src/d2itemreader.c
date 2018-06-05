@@ -1,6 +1,6 @@
 #include "d2itemreader.h"
-#include "d2txtreader.h"
-#include "d2util.h"
+#include "bitreader.h"
+#include "d2data.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -107,7 +107,7 @@ enum d2filetype d2filetype_of_file(const char* filename)
 
 // Parses the magical property list in the byte queue that belongs to an item
 // and returns the list of properties.
-CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemproplist* list)
+CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2itemproplist* list)
 {
 	if (g_d2itemreader_data.initState != D2DATA_INIT_STATE_ALL)
 	{
@@ -140,7 +140,7 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemprop
 			goto err;
 		}
 
-		d2data_itemstat* stat = &data->itemstats[id];
+		d2data_itemstat* stat = &g_d2itemreader_data.itemstats[id];
 		d2itemprop prop = { id };
 
 		// saveBits being zero is unrecoverably bad, and
@@ -190,7 +190,7 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2data* data, d2itemprop
 
 		while (stat->nextInChain && prop.numParams < D2_ITEMPROP_MAX_PARAMS)
 		{
-			stat = &data->itemstats[stat->nextInChain];
+			stat = &g_d2itemreader_data.itemstats[stat->nextInChain];
 			if (stat->saveParamBits != 0)
 			{
 				err = D2ERR_PARSE;
@@ -693,7 +693,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 		}
 
 		// magical properties
-		if ((err = d2itemproplist_parse(&br, &g_d2itemreader_data, &item->magicProperties)) != D2ERR_OK)
+		if ((err = d2itemproplist_parse(&br, &item->magicProperties)) != D2ERR_OK)
 		{
 			d2item_destroy(item);
 			goto exit;
@@ -707,7 +707,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 				unsigned short mask = 1 << i;
 				if (setPropertyFlags & mask)
 				{
-					if ((err = d2itemproplist_parse(&br, &g_d2itemreader_data, &item->setBonuses[item->numSetBonuses])) != D2ERR_OK)
+					if ((err = d2itemproplist_parse(&br, &item->setBonuses[item->numSetBonuses])) != D2ERR_OK)
 					{
 						d2item_destroy(item);
 						goto exit;
@@ -720,7 +720,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 		// runewords have their own list of magical properties
 		if (item->isRuneword)
 		{
-			if ((err = d2itemproplist_parse(&br, &g_d2itemreader_data, &item->runewordProperties)) != D2ERR_OK)
+			if ((err = d2itemproplist_parse(&br, &item->runewordProperties)) != D2ERR_OK)
 			{
 				d2item_destroy(item);
 				goto exit;

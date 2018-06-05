@@ -12,8 +12,6 @@ extern "C" {
 #include "d2err.h"
 #include "d2util.h"
 
-#define D2_ITEM_CODE_STRLEN 4
-#define D2_ITEM_CODE_BYTELEN D2_ITEM_CODE_STRLEN+1
 #define D2DATA_ITEMSTAT_END_ID 0x1ff
 #define D2DATA_MAX_ITEMSTATCOST_IDS D2DATA_ITEMSTAT_END_ID
 
