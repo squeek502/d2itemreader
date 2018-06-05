@@ -458,7 +458,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 	// offset 72
 	read_bits(&br, 1);
 	// offset 73, if item is neither equipped or in the belt, this tells us where it is.
-	item->altPositionID = (uint8_t)read_bits(&br, 3);
+	item->panelID = (uint8_t)read_bits(&br, 3);
 
 	if (!item->isEar)
 	{
@@ -532,7 +532,6 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 			// No extra data present
 			break;
 		case D2RARITY_HIGH_QUALITY:
-			// TODO: Figure out what these 3 bits are on a high quality item
 			item->superiorID = (uint8_t)read_bits(&br, 3);
 			break;
 		case D2RARITY_MAGIC:
@@ -544,6 +543,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 			break;
 		case D2RARITY_RARE:
 		case D2RARITY_CRAFTED:
+		case D2RARITY_TEMPERED:
 			item->nameID1 = (uint8_t)read_bits(&br, 8);
 			item->nameID2 = (uint8_t)read_bits(&br, 8);
 
@@ -580,10 +580,47 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 
 		if (item->isRuneword)
 		{
-			item->runewordID = (uint16_t)read_bits(&br, 12);
-
-			// Unknown 4 bits, seems to be 5 all the time.
-			skip_bits(&br, 4);
+			// These 16 bits (12 bit uint + 4 extra bits) are used in some way as lookup keys for string entries in the game's .tbl files,
+			// so they are not useful in determining which runeword an item is, as the .tbl files can change
+			//
+			// Instead, the game seems to check runewords on load based on the socketed runes (and removes any invalid items)
+			//
+			// The following is a brain dump of info found on the way to the above finding:
+			//
+			// its unclear exactly what runewordID relates to, as it does not map in any
+			// obvious way to anything in Runes.txt
+			//
+			// for reference, these are some known values:
+			//   27  = Runeword1   (Ancient's Pledge)
+			//   30  = Runeword4   (Beast)
+			//   32  = Runeword6   (Black)
+			//   98  = Runeword72  (Leaf)
+			//   100 = Runeword74  (Lionheart)
+			//   101 = Runeword75  (Lore)
+			//   106 = Runeword81  (Malice)
+			//   123 = Runeword98  (Peace)
+			//   ...
+			//   195 = Runeword170 (Zephyr)
+			//   2718 = Runeword22 (Delirium) [also the extra 4 bits are 2 for delirium instead of the usual 5]
+			//
+			// it seems like it might be related in some way to the language .tbl files, but
+			// even then it's not exactly clear
+			//
+			// some patterns/info:
+			//  - The .txt file is completely out-of-order with the saved values, its unlikely there is any connection
+			//    at all between row number and ID
+			//  - There is a pattern of RunewordX 'Name' column and X+26 saved value for X < 80, and X+25 for X > 80
+			//    + In the default Runes.txt file, there is no Runeword80 key, and that is the exact point where
+			//      the pattern of RunewordX -> X+26 becomes RunewordX -> X+25
+			//  - The values seem to be in alphabetical order (either by their .tbl string value or their .txt name column?)
+			//    except for Delirium which is an outlier
+			//  - Delirium is found in patchstring.tbl, all others are in expansionstring.tbl
+			//    + The string value 'Delerium' is in expansionstring.tbl with key Runeword22, so that's what was patched
+			//    + The extra bits being different could mean 'look in patchstring.tbl'
+			//    + Removing Runeword22 from patchstring.tbl and creating Delirium creates an item with runewordID 48
+			//      (the Runeword22 + 26 pattern matches) and extra bits of 5, so its clear that runewordID and the extra bits
+			//      are string table lookups, and not related in any way to Runes.txt
+			skip_bits(&br, 16);
 		}
 
 		if (item->personalized)
