@@ -101,6 +101,26 @@ MU_TEST(unexpected_eof)
 	free(data);
 }
 
+MU_TEST(d2i)
+{
+	unsigned char* data;
+	size_t dataSizeBytes;
+	d2err err = d2util_read_file("data/runeword.d2i", &data, &dataSizeBytes);
+	mu_check(err == D2ERR_OK);
+
+	d2itemlist d2i;
+	uint32_t bytesRead;
+	err = d2itemlist_parse_items(data, dataSizeBytes, 0, &d2i, 1, &bytesRead);
+	mu_check(err == D2ERR_OK);
+
+	mu_check(d2i.count == 1);
+	mu_check(d2i.items[0].numItemsInSockets == 3);
+	mu_check(d2i.items[0].socketedItems.count == 3);
+
+	d2itemlist_destroy(&d2i);
+	free(data);
+}
+
 MU_TEST_SUITE(test_d2itemreader)
 {
 	MU_RUN_TEST(nodata);
@@ -114,6 +134,7 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(plugy_sss);
 	MU_RUN_TEST(plugy_d2x);
 	MU_RUN_TEST(unexpected_eof);
+	MU_RUN_TEST(d2i);
 	d2itemreader_destroy();
 }
 

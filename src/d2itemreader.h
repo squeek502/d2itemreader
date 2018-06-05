@@ -125,6 +125,24 @@ typedef struct d2itemlist {
 * Return value: D2ERR_OK on success
 */
 CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2itemlist* items, uint32_t* out_bytesRead);
+/*
+* Parse the itemlist containing exactly `numItems` items (not including items in sockets)
+* in `data` starting at `startByte`, and store the result in `items`
+*
+* Parameters:
+*
+*   items: A pointer an uninitialized d2itemlist object (i.e. d2itemlist_init has NOT been called on it).
+*          If this function returns D2ERR_OK, then `items` will need to be cleaned up with d2itemlist_destroy.
+*          If this function returns something other than D2ERR_OK, then items will remain uninitialized.
+*
+*   numItems: The number of items to parse, not including items in sockets
+*
+*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item list.
+*                  On error, set to the number of bytes successfully parsed before the error.
+*
+* Return value: D2ERR_OK on success
+*/
+CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2itemlist* items, uint16_t numItems, uint32_t* out_bytesRead);
 CHECK_RESULT d2err d2itemlist_init(d2itemlist* list, size_t initialSize);
 CHECK_RESULT d2err d2itemlist_append(d2itemlist* list, const d2item* const item);
 void d2itemlist_destroy(d2itemlist* list);

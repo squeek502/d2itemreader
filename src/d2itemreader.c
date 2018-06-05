@@ -247,7 +247,7 @@ void d2itemproplist_destroy(d2itemproplist* list)
 }
 
 // Parse the items directly, once the number of items (not including socketed items) is known.
-static CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2itemlist* items, uint16_t numItems, uint32_t* out_bytesRead)
+CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, size_t dataSizeBytes, uint32_t startByte, d2itemlist* items, uint16_t numItems, uint32_t* out_bytesRead)
 {
 	d2err err;
 	if ((err = d2itemlist_init(items, numItems)) != D2ERR_OK)
