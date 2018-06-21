@@ -37,6 +37,8 @@ if (ENABLE_FUZZING)
         COMMAND rm -rf "${${name}_corpus}"
         COMMAND mv "${${name}_new_corpus}" "${CMAKE_CURRENT_SOURCE_DIR}/corpus"
       )
+      # for checking that the corpus still runs without exploding
+      add_custom_target(${name}_check COMMAND "${CMAKE_CURRENT_BINARY_DIR}/${name}" -timeout=2 "${${name}_corpus}/*" DEPENDS ${name})
       add_dependencies(${name} libFuzzer)
     endif()
   endfunction()
