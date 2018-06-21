@@ -1,5 +1,4 @@
 #include "d2itemreader.h"
-#include "bitreader.h"
 #include "d2data.h"
 #include <stdlib.h>
 #include <string.h>

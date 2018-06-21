@@ -11,13 +11,13 @@ typedef struct strset_bucket
 	char** values;
 } strset_bucket;
 
-typedef struct strset_t
+struct strset_t
 {
 	size_t numBuckets;
 	strset_bucket* buckets;
 	strset_hash_fn hash_fn;
 	size_t valueCount;
-} strset_t;
+};
 
 strset_t* strset_new(size_t numBuckets, strset_hash_fn hash_fn)
 {

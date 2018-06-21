@@ -10,6 +10,7 @@ extern "C" {
 #include "d2err.h"
 #include "d2util.h"
 #include "d2const.h"
+#include "bitreader.h"
 
 // TODO: remove this hardcoding, but first need to check
 // if the itemtype controls the save format, or if it actually
@@ -17,9 +18,6 @@ extern "C" {
 // Note: It might be controlled by the entries in Books.txt
 #define D2ITEMTYPE_TOME_TP "tbk"
 #define D2ITEMTYPE_TOME_ID "ibk"
-
-// forward declaration
-typedef struct bit_reader bit_reader;
 
 typedef struct d2datafiles {
 	const char* armorTxtFilepath;
@@ -206,7 +204,7 @@ typedef struct d2ear {
 	char name[D2_MAX_CHAR_NAME_BYTELEN];
 } d2ear;
 
-typedef struct d2item {
+struct d2item {
 
 	bool identified;
 	bool socketed;
@@ -322,7 +320,7 @@ typedef struct d2item {
 	uint8_t numSetBonuses;
 	d2itemproplist runewordProperties;
 
-} d2item;
+};
 
 /*
 * Parse the item (+ any socketed items within) in `data` starting at `startByte`, and store the result in `item`
