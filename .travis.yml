@@ -13,16 +13,16 @@ before_script:
   - cd "${TRAVIS_BUILD_DIR}"
   - mkdir build && cd build
   - cmake ..
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; cd "${TRAVIS_BUILD_DIR}"; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; mkdir build.fuzz && cd build.fuzz; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; cmake .. -DENABLE_FUZZING=On -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then cd "${TRAVIS_BUILD_DIR}"; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then mkdir build.fuzz && cd build.fuzz; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then cmake .. -DENABLE_FUZZING=On -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++; fi
 
 script:
   - cd "${TRAVIS_BUILD_DIR}/build"
   - cmake --build .
   - ctest --output-on-failure
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; cd "${TRAVIS_BUILD_DIR}/build.fuzz"; fi
-  - if [ "$TRAVIS_OS_NAME" = "linux" ]; cmake --build . --target fuzz_check_all; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then cd "${TRAVIS_BUILD_DIR}/build.fuzz"; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then cmake --build . --target fuzz_check_all; fi
 
 notifications:
   email:
