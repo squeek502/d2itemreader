@@ -9,7 +9,6 @@ extern "C"
 #include <stdlib.h>
 
 typedef size_t(*strset_hash_fn)(const unsigned char*);
-typedef struct strset_bucket strset_bucket;
 typedef struct strset_t strset_t;
 
 strset_t* strset_new(size_t numBuckets, strset_hash_fn hash_fn);
