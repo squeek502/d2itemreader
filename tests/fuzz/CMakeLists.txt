@@ -17,6 +17,8 @@ if (ENABLE_FUZZING)
   add_custom_target(libFuzzer DEPENDS ${fuzzer_static})
   add_dependencies(libFuzzer fuzzer_src)
 
+  add_custom_target(fuzz_check_all)
+
   function(add_fuzz name dict)
     if (COVERAGE)
       add_executable(${name} "${name}.cc" StandaloneFuzzTargetMain.c)
@@ -39,6 +41,7 @@ if (ENABLE_FUZZING)
       )
       # for checking that the corpus still runs without exploding
       add_custom_target(${name}_check COMMAND "${CMAKE_CURRENT_BINARY_DIR}/${name}" -timeout=2 "${${name}_corpus}/*" DEPENDS ${name})
+      add_dependencies(fuzz_check_all ${name}_check)
       add_dependencies(${name} libFuzzer)
     endif()
   endfunction()
