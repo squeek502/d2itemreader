@@ -1,6 +1,9 @@
 cmake_minimum_required (VERSION 2.6)
 project (d2itemreader C)
 
+set(CMAKE_C_STANDARD_REQUIRED true)
+set(CMAKE_C_STANDARD 99)
+
 include_directories(src/)
 file(GLOB HEADERS "src/*.h")
 file(GLOB LIBSRC "src/*.c")
