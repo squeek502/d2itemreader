@@ -200,7 +200,7 @@ enum d2lowquality {
 };
 
 typedef struct d2ear {
-	unsigned int class : 3;
+	unsigned int classID : 3;
 	unsigned int level : 7;
 	// null-terminated player name
 	char name[D2_MAX_CHAR_NAME_BYTELEN];

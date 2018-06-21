@@ -514,7 +514,7 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 	else
 	{
 		// offset 76, the item is an ear, we need to read the ear data.
-		item->ear.class = (unsigned int)read_bits(&br, 3);
+		item->ear.classID = (unsigned int)read_bits(&br, 3);
 		item->ear.level = (unsigned int)read_bits(&br, 7);
 
 		for (int i = 0; i < D2_MAX_CHAR_NAME_BYTELEN; i++)
