@@ -111,7 +111,7 @@ CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t data
 *
 * Return value: D2ERR_OK on success
 */
-CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, uint16_t numItems, size_t* out_bytesRead);
+CHECK_RESULT d2err d2itemlist_parse_num(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, uint16_t numItems, size_t* out_bytesRead);
 CHECK_RESULT d2err d2itemlist_init(d2itemlist* list, size_t initialSize);
 CHECK_RESULT d2err d2itemlist_append(d2itemlist* list, const d2item* const item);
 void d2itemlist_destroy(d2itemlist* list);
@@ -325,7 +325,7 @@ typedef struct d2item {
 } d2item;
 
 /*
-* Parse the item in `data` starting at `startByte`, and store the result in `item`
+* Parse the item (+ any socketed items within) in `data` starting at `startByte`, and store the result in `item`
 *
 * Parameters:
 *
@@ -339,6 +339,23 @@ typedef struct d2item {
 * Return value: D2ERR_OK on success
 */
 CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, size_t* out_bytesRead);
+/*
+* Parse the item (but not socketed items within) in `data` starting at `startByte`, and store the result in `item`
+*
+* If the item has items socketed in it, `item->socketedItems` will be initialized with size `item->numItemsInSockets`, but will be empty.
+* 
+* Parameters:
+*
+*   item: A pointer to an uninitialized d2item object.
+*         If this function returns D2ERR_OK, then `item` will need to be cleaned up with d2item_destroy.
+*         If this function returns something other than D2ERR_OK, then `item` will remain uninitialized.
+*
+*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item.
+*                  On error, set to the number of bytes successfully parsed before the error.
+*
+* Return value: D2ERR_OK on success
+*/
+CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, size_t* out_bytesRead);
 void d2item_destroy(d2item *item);
 
 typedef struct d2stashpage {

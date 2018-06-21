@@ -108,16 +108,15 @@ MU_TEST(d2i)
 	d2err err = d2util_read_file("data/runeword.d2i", &data, &dataSizeBytes);
 	mu_check(err == D2ERR_OK);
 
-	d2itemlist d2i;
+	d2item d2i;
 	size_t bytesRead;
-	err = d2itemlist_parse_items(data, dataSizeBytes, 0, &d2i, 1, &bytesRead);
+	err = d2item_parse(data, dataSizeBytes, 0, &d2i, &bytesRead);
 	mu_check(err == D2ERR_OK);
 
-	mu_check(d2i.count == 1);
-	mu_check(d2i.items[0].numItemsInSockets == 3);
-	mu_check(d2i.items[0].socketedItems.count == 3);
+	mu_check(d2i.numItemsInSockets == 3);
+	mu_check(d2i.socketedItems.count == 3);
 
-	d2itemlist_destroy(&d2i);
+	d2item_destroy(&d2i);
 	free(data);
 }
 

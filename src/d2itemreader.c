@@ -247,7 +247,7 @@ void d2itemproplist_destroy(d2itemproplist* list)
 }
 
 // Parse the items directly, once the number of items (not including socketed items) is known.
-CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, uint16_t numItems, size_t* out_bytesRead)
+CHECK_RESULT d2err d2itemlist_parse_num(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, uint16_t numItems, size_t* out_bytesRead)
 {
 	d2err err;
 	if ((err = d2itemlist_init(items, numItems)) != D2ERR_OK)
@@ -257,7 +257,6 @@ CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, size_
 	}
 
 	size_t curByte = startByte;
-	d2item* lastSocketedItem = NULL;
 
 	for (uint16_t i = 0; i < numItems; i++)
 	{
@@ -269,45 +268,20 @@ CHECK_RESULT d2err d2itemlist_parse_items(const unsigned char* const data, size_
 			goto err;
 		}
 
+		// any socketed items in this loop are an error, as those should be taken care of by d2item_parse
 		if (item.locationID == D2LOCATION_SOCKETED)
 		{
-			if (lastSocketedItem == NULL)
-			{
-				d2item_destroy(&item);
-				err = D2ERR_PARSE_UNEXPECTED_SOCKETED_ITEM;
-				goto err;
-			}
-			if ((err = d2itemlist_append(&lastSocketedItem->socketedItems, &item)) != D2ERR_OK)
-			{
-				d2item_destroy(&item);
-				goto err;
-			}
+			d2item_destroy(&item);
+			err = D2ERR_PARSE_UNEXPECTED_SOCKETED_ITEM;
+			goto err;
 		}
-		else
+
+		if ((err = d2itemlist_append(items, &item)) != D2ERR_OK)
 		{
-			if (lastSocketedItem != NULL && lastSocketedItem->socketedItems.count != lastSocketedItem->numItemsInSockets)
-			{
-				d2item_destroy(&item);
-				err = D2ERR_PARSE_UNEXPECTED_NONSOCKETED_ITEM;
-				goto err;
-			}
-
-			if ((err = d2itemlist_append(items, &item)) != D2ERR_OK)
-			{
-				d2item_destroy(&item);
-				goto err;
-			}
-
-			if (item.numItemsInSockets > 0 && !item.simpleItem)
-			{
-				lastSocketedItem = &(items->items[items->count - 1]);
-				numItems += item.numItemsInSockets;
-			}
-			else
-			{
-				lastSocketedItem = NULL;
-			}
+			d2item_destroy(&item);
+			goto err;
 		}
+
 		curByte += itemSizeBytes;
 	}
 
@@ -334,7 +308,7 @@ CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t data
 	uint16_t numItems = D2ITEMREADER_READ(uint16_t) else { goto eof; }
 
 	size_t bytesRead;
-	err = d2itemlist_parse_items(data, dataSizeBytes, curByte, items, numItems, &bytesRead);
+	err = d2itemlist_parse_num(data, dataSizeBytes, curByte, items, numItems, &bytesRead);
 	*out_bytesRead = curByte + bytesRead - startByte;
 	return err;
 
@@ -394,6 +368,60 @@ void d2itemlist_destroy(d2itemlist* list)
 
 CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, size_t* out_bytesRead)
 {
+	size_t bytesRead;
+	d2err err = d2item_parse_single(data, dataSizeBytes, startByte, item, &bytesRead);
+
+	if (err != D2ERR_OK)
+	{
+		*out_bytesRead = bytesRead;
+		return err;
+	}
+
+	size_t curByte = startByte+bytesRead;
+
+	if (item->simpleItem)
+	{
+		goto done;
+	}
+
+	for (uint8_t i = 0; i < item->numItemsInSockets; i++)
+	{
+		size_t itemSizeBytes;
+		d2item childItem = { 0 };
+		if ((err = d2item_parse_single(data, dataSizeBytes, curByte, &childItem, &itemSizeBytes)) != D2ERR_OK)
+		{
+			curByte += itemSizeBytes;
+			goto err;
+		}
+
+		if (childItem.locationID != D2LOCATION_SOCKETED)
+		{
+			err = D2ERR_PARSE_UNEXPECTED_NONSOCKETED_ITEM;
+			d2item_destroy(&childItem);
+			goto err;
+		}
+
+		if ((err = d2itemlist_append(&item->socketedItems, &childItem)) != D2ERR_OK)
+		{
+			d2item_destroy(&childItem);
+			goto err;
+		}
+
+		curByte += itemSizeBytes;
+	}
+
+done:
+	*out_bytesRead = curByte - startByte;
+	return D2ERR_OK;
+
+err:
+	*out_bytesRead = curByte - startByte;
+	d2item_destroy(item);
+	return err;
+}
+
+CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, size_t* out_bytesRead)
+{
 	if (g_d2itemreader_data.initState != D2DATA_INIT_STATE_ALL)
 	{
 		*out_bytesRead = 0;
@@ -407,6 +435,9 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 		*out_bytesRead = 0;
 		return D2ERR_PARSE_BAD_HEADER_OR_TAG;
 	}
+
+	// memset everything to 0 just to be safe
+	memset(item, 0, sizeof(d2item));
 
 	bit_reader br = { data, dataSizeBytes, curByte, 16 };
 	// offset: 16, unknown
@@ -1190,15 +1221,13 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSize
 		uint8_t hasIronGolem = D2ITEMREADER_READ(uint8_t) else { goto eof_after_merc; }
 		if (hasIronGolem)
 		{
-			// the iron golem item can have items socketed in it, so we need to parse
-			// those as well
-			d2itemlist ironGolemItems;
-			err = d2itemlist_parse_items(data, dataSizeBytes, curByte, &ironGolemItems, 1, &bytesRead);
+			d2item ironGolemItem = {0};
+			err = d2item_parse(data, dataSizeBytes, curByte, &ironGolemItem, &bytesRead);
 			if (err != D2ERR_OK)
 			{
 				goto err_after_merc;
 			}
-			d2itemlist_destroy(&ironGolemItems);
+			d2item_destroy(&ironGolemItem);
 			curByte += bytesRead;
 		}
 	}
@@ -1289,7 +1318,7 @@ CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dat
 	D2ITEMREADER_SKIP(uint32_t) else { goto eof; }
 
 	size_t bytesRead;
-	err = d2itemlist_parse_items(data, dataSizeBytes, curByte, &stash->items, numItems, &bytesRead);
+	err = d2itemlist_parse_num(data, dataSizeBytes, curByte, &stash->items, numItems, &bytesRead);
 	curByte += bytesRead;
 
 	*out_bytesRead = curByte;
