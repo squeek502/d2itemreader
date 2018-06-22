@@ -4,6 +4,10 @@
 #define STRSET_BUCKET_INITIAL_SIZE 1
 #define STRSET_BUCKET_RESIZE_BITS 2
 
+#if defined(_MSC_VER)
+#define inline __inline
+#endif
+
 typedef struct strset_bucket
 {
 	size_t count;
