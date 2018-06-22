@@ -1,6 +1,9 @@
 cmake_minimum_required (VERSION 2.6)
 project (d2itemreader C)
 
+# Quoted variables like "MSVC" will no longer be dereferenced when the policy is set to NEW
+cmake_policy(SET CMP0054 NEW)
+
 set(CMAKE_C_STANDARD_REQUIRED true)
 set(CMAKE_C_STANDARD 99)
 
