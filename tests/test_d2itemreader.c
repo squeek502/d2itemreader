@@ -120,6 +120,86 @@ MU_TEST(d2i)
 	free(data);
 }
 
+MU_TEST(v107)
+{
+	d2char character;
+	size_t bytesRead;
+	d2err err = d2char_parse_file("data/d2v107.d2s", &character, &bytesRead);
+	mu_check(err == D2ERR_UNSUPPORTED_VERSION);
+}
+
+MU_TEST(v108)
+{
+	d2char character;
+	size_t bytesRead;
+	d2err err = d2char_parse_file("data/d2v108.d2s", &character, &bytesRead);
+	mu_check(err == D2ERR_UNSUPPORTED_VERSION);
+}
+
+MU_TEST(v109b)
+{
+	d2char character;
+	size_t bytesRead;
+	d2err err = d2char_parse_file("data/d2v109b.d2s", &character, &bytesRead);
+	mu_check(err == D2ERR_UNSUPPORTED_VERSION);
+}
+
+MU_TEST(v109d)
+{
+	d2char character;
+	size_t bytesRead;
+	d2err err = d2char_parse_file("data/d2v109d.d2s", &character, &bytesRead);
+	mu_check(err == D2ERR_UNSUPPORTED_VERSION);
+}
+
+MU_TEST(v110f)
+{
+	d2char character;
+	size_t bytesRead;
+	d2err err = d2char_parse_file("data/d2v110f.d2s", &character, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	mu_check(character.items.count == 8);
+	mu_check(character.itemsCorpse.count == 0);
+	mu_check(character.itemsMerc.count == 0);
+	d2char_destroy(&character);
+}
+
+MU_TEST(v111b)
+{
+	d2char character;
+	size_t bytesRead;
+	d2err err = d2char_parse_file("data/d2v111b.d2s", &character, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	mu_check(character.items.count == 8);
+	mu_check(character.itemsCorpse.count == 0);
+	mu_check(character.itemsMerc.count == 0);
+	d2char_destroy(&character);
+}
+
+MU_TEST(v112a)
+{
+	d2char character;
+	size_t bytesRead;
+	d2err err = d2char_parse_file("data/d2v112a.d2s", &character, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	mu_check(character.items.count == 8);
+	mu_check(character.itemsCorpse.count == 0);
+	mu_check(character.itemsMerc.count == 0);
+	d2char_destroy(&character);
+}
+
+MU_TEST(v113c)
+{
+	d2char character;
+	size_t bytesRead;
+	d2err err = d2char_parse_file("data/d2v113c.d2s", &character, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	mu_check(character.items.count == 4);
+	mu_check(character.itemsCorpse.count == 0);
+	mu_check(character.itemsMerc.count == 0);
+	d2char_destroy(&character);
+}
+
 MU_TEST_SUITE(test_d2itemreader)
 {
 	MU_RUN_TEST(nodata);
@@ -134,6 +214,14 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(plugy_d2x);
 	MU_RUN_TEST(unexpected_eof);
 	MU_RUN_TEST(d2i);
+	MU_RUN_TEST(v107);
+	MU_RUN_TEST(v108);
+	MU_RUN_TEST(v109b);
+	MU_RUN_TEST(v109d);
+	MU_RUN_TEST(v110f);
+	MU_RUN_TEST(v111b);
+	MU_RUN_TEST(v112a);
+	MU_RUN_TEST(v113c);
 	d2itemreader_destroy();
 }
 

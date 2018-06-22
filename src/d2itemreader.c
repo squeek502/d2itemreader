@@ -1095,6 +1095,21 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSize
 		return D2ERR_PARSE_NOT_ENOUGH_BYTES;
 	}
 
+	uint32_t d2sheader = D2ITEMREADER_READ(uint32_t);
+	if (d2sheader != D2S_HEADER)
+	{
+		curByte = 0;
+		err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
+		goto err;
+	}
+	uint32_t fileVersion = D2ITEMREADER_READ(uint32_t);
+	if (fileVersion < D2S_VERSION_110)
+	{
+		curByte = 4;
+		err = D2ERR_UNSUPPORTED_VERSION;
+		goto err;
+	}
+
 	uint8_t statusBitfield = *(uint8_t*)(data + D2S_STATUS_OFFSET);
 	bool isExpansion = statusBitfield & D2S_STATUS_EXPANSION_MASK;
 	uint32_t mercID = isExpansion ? *(uint32_t*)(data + D2S_MERC_ID_OFFSET) : 0;

@@ -15,6 +15,10 @@ extern "C" {
 #define D2S_SKILLS_BYTELEN 32 // 2 byte header + 30 bytes
 #define D2S_MERC_HEADER 0x666A //"jf"
 #define D2S_IRON_GOLEM_HEADER 0x666B //"kf"
+#define D2S_VERSION_107 87
+#define D2S_VERSION_108 89
+#define D2S_VERSION_109 92
+#define D2S_VERSION_110 96
 #define D2_JM_TAG 0x4D4A //"JM"
 #define D2_MAX_CHAR_NAME_STRLEN 15
 #define D2_MAX_CHAR_NAME_BYTELEN (D2_MAX_CHAR_NAME_STRLEN+1)
