@@ -91,7 +91,7 @@ Field | Description
 `uint8_t panelID` | the ID of the page the item is on (main inventory, stash, cube, etc); only set if the item's locationID != D2LOCATION_STORED
 `d2ear ear` | only initialized if isEar is true; NOTE: Anything below this will be unitialized when isEar is true
 `char code[]` | null-terminated item code, typical string length is 3-4 characters
-`uint8_t numItemsInSockets` | 
+`uint8_t numItemsInSockets` | Number of items that are socketed within this item
 `d2itemlist socketedItems` | List of items socketed within this item
 *NOTE:*` | *All of the following are only set if `simpleItem` is false*
 `uint32_t id` | random unique ID assigned to this item; typically displayed using printf("%08X", id)
@@ -120,11 +120,18 @@ Field | Description
 `uint8_t currentDurability` | only set if maxDurability > 0
 `uint16_t quantity` | only set for stackable items (i.e. the stackable column in its .txt is 1)
 `uint8_t numSockets` | number of total sockets in the item (regardless of their filled state)
-`d2itemproplist magicProperties` | list of magic properties
-`d2itemproplist setBonuses[]` | 
+`d2itemproplist magicProperties` | list of magic properties, not including set bonuses, runeword properties, or the properties of any socketed items
+`d2itemproplist setBonuses[]` | list of currently active set bonuses (i.e. this is only non-empty when multiple set pieces are worn at the same time)
 `uint8_t numSetBonuses` | number of valid elements in the setBonuses array
-`d2itemproplist runewordProperties` | 
+`d2itemproplist runewordProperties` | list of magic properties added to the item via a runeword (see also `isRuneword`)
 
+##### `d2ear`
+
+Field | Description
+--- | ---
+`uint8_t classID` | class of the player
+`uint8_t level` | level of the player
+`char name[]` | null-terminated player name
 
 ## Acknowledgements
 

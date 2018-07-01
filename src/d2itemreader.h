@@ -241,9 +241,11 @@ struct d2item {
 	d2ear ear;
 
 	// null-terminated item code, typical string length is 3-4 characters
-	// note: space characters are treated as null characters when parsing this string
+	// note: space characters are treated as NUL characters when parsing this string
 	char code[D2_ITEM_CODE_BYTELEN];
+	// Number of items that are socketed within this item
 	uint8_t numItemsInSockets;
+	// List of items socketed within this item
 	d2itemlist socketedItems;
 
 	/*
@@ -314,10 +316,15 @@ struct d2item {
 	uint16_t quantity;
 	// number of total sockets in the item (regardless of their filled state)
 	uint8_t numSockets;
-	// list of magic properties
+	// list of magic properties, not including set bonuses, runeword properties, 
+	// or the properties of any socketed items
 	d2itemproplist magicProperties;
+	// list of currently active set bonuses 
+	// (i.e. this is only non-empty when multiple set pieces are worn at the same time)
 	d2itemproplist setBonuses[D2_MAX_SET_PROPERTIES];
+	// number of valid elements in the setBonuses array
 	uint8_t numSetBonuses;
+	// list of magic properties added to the item via a runeword (see also `isRuneword`)
 	d2itemproplist runewordProperties;
 
 };
