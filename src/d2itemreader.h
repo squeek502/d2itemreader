@@ -19,6 +19,7 @@ extern "C" {
 #define D2ITEMTYPE_TOME_TP "tbk"
 #define D2ITEMTYPE_TOME_ID "ibk"
 
+/// @see d2itemreader_init_files()
 typedef struct d2datafiles {
 	const char* armorTxtFilepath;
 	const char* weaponsTxtFilepath;
@@ -26,6 +27,7 @@ typedef struct d2datafiles {
 	const char* itemStatCostTxtFilepath;
 } d2datafiles;
 
+/// @see d2itemreader_init_bufs()
 typedef struct d2databufs {
 	char* armorTxt;
 	size_t armorTxtSize;
@@ -38,34 +40,54 @@ typedef struct d2databufs {
 } d2databufs;
 
 /**
- * Load the game data needed by d2itemreader. ONE of the following should be called at startup:
- * 
- * - d2itemreader_init_default: Load the default data packaged with d2itemreader
- *                              (should work for recent-ish un-modded D2 versions)
- * - d2itemreader_init_files: Load the data from the file paths given in `files`
- * - d2itemreader_init_bufs: Load the data from the buffers given in `bufs`
+ * Load the default data packaged with d2itemreader (should work for un-modded D2 versions >= 1.10)
  *
- * IMPORTANT: d2itemreader_destroy() only needs to be called if the init function returns D2ERR_OK
+ * @return `D2ERR_OK` on success
  *
- * Return value: D2ERR_OK on success
+* \attention **IMPORTANT**: d2itemreader_destroy() only needs to be called if the init function returns `D2ERR_OK`
+ *
+ * @see d2itemreader_init_files(), d2itemreader_init_bufs(), d2itemreader_destroy()
  */
 CHECK_RESULT d2err d2itemreader_init_default();
+/**
+* Load the data from the file paths given in `files`
+*
+* @param files Paths to the .txt game data files
+* @return `D2ERR_OK` on success
+*
+* \attention **IMPORTANT**: d2itemreader_destroy() only needs to be called if the init function returns `D2ERR_OK`
+*
+* @see d2itemreader_init_default(), d2itemreader_init_bufs(), d2itemreader_destroy()
+*/
 CHECK_RESULT d2err d2itemreader_init_files(d2datafiles files);
+/**
+* Load the data from the buffers given in `bufs`
+*
+* @param files Buffers to the .txt game data
+* @return `D2ERR_OK` on success
+*
+* \attention **IMPORTANT**: d2itemreader_destroy() only needs to be called if the init function returns `D2ERR_OK`
+ *
+ * @see d2itemreader_init_files(), d2itemreader_init_default(), d2itemreader_destroy()
+*/
 CHECK_RESULT d2err d2itemreader_init_bufs(d2databufs bufs);
 /**
 * Cleanup memory used by d2itemreader.
 *
-* IMPORTANT: d2itemreader_destroy() only needs to be called if the init function returns D2ERR_OK
+* \attention **IMPORTANT**: d2itemreader_destroy() only needs to be called if the init function returns `D2ERR_OK`
+ *
+ * @see d2itemreader_init_default(), d2itemreader_init_files(), d2itemreader_init_bufs()
 */
 void d2itemreader_destroy();
 
+/// @see d2filetype_get(), d2filetype_of_file()
 enum d2filetype
 {
-	D2FILETYPE_UNKNOWN,
-	D2FILETYPE_D2_CHARACTER,
-	D2FILETYPE_PLUGY_SHARED_STASH,
-	D2FILETYPE_PLUGY_PERSONAL_STASH,
-	D2FILETYPE_ATMA_STASH
+	D2FILETYPE_UNKNOWN, ///< Filetype could not be determined or file is malformed
+	D2FILETYPE_D2_CHARACTER, ///< Parsable using d2char_parse() or d2char_parse_file()
+	D2FILETYPE_PLUGY_SHARED_STASH, ///< Parsable using d2sharedstash_parse() or d2sharedstash_parse_file()
+	D2FILETYPE_PLUGY_PERSONAL_STASH, ///< Parsable using d2personalstash_parse() or d2personalstash_parse_file()
+	D2FILETYPE_ATMA_STASH ///< Parsable using d2atmastash_parse() or d2atmastash_parse_file()
 };
 
 /// Attempt to determine the filetype of the given binary data
@@ -149,13 +171,13 @@ enum d2rarity {
 	D2RARITY_INVALID,
 	D2RARITY_LOW_QUALITY = 0x01,
 	D2RARITY_NORMAL,
-	D2RARITY_HIGH_QUALITY,
+	D2RARITY_HIGH_QUALITY, ///< AKA Superior
 	D2RARITY_MAGIC,
 	D2RARITY_SET,
 	D2RARITY_RARE,
 	D2RARITY_UNIQUE,
 	D2RARITY_CRAFTED,
-	D2RARITY_TEMPERED, // was never actually enabled in an official release
+	D2RARITY_TEMPERED, ///< Was never actually enabled in an official release
 };
 
 enum d2location {
@@ -229,16 +251,16 @@ struct d2item
 	bool isRuneword;
 	/// 0 = pre-1.08, 1 = classic, 100 = expansion, 101 = expansion 1.10+ 
 	uint8_t version;
-	/// see the d2location enum
+	/// see the #d2location enum
 	uint8_t locationID;
-	/// see the d2equiplocation enum
+	/// see the #d2equiplocation enum
 	uint8_t equippedID;
 	/// the x coordinate of the item
 	uint8_t positionX;
 	/// the y coordinate of the item
 	uint8_t positionY;
 	/// the ID of the page the item is on (main inventory, stash, cube, etc).
-	/// only set if the item's locationID != D2LOCATION_STORED
+	/// only set if the item's #locationID != `D2LOCATION_STORED`
 	uint8_t panelID;
 
 	/// only initialized if isEar is true.
@@ -258,11 +280,11 @@ struct d2item
 	*/
 
 	/// random unique ID assigned to this item
-	/// typically displayed using printf("%08X", id)
+	/// typically displayed using `printf("%08X", id)`
 	uint32_t id;
 	/// item level
 	uint8_t level;
-	/// see the d2rarity enum
+	/// see the #d2rarity enum
 	uint8_t rarity;
 	bool multiplePictures;
 	uint8_t pictureID;
@@ -271,7 +293,7 @@ struct d2item
 	/// automagicID = the row in automagic.txt, where the first non-header row
 	/// is ID 0, and no rows are skipped when incrementing ID
 	uint16_t automagicID;
-	/// see d2lowquality enum
+	/// see #d2lowquality enum
 	uint8_t lowQualityID;
 	/// related in some way to qualityitems.txt, unsure what the ID <-> row mapping is
 	uint8_t superiorID;

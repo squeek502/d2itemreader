@@ -5,6 +5,8 @@ save/
 *.txt
 !CMakeLists.txt
 *.exe
+docs/api.md
+docs/INDEX.md
 
 # Created by https://www.gitignore.io/api/macos,linux,cmake,windows
 

@@ -28,3 +28,15 @@ notifications:
   email:
     on_success: change
     on_failure: always
+
+before_deploy:
+  - npm install gitbook-cli -g
+  - cd "${TRAVIS_BUILD_DIR}/docs"
+  - "./make.sh"
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: true
+  on:
+    branch: master

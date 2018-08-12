@@ -10,8 +10,6 @@ d2itemreader is a C library for parsing Diablo II character/stash files (`.d2s`,
 
 ## Usage
 
-### Overview
-
 Most API functions in d2itemreader.h work in the following way:
 
 - There is a `<struct>_parse` function that takes a pointer to a struct and returns a `d2err` enum.
@@ -38,6 +36,12 @@ const char *filename = "path/to/file";
 
 // determine the filetype if it is not known in advance
 enum d2filetype filetype = d2filetype_of_file(filename);
+
+if (filetype != D2FILETYPE_D2_CHARACTER)
+{
+	fprintf(stderr, "File is not a d2 character file: %s\n", filename);
+	return;
+}
 
 size_t bytesRead;
 d2char character;
@@ -67,71 +71,6 @@ else
 	d2char_destroy(&character);
 }
 ```
-
-### API Reference
-
-#### The `d2item` struct
-
-Field | Description
---- | ---
-`bool identified` | 
-`bool socketed` | 
-`bool isNew` | 
-`bool isEar` | 
-`bool starterItem` | 
-`bool simpleItem` | 
-`bool ethereal` | 
-`bool personalized` | 
-`bool isRuneword` | Diablo II does not save any info that *directly* maps an item to a Runes.txt row. Instead, which runeword the item has is determined by the runes socketed in it, and can be checked against Runes.txt's RuneX columns (in order) to determine which row matches the item's runes. *Note: The game performs this sanity check on every runeword item on load, and removes any that are invalid*
-`uint8_t version` | 0 = pre-1.08, 1 = classic, 100 = expansion, 101 = expansion 1.10+
-`uint8_t locationID` | see the d2location enum
-`uint8_t equippedID` | see the d2equiplocation enum
-`uint8_t positionX` | the x coordinate of the item
-`uint8_t positionY` | the y coordinate of the item
-`uint8_t panelID` | the ID of the page the item is on (main inventory, stash, cube, etc); only set if the item's locationID != D2LOCATION_STORED
-`d2ear ear` | only initialized if isEar is true; NOTE: Anything below this will be unitialized when isEar is true
-`char code[]` | null-terminated item code, typical string length is 3-4 characters
-`uint8_t numItemsInSockets` | Number of items that are socketed within this item
-`d2itemlist socketedItems` | List of items socketed within this item
-*NOTE:*` | *All of the following are only set if `simpleItem` is false*
-`uint32_t id` | random unique ID assigned to this item; typically displayed using printf("%08X", id)
-`uint8_t level` | item level
-`uint8_t rarity` | see the d2rarity enum
-`bool multiplePictures` | 
-`uint8_t pictureID` | 
-`bool classSpecific` | 
-`uint16_t automagicID` | only set if classSpecific is true. automagicID = the row in automagic.txt, where the first non-header row is ID 0, and no rows are skipped when incrementing ID
-`uint8_t lowQualityID` | see d2lowquality enum
-`uint8_t superiorID` | related in some way to qualityitems.txt, unsure what the ID <-> row mapping is
-`uint16_t magicPrefix` | magicPrefix = the row in MagicPrefix.txt, where the first non-header row is ID 1, and only the "Expansion" row is skipped when incrementing ID (ID 0 is no prefix)
-`uint16_t magicSuffix` | magicSuffix = the row in MagicSuffix.txt, where the first non-header row is ID 1, and only the "Expansion" row is skipped when incrementing ID (ID 0 is no suffix)
-`uint16_t setID` | setID = the row in SetItems.txt, where the first non-header row is ID 0, and only the "Expansion" row is skipped when incrementing ID
-`uint16_t uniqueID` | uniqueID = the row in UniqueItems.txt, where the first non-header row is ID 0, and only the "Expansion" row is skipped when incrementing ID
-`uint8_t nameID1` | rare or crafted prefix, where nameID1 = the row in RarePrefix.txt, where the first non-header row is (the max ID in RareSuffix.txt)+1, and no rows are skipped when incrementing ID. For example, with the default txt files: RareSuffix.txt's max ID is 155 ('flange'), therefore, the first non-header row in RarePrefix.txt ('Beast') would be ID 156
-`uint8_t nameID2` | nameID2 = the row in RareSuffix.txt, where the first non-header row is ID 1, and no rows are skipped when incrementing ID (ID 0 is no suffix)
-`uint16_t rarePrefixes[]` | list of magic prefixes used by this rare/crafted item (see magicPrefix)
-`uint8_t numRarePrefixes` | number of valid elements in the rarePrefixes array
-`uint16_t rareSuffixes[]` | list of magic suffixes used by this rare/crafted item (see magicSuffix)
-`uint8_t numRareSuffixes` | number of valid elements in the rareSuffixes array
-`char personalizedName[]` | null-terminated name, not including the 's suffix added by the game
-`bool timestamp` | 
-`uint16_t defenseRating` | the armor value; only set if the item code is in Armor.txt
-`uint8_t maxDurability` | only set if the item code has durability (i.e. is in Armor.txt or Weapons.txt) but can be 0 for items that don't have durability (i.e. phase blade)
-`uint8_t currentDurability` | only set if maxDurability > 0
-`uint16_t quantity` | only set for stackable items (i.e. the stackable column in its .txt is 1)
-`uint8_t numSockets` | number of total sockets in the item (regardless of their filled state)
-`d2itemproplist magicProperties` | list of magic properties, not including set bonuses, runeword properties, or the properties of any socketed items
-`d2itemproplist setBonuses[]` | list of currently active set bonuses (i.e. this is only non-empty when multiple set pieces are worn at the same time)
-`uint8_t numSetBonuses` | number of valid elements in the setBonuses array
-`d2itemproplist runewordProperties` | list of magic properties added to the item via a runeword (see also `isRuneword`)
-
-##### `d2ear`
-
-Field | Description
---- | ---
-`uint8_t classID` | class of the player
-`uint8_t level` | level of the player
-`char name[]` | null-terminated player name
 
 ## Acknowledgements
 
