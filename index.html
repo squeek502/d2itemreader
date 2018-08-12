@@ -1,0 +1,256 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Introduction · d2itemreader</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="gitbook/images/favicon.ico" type="image/x-icon">
+
+
+    
+    <link rel="next" href="api.html" />
+    
+    
+
+    </head>
+    <body>
+        
+<div class="gb-page-wrapper">
+    <header class="gb-page-header">
+        <div class="container">
+        
+            
+
+            <a href="." class="logo">
+                <h1>d2itemreader</h1>
+            </a>
+
+            <a href="https://github.com/squeek502/d2itemreader" class="btn btn-link pull-right hidden-xs"><i class="octicon octicon-mark-github"></i> Github</a>
+
+            
+
+            
+                
+                <a href="api.html" class="btn btn-link pull-right hidden-xs">
+                    <i class="octicon octicon-chevron-right"></i>
+                </a>
+                
+                
+            
+        
+        </div>
+    </header>
+
+    <div class="gb-page-body">
+        <div class="gb-page-inner">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        
+
+
+
+    
+    <div class="panel panel-default">
+        
+
+        <div class="list-group">
+            
+    
+        
+        <a href="./" class="list-group-item active">
+        
+
+            
+
+            
+
+            Introduction
+
+        
+        </a>
+        
+
+        
+    
+        
+        <a href="api.html" class="list-group-item ">
+        
+
+            
+
+            
+
+            API Reference
+
+        
+        </a>
+        
+
+        
+    
+
+        </div>
+    </div>
+    
+
+
+
+                    </div>
+                    <div class="col-md-9">
+                        
+                            
+                            <div class="gb-markdown book-page-inner">
+                                <h1 id="d2itemreader">d2itemreader</h1>
+<p><a href="https://travis-ci.org/squeek502/d2itemreader" target="_blank"><img src="https://travis-ci.org/squeek502/d2itemreader.svg?branch=master" alt="Build Status"></a>
+<a href="https://ci.appveyor.com/project/squeek502/d2itemreader/branch/master" target="_blank"><img src="https://ci.appveyor.com/api/projects/status/8hyrcevhv2wpvg5l/branch/master?svg=true" alt="Build status"></a></p>
+<p><strong>work in progress, everything is subject to change</strong></p>
+<p>d2itemreader is a C library for parsing Diablo II character/stash files (<code>.d2s</code>, <code>.d2x</code>, and <code>.sss</code>) and retrieving data about the items contained inside them. It also tries to avoid any assumptions about the game version or game data, so that it can work with modded files (provided the library is initialized with the relevant modded .txt files on startup).</p>
+<h2 id="usage">Usage</h2>
+<p>Most API functions in d2itemreader.h work in the following way:</p>
+<ul>
+<li>There is a <code>&lt;struct&gt;_parse</code> function that takes a pointer to a struct and returns a <code>d2err</code> enum.<ul>
+<li>If the function returns <code>D2ERR_OK</code>, then the function succeeded and the struct will need to be cleaned up using the corresponding <code>_destroy</code> function.</li>
+<li>If the function returns anything other than <code>D2ERR_OK</code>, then the <code>_destroy</code> function <em>does not</em> need to be called; any allocated memory is cleaned up by the <code>_parse</code> or <code>_init</code> function before it returns an error.</li>
+<li>The <code>out_bytesRead</code> parameter will always be set regardless of the result of the <code>_parse</code> function. On failure, it will contain the number of bytes read before the error occured.</li>
+</ul>
+</li>
+</ul>
+<p>On program startup, the library needs to be initialized with the data from some of Diablo II&apos;s <code>.txt</code> files that can be found in its <code>.mpq</code> archives. For convenience, <code>d2itemreader</code> bundles the relevant data from the latest <code>.txt</code> files (1.14d), which can be loaded by calling:</p>
+<pre><code class="lang-c">d2err err = d2itemreader_init_default();
+</code></pre>
+<p>If the <code>d2itemreader_init</code> function returns <code>D2ERR_OK</code>, the following function should be called on shutdown (or when you&apos;re done using the d2itemreader library):</p>
+<pre><code class="lang-c">d2itemreader_destroy();
+</code></pre>
+<p>After the <code>d2itemreader_init</code> function is called, you can parse files like so:</p>
+<pre><code class="lang-c"><span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *filename = <span class="hljs-string">&quot;path/to/file&quot;</span>;
+
+<span class="hljs-comment">// determine the filetype if it is not known in advance</span>
+<span class="hljs-keyword">enum</span> d2filetype filetype = d2filetype_of_file(filename);
+
+<span class="hljs-keyword">if</span> (filetype != D2FILETYPE_D2_CHARACTER)
+{
+    <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>, <span class="hljs-string">&quot;File is not a d2 character file: %s\n&quot;</span>, filename);
+    <span class="hljs-keyword">return</span>;
+}
+
+<span class="hljs-keyword">size_t</span> bytesRead;
+d2char character;
+d2err err = d2char_parse_file(filename, &amp;character, &amp;bytesRead);
+<span class="hljs-keyword">if</span> (err != D2ERR_OK)
+{
+    <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>, <span class="hljs-string">&quot;Failed to parse %s: %s at byte 0x%zx\n&quot;</span>, filename, d2err_str(err), bytesRead);
+    <span class="hljs-comment">// don&apos;t need to call d2char_destroy, the memory is cleaned up when _parse returns an error</span>
+}
+<span class="hljs-keyword">else</span>
+{
+    <span class="hljs-comment">// do something with the character data</span>
+    <span class="hljs-keyword">int</span> numUniques = <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>; i&lt;character.items.count; i++)
+    {
+        d2item* item = &amp;character.items.items[i];
+        <span class="hljs-keyword">if</span> (item-&gt;rarity == D2RARITY_UNIQUE)
+        {
+            numUniques++;
+        }
+    }
+
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Number of unique items in %s: %d&quot;</span>, filename, numUniques);
+
+    <span class="hljs-comment">// clean up the memory allocated when parsing the character file</span>
+    d2char_destroy(&amp;character);
+}
+</code></pre>
+<h2 id="acknowledgements">Acknowledgements</h2>
+<ul>
+<li><a href="https://github.com/nokka/d2s" target="_blank">nokka/d2s</a> - much of the d2s parsing of d2itemreader is ported from <code>nokka/d2s</code></li>
+</ul>
+
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="gb-page-footer">
+        <div class="container">
+            <ul class="menu">
+                <li>
+                    <a href="#">Return to the top</a>
+                </li>
+                <li>
+                    <a href="#">Updated Aug 12th 18</a>
+                </li>
+            </ul>
+        </div>
+    </footer>
+</div>
+
+<script src="gitbook/gitbook.js"></script>
+
+    
+    <script src="gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+    
+
+    
+    <script src="gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+    
+
+<script>
+(function() {
+    gitbook.page.hasChanged({"page":{"title":"Introduction","level":"1.1","depth":1,"next":{"title":"API Reference","level":"1.2","depth":1,"path":"api.md","ref":"api.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"INDEX.md","mtime":"2018-08-12T01:48:38.444Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-08-12T01:49:13.564Z"},"basePath":".","book":{"language":""}});
+})();
+</script>
+
+        
+    </body>
+</html>
+

@@ -1,8 +1,0 @@
-{
-	"plugins": ["theme-official","-sharing","-fontsettings","-search"],
-	"title": "d2itemreader",
-	"github_url": "https://github.com/squeek502/d2itemreader",
-	"structure": {
-		"readme": "INDEX.md"
-	}
-}
