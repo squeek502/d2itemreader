@@ -9,6 +9,11 @@ os:
   - linux
   - osx
 
+addons:
+  apt:
+    packages:
+      - doxygen
+
 before_script:
   - cd "${TRAVIS_BUILD_DIR}"
   - mkdir build && cd build
@@ -37,6 +42,7 @@ deploy:
   provider: pages
   skip-cleanup: true
   github-token: $GITHUB_TOKEN
+  local-dir: "docs/_book"
   keep-history: true
   on:
     branch: master
