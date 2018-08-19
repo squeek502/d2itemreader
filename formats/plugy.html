@@ -1,0 +1,361 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>PlugY Save Files (.sss/.d2x) · d2itemreader</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+
+    
+    
+    <link rel="prev" href="../api.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="gb-page-wrapper">
+    <header class="gb-page-header">
+        <div class="container">
+        
+            
+
+            <a href=".." class="logo">
+                <h1>d2itemreader</h1>
+            </a>
+
+            <a href="https://github.com/squeek502/d2itemreader" class="btn btn-link pull-right hidden-xs"><i class="octicon octicon-mark-github"></i> Github</a>
+
+            
+
+            
+                
+                
+                <a href="../api.html" class="btn btn-link pull-right hidden-xs">
+                    <i class="octicon octicon-chevron-left"></i>
+                </a>
+                
+            
+        
+        </div>
+    </header>
+
+    <div class="gb-page-body">
+        <div class="gb-page-inner">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        
+
+
+
+    
+    <div class="panel panel-default">
+        
+
+        <div class="list-group">
+            
+    
+        
+        <a href="../" class="list-group-item ">
+        
+
+            
+
+            
+
+            Introduction
+
+        
+        </a>
+        
+
+        
+    
+        
+        <a href="../api.html" class="list-group-item ">
+        
+
+            
+
+            
+
+            API Reference
+
+        
+        </a>
+        
+
+        
+    
+
+        </div>
+    </div>
+    
+    <div class="panel panel-default">
+        
+        <div class="panel-heading">
+            <h3 class="panel-title">File Structures</h3>
+        </div>
+        
+
+        <div class="list-group">
+            
+    
+        
+        <a href="plugy.html" class="list-group-item active">
+        
+
+            
+
+            
+
+            PlugY Save Files (.sss/.d2x)
+
+        
+        </a>
+        
+
+        
+    
+
+        </div>
+    </div>
+    
+
+
+
+                    </div>
+                    <div class="col-md-9">
+                        
+                            
+                            <div class="gb-markdown book-page-inner">
+                                <h2 id="plugy-shared-stash-sss-file-format">PlugY Shared Stash (.sss) File Format</h2>
+<table>
+<thead>
+<tr>
+<th>Byte Offset</th>
+<th style="text-align:center">Size (bytes)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x00</td>
+<td style="text-align:center">4</td>
+<td>File header. Must be &quot;SSS\0&quot; (0x00535353 when read as a 32 bit unsigned integer).</td>
+</tr>
+<tr>
+<td>0x04</td>
+<td style="text-align:center">2</td>
+<td>File version. Will be &quot;01&quot; (0x3130) when file version is 1, or &quot;02&quot; (0x3230) when file version is 2.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="file-version-1">File version 1</h4>
+<p>When the file version is &quot;01&quot;, there will be no shared gold data in the file.</p>
+<table>
+<thead>
+<tr>
+<th>Byte Offset</th>
+<th style="text-align:center">Size (bytes)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x06</td>
+<td style="text-align:center">4</td>
+<td>Number of pages in the stash data as a 32 bit unsigned integer</td>
+</tr>
+<tr>
+<td>0x0A</td>
+<td style="text-align:center">...</td>
+<td>Beginning of <a href="#stash-data-format">Stash data</a></td>
+</tr>
+</tbody>
+</table>
+<h4 id="file-version-2">File version 2</h4>
+<p>When the file version is &quot;02&quot;, there will be shared gold data in the file.</p>
+<table>
+<thead>
+<tr>
+<th>Byte Offset</th>
+<th style="text-align:center">Size (bytes)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x06</td>
+<td style="text-align:center">4</td>
+<td>Shared gold as a 32 bit unsigned integer</td>
+</tr>
+<tr>
+<td>0x0A</td>
+<td style="text-align:center">4</td>
+<td>Number of pages in the stash data as a 32 bit unsigned integer</td>
+</tr>
+<tr>
+<td>0x0E</td>
+<td style="text-align:center">...</td>
+<td>Beginning of <a href="#stash-data-format">Stash data</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="plugy-personal-stash-d2x-file-format">PlugY Personal Stash (.d2x) File Format</h2>
+<table>
+<thead>
+<tr>
+<th>Byte Offset</th>
+<th style="text-align:center">Size (bytes)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x00</td>
+<td style="text-align:center">4</td>
+<td>File header. Must be &quot;CSTM&quot; (0x4D545343 when read as a 32 bit unsigned integer).</td>
+</tr>
+<tr>
+<td>0x04</td>
+<td style="text-align:center">2</td>
+<td>File version. Will be &quot;01&quot; (0x3130) when file version is 1. No other versions are in use currently.</td>
+</tr>
+<tr>
+<td>0x06</td>
+<td style="text-align:center">4</td>
+<td>Unused bytes</td>
+</tr>
+<tr>
+<td>0x0A</td>
+<td style="text-align:center">4</td>
+<td>Number of pages in the stash data as a 32 bit unsigned integer</td>
+</tr>
+<tr>
+<td>0x0E</td>
+<td style="text-align:center">...</td>
+<td>Beginning of <a href="#stash-data-format">Stash data</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="stash-data-format">Stash Data Format</h2>
+<p>For each stash page:</p>
+<table>
+<thead>
+<tr>
+<th>Byte Offset</th>
+<th style="text-align:center">Size (bytes)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x00</td>
+<td style="text-align:center">2</td>
+<td>Stash header. Must be &quot;ST&quot; (0x5453 when read as a 16 bit unsigned integer).</td>
+</tr>
+<tr>
+<td>0x02</td>
+<td style="text-align:center">0 or 4</td>
+<td>Flags data (added in PlugY 11.02, doesn&apos;t exist in save data from earlier versions). The actual flags can be seen <a href="https://github.com/ChaosMarc/PlugY/blob/0116cb44b459ba02832cf8f07092ce4f48aeecdf/PlugY/playerCustomData.h#L19-L27" target="_blank">here</a>. <br><br> It&apos;s possible to determine if the flags data exists by checking if the 2 bytes following the next null character == the D2 item header (&quot;JM&quot;); see <a href="https://github.com/ChaosMarc/PlugY/blob/0116cb44b459ba02832cf8f07092ce4f48aeecdf/PlugY/InfinityStash.cpp#L258-L264" target="_blank">the PlugY source code for an example</a>.</td>
+</tr>
+<tr>
+<td>0x02 or 0x06</td>
+<td style="text-align:center">At least 1</td>
+<td>Stash page name as a null-terminated string. Can be a maximum of 15 characters + the null terminator (16 total bytes).</td>
+</tr>
+<tr>
+<td>Varies</td>
+<td style="text-align:center">...</td>
+<td>Beginning of <a href="formats/d2.md#inventory-data-format">D2 Inventory data</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="sources--further-reading">Sources / Further Reading</h2>
+<ul>
+<li><a href="https://d2mods.info/forum/viewtopic.php?f=133&amp;t=31359" target="_blank">PlugY save files structures (The Phrozen Keep)</a></li>
+<li><a href="https://github.com/ChaosMarc/PlugY/blob/0116cb44b459ba02832cf8f07092ce4f48aeecdf/PlugY/InfinityStash.cpp#L243-L282" target="_blank">loadStash (PlugY 11.02 Source Code)</a></li>
+</ul>
+
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="gb-page-footer">
+        <div class="container">
+            <ul class="menu">
+                <li>
+                    <a href="#">Return to the top</a>
+                </li>
+                <li>
+                    <a href="#">Updated Aug 19th 18</a>
+                </li>
+            </ul>
+        </div>
+    </footer>
+</div>
+
+<script src="../gitbook/gitbook.js"></script>
+
+<script>
+(function() {
+    gitbook.page.hasChanged({"page":{"title":"PlugY Save Files (.sss/.d2x)","level":"2.1","depth":1,"previous":{"title":"API Reference","level":"1.2","depth":1,"path":"api.md","ref":"api.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"formats/plugy.md","mtime":"2018-08-19T20:58:54.790Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-08-19T21:00:05.045Z"},"basePath":"..","book":{"language":""}});
+})();
+</script>
+
+        
+    </body>
+</html>
+

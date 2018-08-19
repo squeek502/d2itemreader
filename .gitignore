@@ -3,3 +3,4 @@ node_modules/
 html/
 xml/
 latex/
+package-lock.json
