@@ -103,21 +103,18 @@ MU_TEST(unexpected_eof)
 
 MU_TEST(d2i)
 {
-	unsigned char* data;
-	size_t dataSizeBytes;
-	d2err err = d2util_read_file("data/runeword.d2i", &data, &dataSizeBytes);
-	mu_check(err == D2ERR_OK);
+	const char* filename = "data/runeword.d2i";
+	mu_check(d2filetype_of_file(filename) == D2FILETYPE_D2_ITEM);
 
 	d2item d2i;
 	size_t bytesRead;
-	err = d2item_parse(data, dataSizeBytes, 0, &d2i, &bytesRead);
+	d2err err = d2item_parse_file(filename, &d2i, &bytesRead);
 	mu_check(err == D2ERR_OK);
 
 	mu_check(d2i.numItemsInSockets == 3);
 	mu_check(d2i.socketedItems.count == 3);
 
 	d2item_destroy(&d2i);
-	free(data);
 }
 
 MU_TEST(v107)

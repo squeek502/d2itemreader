@@ -71,6 +71,12 @@ enum d2filetype d2filetype_get(const unsigned char* data, size_t size)
 	if (size < 4)
 		return D2FILETYPE_UNKNOWN;
 
+	uint16_t header16 = *(uint16_t*)(data);
+	if (header16 == D2_JM_TAG)
+	{
+		return D2FILETYPE_D2_ITEM;
+	}
+
 	if (data[0] == 'D' && data[1] == '2' && data[2] == 'X')
 	{
 		return D2FILETYPE_ATMA_STASH;
@@ -363,6 +369,22 @@ void d2itemlist_destroy(d2itemlist* list)
 	}
 	list->items = NULL;
 	list->count = list->_size = 0;
+}
+
+CHECK_RESULT d2err d2item_parse_file(const char* filename, d2item* item, size_t* out_bytesRead)
+{
+	d2err err;
+	unsigned char* data;
+	size_t dataSizeBytes;
+	err = d2util_read_file(filename, &data, &dataSizeBytes);
+	if (err != D2ERR_OK)
+	{
+		*out_bytesRead = 0;
+		return err;
+	}
+	err = d2item_parse(data, dataSizeBytes, 0, item, out_bytesRead);
+	free(data);
+	return err;
 }
 
 CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, size_t* out_bytesRead)

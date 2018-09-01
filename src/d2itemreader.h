@@ -87,7 +87,8 @@ enum d2filetype
 	D2FILETYPE_D2_CHARACTER, ///< Parsable using d2char_parse() or d2char_parse_file()
 	D2FILETYPE_PLUGY_SHARED_STASH, ///< Parsable using d2sharedstash_parse() or d2sharedstash_parse_file()
 	D2FILETYPE_PLUGY_PERSONAL_STASH, ///< Parsable using d2personalstash_parse() or d2personalstash_parse_file()
-	D2FILETYPE_ATMA_STASH ///< Parsable using d2atmastash_parse() or d2atmastash_parse_file()
+	D2FILETYPE_ATMA_STASH, ///< Parsable using d2atmastash_parse() or d2atmastash_parse_file()
+	D2FILETYPE_D2_ITEM ///< Parsable using d2item_parse() or d2item_parse_file()
 };
 
 /// Attempt to determine the filetype of the given binary data
@@ -356,6 +357,21 @@ struct d2item
 
 };
 
+/**
+* Parse the item (+ any socketed items within) in `filename`, and store the result in `item`
+*
+* Parameters:
+*
+*   item: A pointer to an uninitialized d2item object.
+*         If this function returns D2ERR_OK, then `item` will need to be cleaned up with d2item_destroy.
+*         If this function returns something other than D2ERR_OK, then `item` will remain uninitialized.
+*
+*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item.
+*                  On error, set to the number of bytes successfully parsed before the error.
+*
+* Return value: D2ERR_OK on success
+*/
+CHECK_RESULT d2err d2item_parse_file(const char* filename, d2item* item, size_t* out_bytesRead);
 /**
 * Parse the item (+ any socketed items within) in `data` starting at `startByte`, and store the result in `item`
 *
