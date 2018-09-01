@@ -306,6 +306,9 @@
 <td><code>void</code><a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531"><code>d2itemproplist_destroy</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code></td>
 </tr>
 <tr>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e"><code>d2item_parse_file</code></a><code>(const char * filename,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code></td>
+</tr>
+<tr>
 <td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f"><code>d2item_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
@@ -424,6 +427,10 @@
 <tr>
 <td>D2FILETYPE_ATMA_STASH</td>
 <td>Parsable using <a href="#d2itemreader_8h_1ad801fb233ce25a3101a3a1f4f8f3c674">d2atmastash_parse()</a> or <a href="#d2itemreader_8h_1a13ab3bd5a4187eacfd8d6de76f0be877">d2atmastash_parse_file()</a></td>
+</tr>
+<tr>
+<td>D2FILETYPE_D2_ITEM</td>
+<td>Parsable using <a href="#d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f">d2item_parse()</a> or <a href="#d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e">d2item_parse_file()</a></td>
 </tr>
 </tbody>
 </table>
@@ -693,6 +700,12 @@
 <h3 id="d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319"><code>d2itemproplist_init</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code> </h3>
 <h3 id="d2itemreader_8h_1a5af918937df19a669f9328dd7c699b98"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a5af918937df19a669f9328dd7c699b98"><code>d2itemproplist_append</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list,</code><a href="#structd2itemprop"><code>d2itemprop</code></a> <code>prop)</code> </h3>
 <h3 id="d2itemreader_8h_1a713385d41a888e980409f60d622ac531"><code>void</code><a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531"><code>d2itemproplist_destroy</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code> </h3>
+<h3 id="d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e"><code>d2item_parse_file</code></a><code>(const char * filename,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code> </h3>
+<p>Parse the item (+ any socketed items within) in <code>filename</code>, and store the result in <code>item</code></p>
+<p>Parameters:</p>
+<p>item: A pointer to an uninitialized <a href="#structd2item">d2item</a> object. If this function returns D2ERR_OK, then <code>item</code> will need to be cleaned up with d2item_destroy. If this function returns something other than D2ERR_OK, then <code>item</code> will remain uninitialized.</p>
+<p>out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item. On error, set to the number of bytes successfully parsed before the error.</p>
+<p>Return value: D2ERR_OK on success</p>
 <h3 id="d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f"><code>d2item_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code> </h3>
 <p>Parse the item (+ any socketed items within) in <code>data</code> starting at <code>startByte</code>, and store the result in <code>item</code></p>
 <p>Parameters:</p>
@@ -1266,7 +1279,7 @@
 
 <script>
 (function() {
-    gitbook.page.hasChanged({"page":{"title":"API Reference","level":"1.2","depth":1,"next":{"title":"Diablo II items, etc","level":"2.1","depth":1,"path":"formats/d2.md","ref":"formats/d2.md","articles":[]},"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"INDEX.md","ref":"INDEX.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"api.md","mtime":"2018-09-01T07:44:48.146Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-09-01T07:45:16.992Z"},"basePath":".","book":{"language":""}});
+    gitbook.page.hasChanged({"page":{"title":"API Reference","level":"1.2","depth":1,"next":{"title":"Diablo II items, etc","level":"2.1","depth":1,"path":"formats/d2.md","ref":"formats/d2.md","articles":[]},"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"INDEX.md","ref":"INDEX.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"api.md","mtime":"2018-09-01T08:05:21.000Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-09-01T08:05:49.928Z"},"basePath":".","book":{"language":""}});
 })();
 </script>
 
