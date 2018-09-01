@@ -1,0 +1,296 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>Diablo II items, etc · d2itemreader</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+        
+
+    
+
+    
+        
+        <link rel="stylesheet" href="../styles/website.css">
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
+
+
+    
+    <link rel="next" href="d2s.html" />
+    
+    
+    <link rel="prev" href="../api.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="gb-page-wrapper">
+    <header class="gb-page-header">
+        <div class="container">
+        
+            
+
+            <a href=".." class="logo">
+                <h1>d2itemreader</h1>
+            </a>
+
+            <a href="https://github.com/squeek502/d2itemreader" class="btn btn-link pull-right hidden-xs"><i class="octicon octicon-mark-github"></i> Github</a>
+
+            
+
+            
+                
+                <a href="d2s.html" class="btn btn-link pull-right hidden-xs">
+                    <i class="octicon octicon-chevron-right"></i>
+                </a>
+                
+                
+                <a href="../api.html" class="btn btn-link pull-right hidden-xs">
+                    <i class="octicon octicon-chevron-left"></i>
+                </a>
+                
+            
+        
+        </div>
+    </header>
+
+    <div class="gb-page-body">
+        <div class="gb-page-inner">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        
+
+
+
+    
+    <div class="panel panel-default">
+        
+
+        <div class="list-group">
+            
+    
+        
+        <a href="../" class="list-group-item ">
+        
+
+            
+
+            
+
+            Introduction
+
+        
+        </a>
+        
+
+        
+    
+        
+        <a href="../api.html" class="list-group-item ">
+        
+
+            
+
+            
+
+            API Reference
+
+        
+        </a>
+        
+
+        
+    
+
+        </div>
+    </div>
+    
+    <div class="panel panel-default">
+        
+        <div class="panel-heading">
+            <h3 class="panel-title">File Structures</h3>
+        </div>
+        
+
+        <div class="list-group">
+            
+    
+        
+        <a href="d2.html" class="list-group-item active">
+        
+
+            
+
+            
+
+            Diablo II items, etc
+
+        
+        </a>
+        
+
+        
+    
+        
+        <a href="d2s.html" class="list-group-item ">
+        
+
+            
+
+            
+
+            Diablo II Save Files (.d2s)
+
+        
+        </a>
+        
+
+        
+    
+        
+        <a href="plugy.html" class="list-group-item ">
+        
+
+            
+
+            
+
+            PlugY Save Files (.sss/.d2x)
+
+        
+        </a>
+        
+
+        
+    
+        
+        <a href="atma.html" class="list-group-item ">
+        
+
+            
+
+            
+
+            ATMA Stash Files (.d2x)
+
+        
+        </a>
+        
+
+        
+    
+
+        </div>
+    </div>
+    
+
+
+
+                    </div>
+                    <div class="col-md-9">
+                        
+                            
+                            <div class="gb-markdown book-page-inner">
+                                <h2 id="item-list-data-format">Item List Data Format</h2>
+<table>
+<thead>
+<tr>
+<th>Byte Offset</th>
+<th style="text-align:center">Size (bytes)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x00</td>
+<td style="text-align:center">2</td>
+<td>Header. Must be <code>&quot;JM&quot;</code> (<code>0x4D4A</code> when read as a 16 bit unsigned integer).</td>
+</tr>
+<tr>
+<td>0x02</td>
+<td style="text-align:center">2</td>
+<td>Number of items in the list as a 16 bit unsigned integer.<br><br><strong>Note:</strong> This number only counts &apos;root&apos; items, i.e. it <em>does not include</em> items that have been inserted into the sockets of the &apos;root&apos; items. That is, an item list with 1 item that has 2 socketed items inside it will have a value of 1 in this field, even though the full data will have 3 items in it. In other words, the items in the sockets should be considered part of the item that they&apos;re contained in.</td>
+</tr>
+<tr>
+<td>0x04</td>
+<td style="text-align:center">...</td>
+<td>Beginning of contiguous <a href="#item-data-format">Item data</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="item-data-format">Item Data Format</h2>
+<p>TODO</p>
+
+                            </div>
+                            
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="gb-page-footer">
+        <div class="container">
+            <ul class="menu">
+                <li>
+                    <a href="#">Return to the top</a>
+                </li>
+                <li>
+                    <a href="#">Updated Sep 1st 18</a>
+                </li>
+            </ul>
+        </div>
+    </footer>
+</div>
+
+<script src="../gitbook/gitbook.js"></script>
+
+<script>
+(function() {
+    gitbook.page.hasChanged({"page":{"title":"Diablo II items, etc","level":"2.1","depth":1,"next":{"title":"Diablo II Save Files (.d2s)","level":"2.2","depth":1,"path":"formats/d2s.md","ref":"formats/d2s.md","articles":[]},"previous":{"title":"API Reference","level":"1.2","depth":1,"path":"api.md","ref":"api.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"formats/d2.md","mtime":"2018-09-01T07:44:11.121Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2018-09-01T07:45:16.992Z"},"basePath":"..","book":{"language":""}});
+})();
+</script>
+
+        
+    </body>
+</html>
+
