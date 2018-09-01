@@ -14,11 +14,15 @@ d2data g_d2itemreader_data = { 0 };
 
 CHECK_RESULT d2err d2itemreader_init_default()
 {
+	d2data_destroy(&g_d2itemreader_data);
+
 	return d2data_load_defaults(&g_d2itemreader_data);
 }
 
 CHECK_RESULT d2err d2itemreader_init_files(d2datafiles files)
 {
+	d2data_destroy(&g_d2itemreader_data);
+
 	d2err err;
 	if ((err = d2data_load_armors_from_file(files.armorTxtFilepath, &g_d2itemreader_data)) != D2ERR_OK)
 	{
@@ -41,6 +45,8 @@ CHECK_RESULT d2err d2itemreader_init_files(d2datafiles files)
 
 CHECK_RESULT d2err d2itemreader_init_bufs(d2databufs bufs)
 {
+	d2data_destroy(&g_d2itemreader_data);
+
 	d2err err;
 	if ((err = d2data_load_armors(bufs.armorTxt, bufs.armorTxtSize, &g_d2itemreader_data)) != D2ERR_OK)
 	{

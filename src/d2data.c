@@ -34,6 +34,7 @@ static CHECK_RESULT d2err d2data_init(d2data* data)
 	}
 	if (data->armorsSet == NULL || data->weaponsSet == NULL || data->stackablesSet == NULL)
 	{
+		d2data_destroy(data);
 		return D2ERR_OUT_OF_MEMORY;
 	}
 	return D2ERR_OK;
@@ -305,6 +306,7 @@ void d2data_destroy(d2data* data)
 		strset_free(data->stackablesSet);
 		data->stackablesSet = NULL;
 	}
+	memset(data->itemstats, 0, D2DATA_MAX_ITEMSTATCOST_IDS*sizeof(d2data_itemstat));
 	data->initState = D2DATA_INIT_STATE_NONE;
 }
 
