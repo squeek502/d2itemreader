@@ -1,17 +1,16 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
+
 project (d2itemreader C)
 
 # Quoted variables like "MSVC" will no longer be dereferenced when the policy is set to NEW
 cmake_policy(SET CMP0054 NEW)
 
-set(CMAKE_C_STANDARD_REQUIRED true)
-set(CMAKE_C_STANDARD 99)
-
-include_directories(src/)
 file(GLOB HEADERS "src/*.h")
 file(GLOB LIBSRC "src/*.c")
 
 add_library( d2itemreader ${LIBSRC} ${HEADERS} )
+target_include_directories(d2itemreader PUBLIC src/)
+set_target_properties(d2itemreader PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED true)
 if (MSVC)
   target_compile_definitions( d2itemreader PUBLIC _CRT_SECURE_NO_WARNINGS )
 endif()
