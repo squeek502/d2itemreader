@@ -10,13 +10,15 @@ extern "C" {
 
 #define BIT_READER_CURSOR_BEYOND_EOF SIZE_MAX
 
+// from https://user.xmission.com/~trevin/DiabloIIv1.09_Item_Format.shtml
+#define read_bits_raw(data,start,size) \
+	((*((uint64_t*) &(data)[(start) / 8]) >> ((start) & 7)) & (((uint64_t)1 << (size)) - 1))
+
 typedef struct bit_reader {
 	const unsigned char* const data;
 	size_t dataSizeBytes;
 	size_t cursor;
 	size_t bitsRead;
-	uint64_t buffer;
-	size_t validBits;
 } bit_reader;
 
 void skip_bits(bit_reader* reader, size_t bitsToSkip);

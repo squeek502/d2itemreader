@@ -59,6 +59,48 @@ MU_TEST(item_data)
 	mu_check(br.bitsRead == 30);
 }
 
+MU_TEST(item_code)
+{
+	bit_reader br = { simpleItemData, simpleItemDataSize };
+	skip_bits(&br, 76);
+	char c = (char)read_bits(&br, 8);
+	mu_check(c == 'r');
+	c = (char)read_bits(&br, 8);
+	mu_check(c == '1');
+	c = (char)read_bits(&br, 8);
+	mu_check(c == '1');
+	c = (char)read_bits(&br, 8);
+	mu_check(c == ' ');
+}
+
+MU_TEST(large_read)
+{
+	bit_reader br = { simpleItemData, simpleItemDataSize };
+	uint64_t d = read_bits(&br, 1);
+	mu_check(d == 0);
+	br.cursor = 0; br.bitsRead = 0;
+	d = read_bits(&br, 2);
+	mu_check(d == 2);
+	br.cursor = 0; br.bitsRead = 0;
+	d = read_bits(&br, 32);
+	mu_check(d == 0x00104D4A);
+	br.cursor = 0; br.bitsRead = 0;
+	d = read_bits(&br, 63);
+	mu_check(d == 0x006500A000104D4A);
+}
+
+MU_TEST(item_code_raw)
+{
+	char c = (char)read_bits_raw(simpleItemData, 76, 8);
+	mu_check(c == 'r');
+	c = (char)read_bits_raw(simpleItemData, 84, 8);
+	mu_check(c == '1');
+	c = (char)read_bits_raw(simpleItemData, 92, 8);
+	mu_check(c == '1');
+	c = (char)read_bits_raw(simpleItemData, 100, 8);
+	mu_check(c == ' ');
+}
+
 MU_TEST(simple_flag)
 {
 	bit_reader br = { advancedItemData, advancedItemDataSize };
@@ -67,7 +109,7 @@ MU_TEST(simple_flag)
 	mu_check(!isSimple);
 	mu_check(br.bitsRead == 38);
 
-	bit_reader br2 = { simpleItemData, advancedItemDataSize };
+	bit_reader br2 = { simpleItemData, simpleItemDataSize };
 	skip_bits(&br2, 37);
 	isSimple = read_bits(&br2, 1);
 	mu_check(isSimple);
@@ -110,6 +152,9 @@ MU_TEST_SUITE(test_bitreader)
 	MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
 	MU_RUN_TEST(item_data);
+	MU_RUN_TEST(item_code);
+	MU_RUN_TEST(large_read);
+	MU_RUN_TEST(item_code_raw);
 	MU_RUN_TEST(simple_flag);
 	MU_RUN_TEST(item_uid);
 	MU_RUN_TEST(overflow);
