@@ -126,18 +126,23 @@ MU_TEST(item_uid)
 
 MU_TEST(overflow)
 {
-	bit_reader br = { simpleItemData, 4 };
+	bit_reader br = { simpleItemData, simpleItemDataSize };
 	uint64_t j = read_bits(&br, 8);
 	mu_check(j == 'J');
 	uint64_t m = read_bits(&br, 8);
 	mu_check(m == 'M');
 
-	// this puts the cursor at EOF according to the size we gave br
-	skip_bits(&br, 16);
+	skip_bits(&br, 84);
 
-	mu_check(br.cursor == 4);
+	uint64_t b = read_bits(&br, 8);
+	mu_check(b == ' ');
 
-	uint64_t b = read_bits(&br, 1);
+	b = read_bits(&br, 4);
+	mu_check(b == 0);
+
+	// we've read to the exact end at this point
+
+	b = read_bits(&br, 1);
 	mu_check(b == 0);
 	mu_check(br.cursor == BIT_READER_CURSOR_BEYOND_EOF);
 

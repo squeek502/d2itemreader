@@ -9,6 +9,7 @@ extern "C" {
 #include <stdint.h>
 
 #define BIT_READER_CURSOR_BEYOND_EOF SIZE_MAX
+#define BIT_READER_RAW_READ_SIZE sizeof(uint64_t)
 
 // from https://user.xmission.com/~trevin/DiabloIIv1.09_Item_Format.shtml
 #define read_bits_raw(data,start,size) \
