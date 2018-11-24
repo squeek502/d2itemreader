@@ -43,7 +43,10 @@ uint64_t read_bits(bit_reader* reader, size_t bitsToRead)
 		{
 			size_t safeStartBit = (reader->dataSizeBytes - BIT_READER_RAW_READ_SIZE_BYTES) * 8;
 			size_t delta = reader->bitsRead - safeStartBit;
-			n = read_bits_raw(reader->data, safeStartBit, bitsToRead+delta) >> delta;
+			if (bitsToRead + delta < BIT_READER_RAW_READ_SIZE_BITS)
+			{
+				n = read_bits_raw(reader->data, safeStartBit, bitsToRead + delta) >> delta;
+			}
 		}
 		else
 			n = read_bits_raw(reader->data, reader->bitsRead, bitsToRead);
