@@ -154,9 +154,9 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2itemproplist* list)
 		d2data_itemstat* stat = &g_d2itemreader_data.itemstats[id];
 		d2itemprop prop = { id };
 
-		// saveBits being zero is unrecoverably bad, and
+		// saveBits being zero or >= 64 is unrecoverably bad, and
 		// encode type 4 is only used by stats that were never implemented (time-based stats)
-		if (stat->saveBits == 0 || stat->encode == 4)
+		if (stat->saveBits == 0 || stat->saveBits >= BIT_READER_RAW_READ_SIZE_BITS || stat->encode == 4)
 		{
 			err = D2ERR_PARSE;
 			goto err;
