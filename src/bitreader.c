@@ -2,7 +2,7 @@
 
 static int read_is_within_bounds(bit_reader* reader, size_t bitsToAdvance)
 {
-	return reader->bitsRead + bitsToAdvance <= reader->dataSizeBytes * 8;
+	return reader->bitCursor + bitsToAdvance <= reader->dataSizeBytes * 8;
 }
 
 static int within_bounds(bit_reader* reader)
@@ -13,7 +13,8 @@ static int within_bounds(bit_reader* reader)
 static void advance_bits(bit_reader* reader, size_t bitsToAdvance)
 {
 	reader->bitsRead += bitsToAdvance;
-	reader->cursor = within_bounds(reader) ? (reader->bitsRead / 8) : BIT_READER_CURSOR_BEYOND_EOF;
+	reader->bitCursor += bitsToAdvance;
+	reader->cursor = within_bounds(reader) ? (reader->bitCursor / 8) : BIT_READER_CURSOR_BEYOND_EOF;
 }
 
 void skip_bits(bit_reader* reader, size_t bitsToSkip)
@@ -42,18 +43,23 @@ uint64_t read_bits(bit_reader* reader, size_t bitsToRead)
 		if (reader->cursor + BIT_READER_RAW_READ_SIZE_BYTES > reader->dataSizeBytes)
 		{
 			size_t safeStartBit = (reader->dataSizeBytes - BIT_READER_RAW_READ_SIZE_BYTES) * 8;
-			size_t delta = reader->bitsRead - safeStartBit;
+			size_t delta = reader->bitCursor - safeStartBit;
 			if (bitsToRead + delta < BIT_READER_RAW_READ_SIZE_BITS)
 			{
 				n = read_bits_raw(reader->data, safeStartBit, bitsToRead + delta) >> delta;
 			}
 		}
 		else
-			n = read_bits_raw(reader->data, reader->bitsRead, bitsToRead);
+			n = read_bits_raw(reader->data, reader->bitCursor, bitsToRead);
 	}
 	if (reader->cursor != BIT_READER_CURSOR_BEYOND_EOF)
 	{
 		advance_bits(reader, bitsToRead);
 	}
 	return n;
+}
+
+size_t bitreader_next_byte_pos(bit_reader* reader)
+{
+	return reader->cursor + (reader->bitCursor % 8 != 0);
 }

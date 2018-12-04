@@ -466,7 +466,7 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 	// memset everything to 0 just to be safe
 	memset(item, 0, sizeof(d2item));
 
-	bit_reader br = { data, dataSizeBytes, curByte, 16 };
+	bit_reader br = { data, dataSizeBytes, curByte, curByte * BITS_PER_BYTE, 16 };
 	// offset: 16, unknown
 	skip_bits(&br, 4);
 	// offset: 20
@@ -1153,7 +1153,7 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSize
 		goto err;
 	}
 
-	bit_reader br = { data, dataSizeBytes, curByte };
+	bit_reader br = { data, dataSizeBytes, curByte, curByte * BITS_PER_BYTE, curByte * BITS_PER_BYTE };
 
 	while (true)
 	{
@@ -1187,7 +1187,7 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSize
 		skip_bits(&br, stat->charSaveBits);
 	}
 
-	curByte = br.cursor + D2S_SKILLS_BYTELEN;
+	curByte = bitreader_next_byte_pos(&br) + D2S_SKILLS_BYTELEN;
 
 	if (curByte > dataSizeBytes || br.cursor == BIT_READER_CURSOR_BEYOND_EOF)
 	{

@@ -20,12 +20,13 @@ typedef struct bit_reader {
 	const unsigned char* const data;
 	size_t dataSizeBytes;
 	size_t cursor;
+	size_t bitCursor;
 	size_t bitsRead;
 } bit_reader;
 
 void skip_bits(bit_reader* reader, size_t bitsToSkip);
 uint64_t read_bits(bit_reader* reader, size_t bitsToRead);
-uint64_t reverse_bits(uint64_t b, size_t n);
+size_t bitreader_next_byte_pos(bit_reader* reader);
 
 #ifdef __cplusplus
 }
