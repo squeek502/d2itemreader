@@ -722,7 +722,7 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 			if (item->maxDurability > 0)
 			{
 				item->currentDurability = (uint8_t)read_bits(&br, 8);
-				// Seems to be a random bit here.
+				// Seems to be a random bit here (always seems to be 0).
 				read_bits(&br, 1);
 			}
 		}
@@ -918,7 +918,7 @@ CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t d
 	{
 		stash->sharedGold = D2ITEMREADER_READ(uint32_t) else { goto eof; }
 	}
-	
+
 	// stash->numPages is incremented as pages are successfully parsed to
 	// ensure that calling d2personalstash_destroy doesn't attempt to free pages
 	// that haven't been initialized
