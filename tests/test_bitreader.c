@@ -78,13 +78,13 @@ MU_TEST(large_read)
 	bit_reader br = { simpleItemData, simpleItemDataSize };
 	uint64_t d = read_bits(&br, 1);
 	mu_check(d == 0);
-	br.cursor = 0; br.bitsRead = 0;
+	br.cursor = 0; br.bitsRead = 0; br.bitCursor = 0;
 	d = read_bits(&br, 2);
 	mu_check(d == 2);
-	br.cursor = 0; br.bitsRead = 0;
+	br.cursor = 0; br.bitsRead = 0; br.bitCursor = 0;
 	d = read_bits(&br, 32);
 	mu_check(d == 0x00104D4A);
-	br.cursor = 0; br.bitsRead = 0;
+	br.cursor = 0; br.bitsRead = 0; br.bitCursor = 0;
 	d = read_bits(&br, 63);
 	mu_check(d == 0x006500A000104D4A);
 }
