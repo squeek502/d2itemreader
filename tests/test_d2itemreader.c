@@ -197,6 +197,30 @@ MU_TEST(v113c)
 	d2char_destroy(&character);
 }
 
+MU_TEST(properties1)
+{
+	d2item item;
+	size_t bytesRead;
+	d2err err = d2item_parse_file("data/properties_test1.d2i", &item, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	mu_check(item.magicProperties.count == 3);
+
+	d2itemprop* prop1 = &item.magicProperties.properties[0];
+	mu_check(prop1->id == 308);
+	mu_check(prop1->numParams == 1);
+	mu_check(prop1->params[0] == 25);
+
+	d2itemprop* prop2 = &item.magicProperties.properties[1];
+	mu_check(prop2->id == 112);
+	mu_check(prop2->numParams == 1);
+	mu_check(prop2->params[0] == 126);
+
+	d2itemprop* prop3 = &item.magicProperties.properties[2];
+	mu_check(prop3->id == 89);
+	mu_check(prop3->numParams == 1);
+	mu_check(prop3->params[0] == -4);
+}
+
 MU_TEST_SUITE(test_d2itemreader)
 {
 	MU_RUN_TEST(nodata);
@@ -219,6 +243,7 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(v111b);
 	MU_RUN_TEST(v112a);
 	MU_RUN_TEST(v113c);
+	MU_RUN_TEST(properties1);
 	d2itemreader_destroy();
 }
 
