@@ -69,7 +69,7 @@ int main(int argc, const char* argv[])
 		if (id == stat->id)
 		{
 			int isLast = (id == D2DATA_MAX_ITEMSTATCOST_IDS - 1) || (data.itemstats[id + 1].id != id + 1);
-			printf("{%u, %u, %u, %u, %u, %u, %u}", stat->id, stat->encode, stat->saveBits, stat->saveAdd, stat->saveParamBits, stat->nextInChain, stat->charSaveBits);
+			printf("{%u, %u, %u, %d, %u, %u, %u}", stat->id, stat->encode, stat->saveBits, stat->saveAdd, stat->saveParamBits, stat->nextInChain, stat->charSaveBits);
 			if (!isLast)
 				printf(",");
 			else

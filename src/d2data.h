@@ -26,7 +26,7 @@ typedef struct d2data_itemstat {
 	uint16_t id;
 	uint8_t encode;
 	uint16_t saveBits;
-	uint16_t saveAdd;
+	int16_t saveAdd;
 	uint16_t saveParamBits;
 	uint16_t nextInChain;
 	uint16_t charSaveBits;

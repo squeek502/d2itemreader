@@ -241,7 +241,7 @@ static CHECK_RESULT d2err d2data_load_itemstats_common(d2txt_file parsed, d2data
 
 		data->itemstats[id].id = id;
 		data->itemstats[id].saveBits = (uint16_t)(saveBits[0] ? atoi(saveBits) : 0);
-		data->itemstats[id].saveAdd = (uint16_t)(saveAdd[0] ? atoi(saveAdd) : 0);
+		data->itemstats[id].saveAdd = (int16_t)(saveAdd[0] ? atoi(saveAdd) : 0);
 		data->itemstats[id].encode = (uint8_t)(encode[0] ? atoi(encode) : 0);
 		data->itemstats[id].saveParamBits = (uint16_t)(saveParamBits[0] ? atoi(saveParamBits) : 0);
 		data->itemstats[id].charSaveBits = (uint16_t)(charSaveBits[0] ? atoi(charSaveBits) : 0);
