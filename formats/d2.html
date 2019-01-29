@@ -257,6 +257,384 @@
 </tbody>
 </table>
 <h2 id="item-data-format">Item Data Format</h2>
+<h3 id="bytebit-order">Byte/Bit Order</h3>
+<p>Bytes are saved as little-endian (least significant byte first). However, when reading bit fields, bits should be interpretted from &apos;left-to-right&apos;, or least-significant-bit to most-significant-bit (i.e. the reverse of <a href="https://en.wikipedia.org/wiki/Bit_numbering" target="_blank">how bytes are typically represented</a>) while also acounting for the fact that bits can span across byte boundaries.</p>
+<p>The following is a diagram attempting to illustrate how the item code bits should be interpretted. The bytes shown are those that contain the 32 bits used store an item&apos;s code (which starts at bit offset 76; every 8 bits contains an ASCII character).</p>
+<pre><code>Bit offset               ...   76    80    84    88    92    96   100   104   108  ...
+Char boundaries           |    |-----1-----|-----2-----|-----3-----|-----4-----|    |
+Bits in byte order         0010 1010   0001 0111   0001 0011   0000 0011   0000 0010
+Bits in bit field order    0101 0100   1110 1000   1100 1000   1100 0000   0100 0000
+Char bits in byte order         0111   0010 0011   0001 0011   0001 0010   0000
+Hex vals of char bits               7 2         3 1         3 1         2 0
+Char val of char bits               &apos;r&apos;         &apos;1&apos;         &apos;1&apos;         &apos; &apos;
+</code></pre><p>In C, the following macro can be used to read an arbitrary bit field as described above (code is <a href="https://user.xmission.com/~trevin/DiabloIIv1.09_Item_Format.shtml" target="_blank">originally from here</a>):</p>
+<pre><code class="lang-c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> read_bits(start,size) \
+    ((*((unsigned long *) &amp;data[(start) / 8]) &gt;&gt; ((start) &amp; 7)) &amp; ((1 &lt;&lt; (size)) - 1))</span>
+</code></pre>
+<p>And here&apos;s the adapted version that d2itemreader uses, which includes <code>data</code> as an argument and reads a <code>uint64_t</code>:</p>
+<pre><code class="lang-c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> read_bits(data,start,size) \
+    ((*((uint64_t*) &amp;(data)[(start) / 8]) &gt;&gt; ((start) &amp; 7)) &amp; (((uint64_t)1 &lt;&lt; (size)) - 1))</span>
+</code></pre>
+<p>To test a bit field reader implementation, the following checks can be performed while using <a href="https://github.com/squeek502/d2itemreader/blob/master/tests/data/item_simple.bin" target="_blank">this file as the test data</a>:</p>
+<pre><code class="lang-c"><span class="hljs-keyword">char</span> c1 = (<span class="hljs-keyword">char</span>)read_bits(data, <span class="hljs-number">76</span>, <span class="hljs-number">8</span>);
+<span class="hljs-keyword">char</span> c2 = (<span class="hljs-keyword">char</span>)read_bits(data, <span class="hljs-number">84</span>, <span class="hljs-number">8</span>);
+<span class="hljs-keyword">char</span> c3 = (<span class="hljs-keyword">char</span>)read_bits(data, <span class="hljs-number">92</span>, <span class="hljs-number">8</span>);
+<span class="hljs-keyword">char</span> c4 = (<span class="hljs-keyword">char</span>)read_bits(data, <span class="hljs-number">100</span>, <span class="hljs-number">8</span>);
+assert(c1 == <span class="hljs-string">&apos;r&apos;</span> &amp;&amp; c2 == <span class="hljs-string">&apos;1&apos;</span> &amp;&amp; c3 == <span class="hljs-string">&apos;1&apos;</span> &amp;&amp; c4 == <span class="hljs-string">&apos; &apos;</span>);
+</code></pre>
+<h3 id="format">Format</h3>
+<table>
+<thead>
+<tr>
+<th>Bit Offset</th>
+<th style="text-align:center">Size (bits)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td style="text-align:center">16</td>
+<td>Header. Must be <code>&quot;JM&quot;</code> (<code>0x4D4A</code> when read as a 16 bit unsigned integer).</td>
+</tr>
+<tr>
+<td>16</td>
+<td style="text-align:center">4</td>
+<td>Unknown</td>
+</tr>
+<tr>
+<td>20</td>
+<td style="text-align:center">1</td>
+<td>Item is identified (bool)</td>
+</tr>
+<tr>
+<td>21</td>
+<td style="text-align:center">6</td>
+<td>Unknown</td>
+</tr>
+<tr>
+<td>27</td>
+<td style="text-align:center">1</td>
+<td>Item is socketed (bool)</td>
+</tr>
+<tr>
+<td>28</td>
+<td style="text-align:center">1</td>
+<td>Unknown</td>
+</tr>
+<tr>
+<td>29</td>
+<td style="text-align:center">1</td>
+<td>Item is new (picked up since the last time the game was saved)</td>
+</tr>
+<tr>
+<td>30</td>
+<td style="text-align:center">2</td>
+<td>Unknown</td>
+</tr>
+<tr>
+<td>32</td>
+<td style="text-align:center">1</td>
+<td>Item is an ear (bool)</td>
+</tr>
+<tr>
+<td>33</td>
+<td style="text-align:center">1</td>
+<td>Item is a starting item (was given to the player at the time of character creation)</td>
+</tr>
+<tr>
+<td>34</td>
+<td style="text-align:center">3</td>
+<td>Unknown</td>
+</tr>
+<tr>
+<td>37</td>
+<td style="text-align:center">1</td>
+<td>Item is simple (only contains 111 bits of data)</td>
+</tr>
+<tr>
+<td>38</td>
+<td style="text-align:center">1</td>
+<td>Item is ethereal</td>
+</tr>
+<tr>
+<td>39</td>
+<td style="text-align:center">1</td>
+<td>Unknown</td>
+</tr>
+<tr>
+<td>40</td>
+<td style="text-align:center">1</td>
+<td>Item is personalized</td>
+</tr>
+<tr>
+<td>41</td>
+<td style="text-align:center">1</td>
+<td>Unknown</td>
+</tr>
+<tr>
+<td>42</td>
+<td style="text-align:center">1</td>
+<td>Item has been given a runeword</td>
+</tr>
+<tr>
+<td>43</td>
+<td style="text-align:center">5</td>
+<td>Unknown</td>
+</tr>
+<tr>
+<td>48</td>
+<td style="text-align:center">8</td>
+<td>Version of the item. See <a href="api.md#structd2item">the <code>version</code> field of the <code>d2item</code> struct</a>.</td>
+</tr>
+<tr>
+<td>56</td>
+<td style="text-align:center">2</td>
+<td>Unknown</td>
+</tr>
+<tr>
+<td>58</td>
+<td style="text-align:center">3</td>
+<td>Item location. See <a href="api.md#structd2item">the <code>locationID</code> field of the <code>d2item</code> struct</a>.</td>
+</tr>
+<tr>
+<td>61</td>
+<td style="text-align:center">4</td>
+<td>Item equipped location. See <a href="api.md#structd2item">the <code>equippedID</code> field of the <code>d2item</code> struct</a>.</td>
+</tr>
+<tr>
+<td>65</td>
+<td style="text-align:center">4</td>
+<td>Item position X coordinate</td>
+</tr>
+<tr>
+<td>69</td>
+<td style="text-align:center">3</td>
+<td>Item position Y coordinate</td>
+</tr>
+<tr>
+<td>72</td>
+<td style="text-align:center">1</td>
+<td>Unknown</td>
+</tr>
+<tr>
+<td>73</td>
+<td style="text-align:center">3</td>
+<td>Panel containing the item. See <a href="api.md#structd2item">the <code>panelID</code> field of the <code>d2item</code> struct</a>.</td>
+</tr>
+<tr>
+<td>76</td>
+<td style="text-align:center">...</td>
+<td>If the item is an ear (bit offset 32), then see &quot;Ear&quot;, otherwise skip to &quot;Non-Ear&quot;</td>
+</tr>
+</tbody>
+</table>
+<h4 id="ear">Ear</h4>
+<table>
+<thead>
+<tr>
+<th>Bit Offset</th>
+<th style="text-align:center">Size (bits)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>76</td>
+<td style="text-align:center">3</td>
+<td>Class of the ear&apos;s former owner</td>
+</tr>
+<tr>
+<td>79</td>
+<td style="text-align:center">7</td>
+<td>Level of the ear&apos;s former owner</td>
+</tr>
+<tr>
+<td>86</td>
+<td style="text-align:center">Varies</td>
+<td>Name of the ear&apos;s former owner as a null-terminated string. Each character is 7 bits wide, up to a maximum of 15 characters.</td>
+</tr>
+<tr>
+<td>-</td>
+<td style="text-align:center">...</td>
+<td>After the terminating null character of the ear&apos;s player name, the item has been fully read and any remaining bits up to the next byte boundary will be padded with 0&apos;s.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="non-ear">Non-Ear</h4>
+<table>
+<thead>
+<tr>
+<th>Bit Offset</th>
+<th style="text-align:center">Size (bits)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>76</td>
+<td style="text-align:center">32</td>
+<td>Item code as 4 8-bit-wide characters, where a space character (0x20) should be treated as a null terminator. Note: Item codes <em>can be</em> 4 characters long.</td>
+</tr>
+<tr>
+<td>108</td>
+<td style="text-align:center">3</td>
+<td>The number of items socketed within this item</td>
+</tr>
+<tr>
+<td>111</td>
+<td style="text-align:center">...</td>
+<td>If this is a simple item (bit offset 37), then this item has been fully read and the remaining bits up to the next byte boundary are padded with 0&apos;s.<br><br>Otherwise, see &quot;Advanced&quot;</td>
+</tr>
+</tbody>
+</table>
+<h4 id="advanced">Advanced</h4>
+<table>
+<thead>
+<tr>
+<th>Bit Offset</th>
+<th style="text-align:center">Size (bits)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>111</td>
+<td style="text-align:center">32</td>
+<td>Unique identifier. Typically interpretted as an unsigned 32 bit integer and displayed using the printf format string &quot;%08X&quot;</td>
+</tr>
+<tr>
+<td>143</td>
+<td style="text-align:center">7</td>
+<td>Item level</td>
+</tr>
+<tr>
+<td>150</td>
+<td style="text-align:center">4</td>
+<td>Item rarity ID. See <a href="api.md#structd2item">the <code>rarity</code> field of the <code>d2item</code> struct</a></td>
+</tr>
+</tbody>
+</table>
+<p>From here on out, bit offsets begin to vary depending on the values of the fields, so they will no longer be shown.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Size (bits)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td>Item has multiple pictures</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td><strong><em><p>Only exists when the item has multiple pictures</p></em></strong> ID of the picture used for this item (out of the available pictures for the item type)</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td>Item is class specific</td>
+</tr>
+<tr>
+<td style="text-align:center">11</td>
+<td><strong><em><p>Only exists when the item is class specific</p></em></strong> ID of the class-specific automagic affix the item has (see <a href="api.md#structd2item">the <code>automagicID</code> field of the <code>d2item</code> struct</a>)</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td><strong><em><p>Only exists when the item&apos;s rarity is low quality</p></em></strong> ID of the low quality type of the item (see <a href="api.md#structd2item">the <code>lowQualityID</code> field of the <code>d2item</code> struct</a>)</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td><strong><em><p>Only exists when the item&apos;s rarity is superior/high quality</p></em></strong> ID of the superior type of the item (see <a href="api.md#structd2item">the <code>superiorID</code> field of the <code>d2item</code> struct</a>)</td>
+</tr>
+<tr>
+<td style="text-align:center">11</td>
+<td><strong><em><p>Only exists when the item&apos;s rarity is magic</p></em></strong> ID of the prefix type of the item (see <a href="api.md#structd2item">the <code>magicPrefix</code> field of the <code>d2item</code> struct</a>)</td>
+</tr>
+<tr>
+<td style="text-align:center">11</td>
+<td><strong><em><p>Only exists when the item&apos;s rarity is magic</p></em></strong> ID of the suffix type of the item (see <a href="api.md#structd2item">the <code>magicSuffix</code> field of the <code>d2item</code> struct</a>)</td>
+</tr>
+<tr>
+<td style="text-align:center">12</td>
+<td><strong><em><p>Only exists when the item&apos;s rarity is set</p></em></strong> ID of the set type of the item (see <a href="api.md#structd2item">the <code>setID</code> field of the <code>d2item</code> struct</a>)</td>
+</tr>
+<tr>
+<td style="text-align:center">12</td>
+<td><strong><em><p>Only exists when the item&apos;s rarity is unique</p></em></strong> ID of the unique type of the item (see <a href="api.md#structd2item">the <code>uniqueID</code> field of the <code>d2item</code> struct</a>)</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td><strong><em><p>Only exists when the item&apos;s rarity is rare or crafted</p></em></strong> ID of the first name of the item (see <a href="api.md#structd2item">the <code>nameID1</code> field of the <code>d2item</code> struct</a>)</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td><strong><em><p>Only exists when the item&apos;s rarity is rare or crafted</p></em></strong> ID of the second name of the item (see <a href="api.md#structd2item">the <code>nameID2</code> field of the <code>d2item</code> struct</a>)</td>
+</tr>
+<tr>
+<td style="text-align:center">Varies</td>
+<td><strong><em><p>Only exists when the item&apos;s rarity is rare or crafted</p></em></strong> <p>Rare/crafted affixes. Each affix has a 1-bit-wide field denoting whether or not an 11-bit-wide affix ID field follows (`hasAffix`). If `hasAffix` is 1, then an 11-bit-wide field containing the ID of the affix follows. Otherwise, another 1-bit-wide `hasAffix` field follows.</p> There are a total of 6 of these affixes, where the affixes switch off between prefixes and suffixes, starting with prefix.</td>
+</tr>
+<tr>
+<td style="text-align:center">16</td>
+<td><strong><em><p>Only exists when the item has a runeword given to it</p></em></strong> <p>12-bit-wide field followed by 4 unknown bits. The 12-bit-wide field is some sort of index into Diablo II&apos;s localization string table that contains the name of the runeword of the item, used only for displaying the runeword name of the item.</p> <em>Note: this should not be used to determine what runeword an item is, and instead that should be determined by the order of the runes socketed in the item.</em></td>
+</tr>
+<tr>
+<td style="text-align:center">Varies</td>
+<td><strong><em><p>Only exists when the item is personalized</p></em></strong> The name of the character that personalized the item as a null-terminated string of 7-bit-wide characters.</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td><strong><em><p>Only exists if the item is a tome (of identify or town portal)</p></em></strong> <p>Unknown</p> <em>Note: It is untested whether or not custom tomes would have this field or not</em></td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td>Unknown (denoted as &apos;timestamp&apos; in various places)</td>
+</tr>
+<tr>
+<td style="text-align:center">11</td>
+<td><strong><em><p>Only exists if the item is an armor (i.e. the item code is found in Armor.txt)</p></em></strong> Defense of the armor. Subtract this value by 10 to get the true armor value (note: this -10 matches the &quot;Save Add&quot; column in ItemStatCost.txt for the armor stat).</td>
+</tr>
+<tr>
+<td style="text-align:center">8</td>
+<td><strong><em><p>Only exists if the item is an armor or a weapon (i.e. the item code is found in Armor.txt or Weapons.txt)</p></em></strong> Max durability of the item.</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td><strong><em><p>Only exists if the item&apos;s max durability is greater than zero</p></em></strong> The first 8 bits are the item&apos;s current durability. The last bit is unknown.</td>
+</tr>
+<tr>
+<td style="text-align:center">9</td>
+<td><strong><em><p>Only exists if the item is stackable (i.e. the item code is found in Weapons.txt or Miscs.txt and the &quot;stackable&quot; column is 1)</p></em></strong> Quantity of the item</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td><strong><em><p>Only exists if the item is socketed</p></em></strong> Total number of sockets in the item (both filled and/or unfilled)</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td><strong><em><p>Only exists if the item&apos;s rarity is set</p></em></strong> Set properties bit field, used later for reading the set property lists of the item</td>
+</tr>
+<tr>
+<td style="text-align:center">Varies</td>
+<td>List of magical properties of the item. See <a href="#property-lists">Property Lists</a></td>
+</tr>
+<tr>
+<td style="text-align:center">Varies</td>
+<td><strong><em><p>Only exists if the set properties bit field of the item is not zero</p></em></strong> List of set property lists of the item. Repeat the following 5 times (once for each bit of the set properties bit field): <ul><li>Check that the property list exists by verifying that the bit of the set properties bit field cooresponding to this list is set. That is, if you are starting at index 0, then <code>bitfield &amp; (1 &lt;&lt; index)</code> needs to be 1.</li><li>If the coorespoding bit is set, then read a <a href="#property-lists">Property List</a></li></ul></td>
+</tr>
+<tr>
+<td style="text-align:center">Varies</td>
+<td><strong><em><p>Only exists if the item has a runeword given to it</p></em></strong> A <a href="#property-lists">property list</a> containing the properties of the item that come from the runeword.</td>
+</tr>
+<tr>
+<td style="text-align:center">...</td>
+<td>This item has been fully read and the remaining bits up to the next byte boundary are padded with 0&apos;s</td>
+</tr>
+</tbody>
+</table>
+<h3 id="property-lists">Property Lists</h3>
 <p>TODO</p>
 <h2 id="sources--further-reading">Sources / Further Reading</h2>
 <ul>
@@ -280,7 +658,7 @@
                     <a href="#">Return to the top</a>
                 </li>
                 <li>
-                    <a href="#">Updated Jan 23rd 19</a>
+                    <a href="#">Updated Jan 29th 19</a>
                 </li>
             </ul>
         </div>
@@ -291,7 +669,7 @@
 
 <script>
 (function() {
-    gitbook.page.hasChanged({"page":{"title":"Diablo II items, etc","level":"2.1","depth":1,"next":{"title":"Diablo II Save Files (.d2s)","level":"2.2","depth":1,"path":"formats/d2s.md","ref":"formats/d2s.md","articles":[]},"previous":{"title":"API Reference","level":"1.2","depth":1,"path":"api.md","ref":"api.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"formats/d2.md","mtime":"2019-01-23T05:39:38.363Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-01-23T05:41:33.992Z"},"basePath":"..","book":{"language":""}});
+    gitbook.page.hasChanged({"page":{"title":"Diablo II items, etc","level":"2.1","depth":1,"next":{"title":"Diablo II Save Files (.d2s)","level":"2.2","depth":1,"path":"formats/d2s.md","ref":"formats/d2s.md","articles":[]},"previous":{"title":"API Reference","level":"1.2","depth":1,"path":"api.md","ref":"api.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"formats/d2.md","mtime":"2019-01-29T02:43:12.095Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-01-29T02:44:25.985Z"},"basePath":"..","book":{"language":""}});
 })();
 </script>
 
