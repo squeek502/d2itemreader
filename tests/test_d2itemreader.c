@@ -219,6 +219,30 @@ MU_TEST(properties1)
 	mu_check(prop3->id == 89);
 	mu_check(prop3->numParams == 1);
 	mu_check(prop3->params[0] == -4);
+
+	d2item_destroy(&item);
+}
+
+MU_TEST(ear)
+{
+	d2item item;
+	size_t bytesRead;
+	d2err err = d2item_parse_file("data/ear.d2i", &item, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	mu_check(item.isEar);
+	mu_check(item.ear.classID == 4);
+	mu_check(item.ear.level == 34);
+	mu_check(strcmp(item.ear.name, "abcdejdjkdjkjdj") == 0);
+	d2item_destroy(&item);
+}
+
+MU_TEST(earchar)
+{
+	d2char character;
+	size_t bytesRead;
+	d2err err = d2char_parse_file("data/ear.d2s", &character, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	d2char_destroy(&character);
 }
 
 MU_TEST_SUITE(test_d2itemreader)
@@ -244,6 +268,8 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(v112a);
 	MU_RUN_TEST(v113c);
 	MU_RUN_TEST(properties1);
+	MU_RUN_TEST(ear);
+	MU_RUN_TEST(earchar);
 	d2itemreader_destroy();
 }
 
