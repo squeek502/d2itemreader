@@ -607,6 +607,9 @@
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>NOTE</strong>: All equipment locations are based on character orientation on the inventory screen, meaning the right hand is on the left side of the screen (i.e. imagine that the character is oriented as if it is facing towards the screen)</p>
+</blockquote>
 <h3 id="d2itemreader_8h_1ae7b5ef1d626b8492b4c59c7ad41d6f52"><code>enum</code><a href="#d2itemreader_8h_1ae7b5ef1d626b8492b4c59c7ad41d6f52"><code>d2lowquality</code></a> </h3>
 <table>
 <thead>
@@ -678,88 +681,153 @@
 <p>Attempt to determine the filetype of the given file path.</p>
 <h3 id="d2itemreader_8h_1ada01d7d36e6453cbd1f24e31552bd6f8"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ada01d7d36e6453cbd1f24e31552bd6f8"><code>d2itemlist_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items, size_t * out_bytesRead)</code> </h3>
 <p>Parse the itemlist in <code>data</code> starting at <code>startByte</code>, and store the result in <code>items</code></p>
-<p>Parameters:</p>
-<p>items: A pointer an uninitialized <a href="#structd2itemlist">d2itemlist</a> object (i.e. d2itemlist_init has NOT been called on it). If this function returns D2ERR_OK, then <code>items</code> will need to be cleaned up with d2itemlist_destroy. If this function returns something other than D2ERR_OK, then items will remain uninitialized.</p>
-<p>out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item list. On error, set to the number of bytes successfully parsed before the error.</p>
-<p>Return value: D2ERR_OK on success</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>items</code> A pointer an uninitialized <a href="#structd2itemlist">d2itemlist</a> object (i.e. <a href="#d2itemreader_8h_1a8ec941586029258474ef14084cb11a2b">d2itemlist_init()</a> has NOT been called on it). If this function returns <code>D2ERR_OK</code>, then <code>items</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2">d2itemlist_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>items</code> will remain uninitialized. </p>
+</li>
+<li><p><code>out_bytesRead</code> On <code>D2ERR_OK</code>, set to the number of bytes read when parsing the item list. On error, set to the number of bytes successfully parsed before the error. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2">d2itemlist_destroy()</a>, <a href="#d2itemreader_8h_1accda544fbc157d045ac62f734b3b3509">d2itemlist_parse_num()</a></p>
 <h3 id="d2itemreader_8h_1accda544fbc157d045ac62f734b3b3509"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1accda544fbc157d045ac62f734b3b3509"><code>d2itemlist_parse_num</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items, uint16_t numItems, size_t * out_bytesRead)</code> </h3>
 <p>Parse the itemlist containing exactly <code>numItems</code> items (not including items in sockets) in <code>data</code> starting at <code>startByte</code>, and store the result in <code>items</code></p>
-<p>Parameters:</p>
-<p>items: A pointer an uninitialized <a href="#structd2itemlist">d2itemlist</a> object (i.e. d2itemlist_init has NOT been called on it). If this function returns D2ERR_OK, then <code>items</code> will need to be cleaned up with d2itemlist_destroy. If this function returns something other than D2ERR_OK, then items will remain uninitialized.</p>
-<p>numItems: The number of items to parse, not including items in sockets</p>
-<p>out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item list. On error, set to the number of bytes successfully parsed before the error.</p>
-<p>Return value: D2ERR_OK on success</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>items</code> A pointer an uninitialized <a href="#structd2itemlist">d2itemlist</a> object (i.e. <a href="#d2itemreader_8h_1a8ec941586029258474ef14084cb11a2b">d2itemlist_init()</a> has NOT been called on it). If this function returns <code>D2ERR_OK</code>, then <code>items</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2">d2itemlist_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>items</code> will remain uninitialized. </p>
+</li>
+<li><p><code>numItems</code> The number of items to parse, not including items in sockets </p>
+</li>
+<li><p><code>out_bytesRead</code> On <code>D2ERR_OK</code>, set to the number of bytes read when parsing the item list. On error, set to the number of bytes successfully parsed before the error. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2">d2itemlist_destroy()</a>, <a href="#d2itemreader_8h_1ada01d7d36e6453cbd1f24e31552bd6f8">d2itemlist_parse()</a></p>
 <h3 id="d2itemreader_8h_1a8ec941586029258474ef14084cb11a2b"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a8ec941586029258474ef14084cb11a2b"><code>d2itemlist_init</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list, size_t initialSize)</code> </h3>
 <h3 id="d2itemreader_8h_1afaed3890c1d785445c9954deab2dfb5f"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1afaed3890c1d785445c9954deab2dfb5f"><code>d2itemlist_append</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list, const</code><a href="#structd2item"><code>d2item</code></a><code>*const item)</code> </h3>
 <h3 id="d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2"><code>void</code><a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2"><code>d2itemlist_destroy</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list)</code> </h3>
 <h3 id="d2itemreader_8h_1ad9aeb5e22f17ea9c877307bf6cc7c056"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad9aeb5e22f17ea9c877307bf6cc7c056"><code>d2itemproplist_parse</code></a><code>(bit_reader * br,</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code> </h3>
 <p>Parse the item property list using <code>br</code>, and store the result in <code>list</code></p>
-<p>Parameters:</p>
-<p>list: A pointer an uninitialized <a href="#structd2itemproplist">d2itemproplist</a> object (i.e. d2itemproplist_init has NOT been called on it). If this function returns D2ERR_OK, then <code>list</code> will need to be cleaned up with d2itemproplist_destroy. If this function returns something other than D2ERR_OK, then <code>list</code> will remain uninitialized.</p>
-<p>Return value: D2ERR_OK on success</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>br</code> A pointer a bit_reader struct </p>
+</li>
+<li><p><code>list</code> A pointer an uninitialized <a href="#structd2itemproplist">d2itemproplist</a> object (i.e. <a href="#d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319">d2itemproplist_init()</a> has NOT been called on it). If this function returns <code>D2ERR_OK</code>, then <code>list</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531">d2itemproplist_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>list</code> will remain uninitialized. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531">d2itemproplist_destroy()</a></p>
 <h3 id="d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319"><code>d2itemproplist_init</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code> </h3>
 <h3 id="d2itemreader_8h_1a5af918937df19a669f9328dd7c699b98"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a5af918937df19a669f9328dd7c699b98"><code>d2itemproplist_append</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list,</code><a href="#structd2itemprop"><code>d2itemprop</code></a> <code>prop)</code> </h3>
 <h3 id="d2itemreader_8h_1a713385d41a888e980409f60d622ac531"><code>void</code><a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531"><code>d2itemproplist_destroy</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code> </h3>
 <h3 id="d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e"><code>d2item_parse_file</code></a><code>(const char * filename,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code> </h3>
 <p>Parse the item (+ any socketed items within) in <code>filename</code>, and store the result in <code>item</code></p>
-<p>Parameters:</p>
-<p>item: A pointer to an uninitialized <a href="#structd2item">d2item</a> object. If this function returns D2ERR_OK, then <code>item</code> will need to be cleaned up with d2item_destroy. If this function returns something other than D2ERR_OK, then <code>item</code> will remain uninitialized.</p>
-<p>out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item. On error, set to the number of bytes successfully parsed before the error.</p>
-<p>Return value: D2ERR_OK on success</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>item</code> A pointer an uninitialized <a href="#structd2item">d2item</a> object. If this function returns <code>D2ERR_OK</code>, then <code>item</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>item</code> will remain uninitialized. </p>
+</li>
+<li><p><code>out_bytesRead</code> On <code>D2ERR_OK</code>, set to the number of bytes read when parsing the item. On error, set to the number of bytes successfully parsed before the error. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>, <a href="#d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f">d2item_parse()</a>, <a href="#d2itemreader_8h_1a3d4ca3bda5b561f6521fc93f9f7f2cbb">d2item_parse_single()</a></p>
 <h3 id="d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f"><code>d2item_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code> </h3>
 <p>Parse the item (+ any socketed items within) in <code>data</code> starting at <code>startByte</code>, and store the result in <code>item</code></p>
-<p>Parameters:</p>
-<p>item: A pointer to an uninitialized <a href="#structd2item">d2item</a> object. If this function returns D2ERR_OK, then <code>item</code> will need to be cleaned up with d2item_destroy. If this function returns something other than D2ERR_OK, then <code>item</code> will remain uninitialized.</p>
-<p>out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item. On error, set to the number of bytes successfully parsed before the error.</p>
-<p>Return value: D2ERR_OK on success</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>item</code> A pointer an uninitialized <a href="#structd2item">d2item</a> object. If this function returns <code>D2ERR_OK</code>, then <code>item</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>item</code> will remain uninitialized. </p>
+</li>
+<li><p><code>out_bytesRead</code> On <code>D2ERR_OK</code>, set to the number of bytes read when parsing the item. On error, set to the number of bytes successfully parsed before the error. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>, <a href="#d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e">d2item_parse_file()</a>, <a href="#d2itemreader_8h_1a3d4ca3bda5b561f6521fc93f9f7f2cbb">d2item_parse_single()</a></p>
 <h3 id="d2itemreader_8h_1a3d4ca3bda5b561f6521fc93f9f7f2cbb"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a3d4ca3bda5b561f6521fc93f9f7f2cbb"><code>d2item_parse_single</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code> </h3>
 <p>Parse the item (but not socketed items within) in <code>data</code> starting at <code>startByte</code>, and store the result in <code>item</code></p>
 <p>If the item has items socketed in it, <code>item-&gt;socketedItems</code> will be initialized with size <code>item-&gt;numItemsInSockets</code>, but will be empty.</p>
-<p>Parameters:</p>
-<p>item: A pointer to an uninitialized <a href="#structd2item">d2item</a> object. If this function returns D2ERR_OK, then <code>item</code> will need to be cleaned up with d2item_destroy. If this function returns something other than D2ERR_OK, then <code>item</code> will remain uninitialized.</p>
-<p>out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item. On error, set to the number of bytes successfully parsed before the error.</p>
-<p>Return value: D2ERR_OK on success</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>item</code> A pointer an uninitialized <a href="#structd2item">d2item</a> object. If this function returns <code>D2ERR_OK</code>, then <code>item</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>item</code> will remain uninitialized. </p>
+</li>
+<li><p><code>out_bytesRead</code> On <code>D2ERR_OK</code>, set to the number of bytes read when parsing the item. On error, set to the number of bytes successfully parsed before the error. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>, <a href="#d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e">d2item_parse_file()</a>, <a href="#d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f">d2item_parse()</a></p>
 <h3 id="d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706"><code>void</code><a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706"><code>d2item_destroy</code></a><code>(</code><a href="#structd2item"><code>d2item</code></a><code>* item)</code> </h3>
 <h3 id="d2itemreader_8h_1acba760f3a2e2c7fd4d4b0118914ca8a4"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1acba760f3a2e2c7fd4d4b0118914ca8a4"><code>d2stashpage_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2stashpage"><code>d2stashpage</code></a><code>* page, size_t * out_bytesRead)</code> </h3>
 <p>Parse the stash page in <code>data</code> starting at <code>startByte</code>, and store the result in <code>page</code></p>
-<p>Parameters:</p>
-<p>page: A pointer to an uninitialized <a href="#structd2stashpage">d2stashpage</a> object. If this function returns D2ERR_OK, then <code>page</code> will need to be cleaned up with d2stashpage_destroy. If this function returns something other than D2ERR_OK, then <code>page</code> will remain uninitialized.</p>
-<p>out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the stash page. On error, set to the number of bytes successfully parsed before the error.</p>
-<p>Return value: D2ERR_OK on success</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>page</code> A pointer to an uninitialized <a href="#structd2stashpage">d2stashpage</a> object. If this function returns <code>D2ERR_OK</code>, then <code>page</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a3d68c883fac68cb61789ce95e04771db">d2stashpage_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>page</code> will remain uninitialized. </p>
+</li>
+<li><p><code>out_bytesRead</code> On <code>D2ERR_OK</code>, set to the number of bytes read when parsing the stash page. On error, set to the number of bytes successfully parsed before the error. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a3d68c883fac68cb61789ce95e04771db">d2stashpage_destroy()</a></p>
 <h3 id="d2itemreader_8h_1a3d68c883fac68cb61789ce95e04771db"><code>void</code><a href="#d2itemreader_8h_1a3d68c883fac68cb61789ce95e04771db"><code>d2stashpage_destroy</code></a><code>(</code><a href="#structd2stashpage"><code>d2stashpage</code></a><code>* page)</code> </h3>
 <h3 id="d2itemreader_8h_1a1d66dee87f0800e9a24a2b396b6a5899"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a1d66dee87f0800e9a24a2b396b6a5899"><code>d2sharedstash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
-<p>Parse the shared stash in <code>filename</code>, and store the result in <code>stash</code></p>
-<p>Parameters:</p>
-<p>stash: A pointer to an uninitialized <a href="#structd2sharedstash">d2sharedstash</a> object. If this function returns D2ERR_OK, then <code>stash</code> will need to be cleaned up with d2sharedstash_destroy. If this function returns something other than D2ERR_OK, then <code>stash</code> will remain uninitialized.</p>
-<p>out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file. On error, set to the number of bytes successfully parsed before the error.</p>
-<p>Return value: D2ERR_OK on success</p>
+<p>Parse the PlugY shared stash in <code>filename</code>, and store the result in <code>stash</code></p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>stash</code> A pointer to an uninitialized <a href="#structd2sharedstash">d2sharedstash</a> object. If this function returns <code>D2ERR_OK</code>, then <code>stash</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a0ba23b5ab0e118706c5d3e4c4d16c597">d2sharedstash_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>stash</code> will remain uninitialized. </p>
+</li>
+<li><p><code>out_bytesRead</code> On <code>D2ERR_OK</code>, set to the number of bytes read when parsing the stash. On error, set to the number of bytes successfully parsed before the error. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
 <h3 id="d2itemreader_8h_1ab2525651d9147d077ac3d847a30a34f5"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ab2525651d9147d077ac3d847a30a34f5"><code>d2sharedstash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
 <h3 id="d2itemreader_8h_1a0ba23b5ab0e118706c5d3e4c4d16c597"><code>void</code><a href="#d2itemreader_8h_1a0ba23b5ab0e118706c5d3e4c4d16c597"><code>d2sharedstash_destroy</code></a><code>(</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash)</code> </h3>
 <h3 id="d2itemreader_8h_1a9923c53c51d49bd0e0c2dea1ab9f0b89"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a9923c53c51d49bd0e0c2dea1ab9f0b89"><code>d2personalstash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
-<p>Parse the personal stash in <code>filename</code>, and store the result in <code>stash</code></p>
-<p>Parameters:</p>
-<p>stash: A pointer to an uninitialized <a href="#structd2personalstash">d2personalstash</a> object. If this function returns D2ERR_OK, then <code>stash</code> will need to be cleaned up with d2personalstash_destroy. If this function returns something other than D2ERR_OK, then <code>stash</code> will remain uninitialized.</p>
-<p>out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file. On error, set to the number of bytes successfully parsed before the error.</p>
-<p>Return value: D2ERR_OK on success</p>
+<p>Parse the PlugY personal stash in <code>filename</code>, and store the result in <code>stash</code></p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>stash</code> A pointer to an uninitialized <a href="#structd2personalstash">d2personalstash</a> object. If this function returns <code>D2ERR_OK</code>, then <code>stash</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a3332b7d6e481625047dbac4b6fe25e1e">d2personalstash_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>stash</code> will remain uninitialized. </p>
+</li>
+<li><p><code>out_bytesRead</code> On <code>D2ERR_OK</code>, set to the number of bytes read when parsing the stash. On error, set to the number of bytes successfully parsed before the error. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
 <h3 id="d2itemreader_8h_1ab7ce5d7daf035ecca2d13aa18eb990b7"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ab7ce5d7daf035ecca2d13aa18eb990b7"><code>d2personalstash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
 <h3 id="d2itemreader_8h_1a3332b7d6e481625047dbac4b6fe25e1e"><code>void</code><a href="#d2itemreader_8h_1a3332b7d6e481625047dbac4b6fe25e1e"><code>d2personalstash_destroy</code></a><code>(</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash)</code> </h3>
 <h3 id="d2itemreader_8h_1ac001f93854b63b196ea9ae14f7f53a39"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ac001f93854b63b196ea9ae14f7f53a39"><code>d2char_parse_file</code></a><code>(const char * filename,</code><a href="#structd2char"><code>d2char</code></a><code>* character, size_t * out_bytesRead)</code> </h3>
 <p>Parse the character in <code>filename</code>, and store the result in <code>character</code></p>
-<p>Parameters:</p>
-<p>character: A pointer to an uninitialized <a href="#structd2char">d2char</a> object. If this function returns D2ERR_OK, then <code>character</code> will need to be cleaned up with d2char_destroy. If this function returns something other than D2ERR_OK, then <code>character</code> will remain uninitialized.</p>
-<p>out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file. On error, set to the number of bytes successfully parsed before the error.</p>
-<p>Return value: D2ERR_OK on success</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>character</code> A pointer to an uninitialized <a href="#structd2char">d2char</a> object. If this function returns <code>D2ERR_OK</code>, then <code>character</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a935e23bc19f5f21ff1c231a67ec7aca2">d2char_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>character</code> will remain uninitialized. </p>
+</li>
+<li><p><code>out_bytesRead</code> On <code>D2ERR_OK</code>, set to the number of bytes read when parsing the character. On error, set to the number of bytes successfully parsed before the error. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
 <h3 id="d2itemreader_8h_1a04b5ad0afb8ffb490bc554ddf4574832"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a04b5ad0afb8ffb490bc554ddf4574832"><code>d2char_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2char"><code>d2char</code></a><code>* character, size_t * out_bytesRead)</code> </h3>
 <h3 id="d2itemreader_8h_1a935e23bc19f5f21ff1c231a67ec7aca2"><code>void</code><a href="#d2itemreader_8h_1a935e23bc19f5f21ff1c231a67ec7aca2"><code>d2char_destroy</code></a><code>(</code><a href="#structd2char"><code>d2char</code></a><code>* character)</code> </h3>
 <h3 id="d2itemreader_8h_1a13ab3bd5a4187eacfd8d6de76f0be877"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a13ab3bd5a4187eacfd8d6de76f0be877"><code>d2atmastash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
 <p>Parse the d2x ATMA stash in <code>filename</code>, and store the result in <code>stash</code></p>
-<p>Parameters:</p>
-<p>stash: A pointer to an uninitialized <a href="#structd2atmastash">d2atmastash</a> object. If this function returns D2ERR_OK, then <code>stash</code> will need to be cleaned up with d2atmastash_destroy. If this function returns something other than D2ERR_OK, then <code>stash</code> will remain uninitialized.</p>
-<p>out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file. On error, set to the number of bytes successfully parsed before the error.</p>
-<p>Return value: D2ERR_OK on success</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>stash</code> A pointer to an uninitialized <a href="#structd2atmastash">d2atmastash</a> object. If this function returns <code>D2ERR_OK</code>, then <code>stash</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a37436a366e203e09e7f6f35ebbd10a86">d2atmastash_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>stash</code> will remain uninitialized. </p>
+</li>
+<li><p><code>out_bytesRead</code> On <code>D2ERR_OK</code>, set to the number of bytes read when parsing the stash. On error, set to the number of bytes successfully parsed before the error. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
 <h3 id="d2itemreader_8h_1ad801fb233ce25a3101a3a1f4f8f3c674"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad801fb233ce25a3101a3a1f4f8f3c674"><code>d2atmastash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
 <h3 id="d2itemreader_8h_1a37436a366e203e09e7f6f35ebbd10a86"><code>void</code><a href="#d2itemreader_8h_1a37436a366e203e09e7f6f35ebbd10a86"><code>d2atmastash_destroy</code></a><code>(</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash)</code> </h3>
 <h3 id="structd2atmastash">struct <code>d2atmastash</code> </h3>
+<p>ATMA Stash (.d2x)</p>
 <table>
 <thead>
 <tr>
@@ -779,6 +847,7 @@
 </tbody>
 </table>
 <h3 id="structd2char">struct <code>d2char</code> </h3>
+<p>Character Save File (.d2s)</p>
 <table>
 <thead>
 <tr>
@@ -1173,6 +1242,7 @@
 </tbody>
 </table>
 <h3 id="structd2personalstash">struct <code>d2personalstash</code> </h3>
+<p>PlugY Personal Stash (.d2x)</p>
 <table>
 <thead>
 <tr>
@@ -1196,6 +1266,7 @@
 </tbody>
 </table>
 <h3 id="structd2sharedstash">struct <code>d2sharedstash</code> </h3>
+<p>PlugY Shared Stash (.sss)</p>
 <table>
 <thead>
 <tr>
@@ -1268,7 +1339,7 @@
                     <a href="#">Return to the top</a>
                 </li>
                 <li>
-                    <a href="#">Updated Jan 29th 19</a>
+                    <a href="#">Updated Feb 12th 19</a>
                 </li>
             </ul>
         </div>
@@ -1279,7 +1350,7 @@
 
 <script>
 (function() {
-    gitbook.page.hasChanged({"page":{"title":"API Reference","level":"1.2","depth":1,"next":{"title":"Diablo II items, etc","level":"2.1","depth":1,"path":"formats/d2.md","ref":"formats/d2.md","articles":[]},"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"INDEX.md","ref":"INDEX.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"api.md","mtime":"2019-01-29T03:40:44.482Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-01-29T03:41:17.971Z"},"basePath":".","book":{"language":""}});
+    gitbook.page.hasChanged({"page":{"title":"API Reference","level":"1.2","depth":1,"next":{"title":"Diablo II items, etc","level":"2.1","depth":1,"path":"formats/d2.md","ref":"formats/d2.md","articles":[]},"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"INDEX.md","ref":"INDEX.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"api.md","mtime":"2019-02-12T08:11:09.235Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-02-12T08:11:46.302Z"},"basePath":".","book":{"language":""}});
 })();
 </script>
 
