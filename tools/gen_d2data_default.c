@@ -20,25 +20,25 @@ int main(int argc, const char* argv[])
 {
 	d2data data = {0};
 	d2err err;
-	err = d2data_load_armors_from_file("data/Armor.txt", &data);
+	err = d2data_load_armors_from_file(&data, "data/Armor.txt");
 	if (err != D2ERR_OK)
 	{
 		printf("failed to load data/Armor.txt: %s\n", d2err_str(err));
 		return 1;
 	}
-	err = d2data_load_weapons_from_file("data/Weapons.txt", &data);
+	err = d2data_load_weapons_from_file(&data, "data/Weapons.txt");
 	if (err != D2ERR_OK)
 	{
 		printf("failed to load data/Weapons.txt: %s\n", d2err_str(err));
 		return 1;
 	}
-	err = d2data_load_miscs_from_file("data/Misc.txt", &data);
+	err = d2data_load_miscs_from_file(&data, "data/Misc.txt");
 	if (err != D2ERR_OK)
 	{
 		printf("failed to load data/Misc.txt: %s\n", d2err_str(err));
 		return 1;
 	}
-	err = d2data_load_itemstats_from_file("data/ItemStatCost.txt", &data);
+	err = d2data_load_itemstats_from_file(&data, "data/ItemStatCost.txt");
 	if (err != D2ERR_OK)
 	{
 		printf("failed to load data/ItemStatCost.txt: %s\n", d2err_str(err));

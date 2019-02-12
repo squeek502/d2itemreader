@@ -24,19 +24,19 @@ CHECK_RESULT d2err d2itemreader_init_files(d2datafiles files)
 	d2data_destroy(&g_d2itemreader_data);
 
 	d2err err;
-	if ((err = d2data_load_armors_from_file(files.armorTxtFilepath, &g_d2itemreader_data)) != D2ERR_OK)
+	if ((err = d2data_load_armors_from_file(&g_d2itemreader_data, files.armorTxtFilepath)) != D2ERR_OK)
 	{
 		return err;
 	}
-	if ((err = d2data_load_weapons_from_file(files.weaponsTxtFilepath, &g_d2itemreader_data)) != D2ERR_OK)
+	if ((err = d2data_load_weapons_from_file(&g_d2itemreader_data, files.weaponsTxtFilepath)) != D2ERR_OK)
 	{
 		return err;
 	}
-	if ((err = d2data_load_miscs_from_file(files.miscTxtFilepath, &g_d2itemreader_data)) != D2ERR_OK)
+	if ((err = d2data_load_miscs_from_file(&g_d2itemreader_data, files.miscTxtFilepath)) != D2ERR_OK)
 	{
 		return err;
 	}
-	if ((err = d2data_load_itemstats_from_file(files.itemStatCostTxtFilepath, &g_d2itemreader_data)) != D2ERR_OK)
+	if ((err = d2data_load_itemstats_from_file(&g_d2itemreader_data, files.itemStatCostTxtFilepath)) != D2ERR_OK)
 	{
 		return err;
 	}
@@ -48,19 +48,19 @@ CHECK_RESULT d2err d2itemreader_init_bufs(d2databufs bufs)
 	d2data_destroy(&g_d2itemreader_data);
 
 	d2err err;
-	if ((err = d2data_load_armors(bufs.armorTxt, bufs.armorTxtSize, &g_d2itemreader_data)) != D2ERR_OK)
+	if ((err = d2data_load_armors(&g_d2itemreader_data, bufs.armorTxt, bufs.armorTxtSize)) != D2ERR_OK)
 	{
 		return err;
 	}
-	if ((err = d2data_load_weapons(bufs.weaponsTxt, bufs.weaponsTxtSize, &g_d2itemreader_data)) != D2ERR_OK)
+	if ((err = d2data_load_weapons(&g_d2itemreader_data, bufs.weaponsTxt, bufs.weaponsTxtSize)) != D2ERR_OK)
 	{
 		return err;
 	}
-	if ((err = d2data_load_miscs(bufs.miscTxt, bufs.miscTxtSize, &g_d2itemreader_data)) != D2ERR_OK)
+	if ((err = d2data_load_miscs(&g_d2itemreader_data, bufs.miscTxt, bufs.miscTxtSize)) != D2ERR_OK)
 	{
 		return err;
 	}
-	if ((err = d2data_load_itemstats(bufs.itemStatCostTxt, bufs.itemStatCostTxtSize, &g_d2itemreader_data)) != D2ERR_OK)
+	if ((err = d2data_load_itemstats(&g_d2itemreader_data, bufs.itemStatCostTxt, bufs.itemStatCostTxtSize)) != D2ERR_OK)
 	{
 		return err;
 	}
@@ -704,7 +704,7 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 		// and the item specific data
 		item->timestamp = read_bits(&br, 1);
 
-		if (d2data_is_armor(item->code, &g_d2itemreader_data))
+		if (d2data_is_armor(&g_d2itemreader_data, item->code))
 		{
 			// The -10 here matches ItemStatCost.txt's "Save Add" for the armor stat
 			// (see `d2itemproplist_parse`)
@@ -713,7 +713,7 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 			item->defenseRating = (uint16_t)read_bits(&br, 11) - 10;
 		}
 
-		if (d2data_is_armor(item->code, &g_d2itemreader_data) || d2data_is_weapon(item->code, &g_d2itemreader_data))
+		if (d2data_is_armor(&g_d2itemreader_data, item->code) || d2data_is_weapon(&g_d2itemreader_data, item->code))
 		{
 			item->maxDurability = (uint8_t)read_bits(&br, 8);
 			// Some weapons like phase blades don't have durability, so we'll
@@ -727,7 +727,7 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 			}
 		}
 
-		if (d2data_is_stackable(item->code, &g_d2itemreader_data))
+		if (d2data_is_stackable(&g_d2itemreader_data, item->code))
 		{
 			// If the item is a stacked item, e.g. a javelin or something, these 9
 			// bits will contain the quantity.

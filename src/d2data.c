@@ -3,17 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool d2data_is_armor(const char* itemCode, const d2data* data)
+bool d2data_is_armor(const d2data* data, const char* itemCode)
 {
 	return strset_has(data->armorsSet, itemCode);
 }
 
-bool d2data_is_weapon(const char* itemCode, const d2data* data)
+bool d2data_is_weapon(const d2data* data, const char* itemCode)
 {
 	return strset_has(data->weaponsSet, itemCode);
 }
 
-bool d2data_is_stackable(const char* itemCode, const d2data* data)
+bool d2data_is_stackable(const d2data* data, const char* itemCode)
 {
 	return strset_has(data->stackablesSet, itemCode);
 }
@@ -40,7 +40,7 @@ static CHECK_RESULT d2err d2data_init(d2data* data)
 	return D2ERR_OK;
 }
 
-static CHECK_RESULT d2err d2data_load_armors_common(d2txt_file parsed, size_t UNUSED(numRows), d2data* data)
+static CHECK_RESULT d2err d2data_load_armors_common(d2data* data, d2txt_file parsed, size_t UNUSED(numRows))
 {
 	d2err err;
 	if ((err = d2data_init(data)) != D2ERR_OK)
@@ -68,7 +68,7 @@ static CHECK_RESULT d2err d2data_load_armors_common(d2txt_file parsed, size_t UN
 	return D2ERR_OK;
 }
 
-CHECK_RESULT d2err d2data_load_armors(const char* txtdata, size_t length, d2data* data)
+CHECK_RESULT d2err d2data_load_armors(d2data* data, const char* txtdata, size_t length)
 {
 	size_t numRows;
 	d2txt_file parsed;
@@ -82,7 +82,7 @@ CHECK_RESULT d2err d2data_load_armors(const char* txtdata, size_t length, d2data
 	return err;
 }
 
-CHECK_RESULT d2err d2data_load_armors_from_file(const char* filename, d2data* data)
+CHECK_RESULT d2err d2data_load_armors_from_file(d2data* data, const char* filename)
 {
 	size_t numRows;
 	d2txt_file parsed;
@@ -96,7 +96,7 @@ CHECK_RESULT d2err d2data_load_armors_from_file(const char* filename, d2data* da
 	return err;
 }
 
-static CHECK_RESULT d2err d2data_load_weapons_common(d2txt_file parsed, size_t UNUSED(numRows), d2data* data)
+static CHECK_RESULT d2err d2data_load_weapons_common(d2data* data, d2txt_file parsed, size_t UNUSED(numRows))
 {
 	d2err err;
 	if ((err = d2data_init(data)) != D2ERR_OK)
@@ -129,7 +129,7 @@ static CHECK_RESULT d2err d2data_load_weapons_common(d2txt_file parsed, size_t U
 	return D2ERR_OK;
 }
 
-CHECK_RESULT d2err d2data_load_weapons(const char* txtdata, size_t length, d2data* data)
+CHECK_RESULT d2err d2data_load_weapons(d2data* data, const char* txtdata, size_t length)
 {
 	size_t numRows;
 	d2txt_file parsed;
@@ -143,7 +143,7 @@ CHECK_RESULT d2err d2data_load_weapons(const char* txtdata, size_t length, d2dat
 	return err;
 }
 
-CHECK_RESULT d2err d2data_load_weapons_from_file(const char* filename, d2data* data)
+CHECK_RESULT d2err d2data_load_weapons_from_file(d2data* data, const char* filename)
 {
 	size_t numRows;
 	d2txt_file parsed;
@@ -157,7 +157,7 @@ CHECK_RESULT d2err d2data_load_weapons_from_file(const char* filename, d2data* d
 	return err;
 }
 
-static CHECK_RESULT d2err d2data_load_miscs_common(d2txt_file parsed, size_t UNUSED(numRows), d2data* data)
+static CHECK_RESULT d2err d2data_load_miscs_common(d2data* data, d2txt_file parsed, size_t UNUSED(numRows))
 {
 	d2err err;
 	if ((err = d2data_init(data)) != D2ERR_OK)
@@ -189,7 +189,7 @@ static CHECK_RESULT d2err d2data_load_miscs_common(d2txt_file parsed, size_t UNU
 	return D2ERR_OK;
 }
 
-CHECK_RESULT d2err d2data_load_miscs(const char* txtdata, size_t length, d2data* data)
+CHECK_RESULT d2err d2data_load_miscs(d2data* data, const char* txtdata, size_t length)
 {
 	size_t numRows;
 	d2txt_file parsed;
@@ -203,7 +203,7 @@ CHECK_RESULT d2err d2data_load_miscs(const char* txtdata, size_t length, d2data*
 	return err;
 }
 
-CHECK_RESULT d2err d2data_load_miscs_from_file(const char* filename, d2data* data)
+CHECK_RESULT d2err d2data_load_miscs_from_file(d2data* data, const char* filename)
 {
 	size_t numRows;
 	d2txt_file parsed;
@@ -217,7 +217,7 @@ CHECK_RESULT d2err d2data_load_miscs_from_file(const char* filename, d2data* dat
 	return err;
 }
 
-static CHECK_RESULT d2err d2data_load_itemstats_common(d2txt_file parsed, d2data* data)
+static CHECK_RESULT d2err d2data_load_itemstats_common(d2data* data, d2txt_file parsed)
 {
 	int saveBitsCol = d2txt_find_index(parsed, "Save Bits");
 	int saveAddCol = d2txt_find_index(parsed, "Save Add");
@@ -263,7 +263,7 @@ static CHECK_RESULT d2err d2data_load_itemstats_common(d2txt_file parsed, d2data
 	return D2ERR_OK;
 }
 
-CHECK_RESULT d2err d2data_load_itemstats(const char* txtdata, size_t length, d2data* data)
+CHECK_RESULT d2err d2data_load_itemstats(d2data* data, const char* txtdata, size_t length)
 {
 	d2txt_file parsed;
 	d2err err = d2txt_parse(txtdata, length, &parsed, NULL);
@@ -276,7 +276,7 @@ CHECK_RESULT d2err d2data_load_itemstats(const char* txtdata, size_t length, d2d
 	return err;
 }
 
-CHECK_RESULT d2err d2data_load_itemstats_from_file(const char* filename, d2data* data)
+CHECK_RESULT d2err d2data_load_itemstats_from_file(d2data* data, const char* filename)
 {
 	d2txt_file parsed;
 	d2err err = d2txt_parse_file(filename, &parsed, NULL);
