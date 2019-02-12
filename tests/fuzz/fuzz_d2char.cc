@@ -1,14 +1,17 @@
 #include "d2itemreader.h"
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-	d2itemreader_init_default();
+	d2gamedata gameData;
+	d2err err = d2gamedata_init_default(&gameData);
+	if (err != D2ERR_OK)
+		return 1;
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse(data, size, &character, &bytesRead);
+	err = d2char_parse(data, size, &character, &gameData, &bytesRead);
 	if (err == D2ERR_OK)
 	{
 		d2char_destroy(&character);
 	}
-	d2itemreader_destroy();
+	d2gamedata_destroy(&gameData);
 	return 0;
 }
