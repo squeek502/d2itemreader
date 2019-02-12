@@ -40,14 +40,14 @@ typedef struct d2databufs {
 } d2databufs;
 
 /**
- * Load the default data packaged with d2itemreader (should work for un-modded D2 versions >= 1.10)
- *
- * @return `D2ERR_OK` on success
- *
+* Load the default data packaged with d2itemreader (should work for un-modded D2 versions >= 1.10)
+*
+* @return `D2ERR_OK` on success
+*
 * \attention **IMPORTANT**: d2itemreader_destroy() only needs to be called if the init function returns `D2ERR_OK`
- *
- * @see d2itemreader_init_files(), d2itemreader_init_bufs(), d2itemreader_destroy()
- */
+*
+* @see d2itemreader_init_files(), d2itemreader_init_bufs(), d2itemreader_destroy()
+*/
 CHECK_RESULT d2err d2itemreader_init_default();
 /**
 * Load the data from the file paths given in `files`
@@ -67,16 +67,16 @@ CHECK_RESULT d2err d2itemreader_init_files(d2datafiles files);
 * @return `D2ERR_OK` on success
 *
 * \attention **IMPORTANT**: d2itemreader_destroy() only needs to be called if the init function returns `D2ERR_OK`
- *
- * @see d2itemreader_init_files(), d2itemreader_init_default(), d2itemreader_destroy()
+*
+* @see d2itemreader_init_files(), d2itemreader_init_default(), d2itemreader_destroy()
 */
 CHECK_RESULT d2err d2itemreader_init_bufs(d2databufs bufs);
 /**
 * Cleanup memory used by d2itemreader.
 *
 * \attention **IMPORTANT**: d2itemreader_destroy() only needs to be called if the init function returns `D2ERR_OK`
- *
- * @see d2itemreader_init_default(), d2itemreader_init_files(), d2itemreader_init_bufs()
+*
+* @see d2itemreader_init_default(), d2itemreader_init_files(), d2itemreader_init_bufs()
 */
 void d2itemreader_destroy();
 
@@ -106,34 +106,29 @@ typedef struct d2itemlist {
 /**
 * Parse the itemlist in `data` starting at `startByte`, and store the result in `items`
 *
-* Parameters:
+* @param items A pointer an uninitialized d2itemlist object (i.e. d2itemlist_init() has NOT been called on it).
+*              If this function returns `D2ERR_OK`, then `items` will need to be cleaned up with d2itemlist_destroy().
+*              If this function returns something other than `D2ERR_OK`, then `items` will remain uninitialized.
+* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the item list.
+*                      On error, set to the number of bytes successfully parsed before the error.
+* @return `D2ERR_OK` on success
 *
-*   items: A pointer an uninitialized d2itemlist object (i.e. d2itemlist_init has NOT been called on it).
-*          If this function returns D2ERR_OK, then `items` will need to be cleaned up with d2itemlist_destroy.
-*          If this function returns something other than D2ERR_OK, then items will remain uninitialized.
-*
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item list.
-*                  On error, set to the number of bytes successfully parsed before the error.
-*
-* Return value: D2ERR_OK on success
+* @see d2itemlist_destroy(), d2itemlist_parse_num()
 */
 CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, size_t* out_bytesRead);
 /**
 * Parse the itemlist containing exactly `numItems` items (not including items in sockets)
 * in `data` starting at `startByte`, and store the result in `items`
 *
-* Parameters:
+* @param items A pointer an uninitialized d2itemlist object (i.e. d2itemlist_init() has NOT been called on it).
+*              If this function returns `D2ERR_OK`, then `items` will need to be cleaned up with d2itemlist_destroy().
+*              If this function returns something other than `D2ERR_OK`, then `items` will remain uninitialized.
+* @param numItems The number of items to parse, not including items in sockets
+* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the item list.
+*                      On error, set to the number of bytes successfully parsed before the error.
+* @return `D2ERR_OK` on success
 *
-*   items: A pointer an uninitialized d2itemlist object (i.e. d2itemlist_init has NOT been called on it).
-*          If this function returns D2ERR_OK, then `items` will need to be cleaned up with d2itemlist_destroy.
-*          If this function returns something other than D2ERR_OK, then items will remain uninitialized.
-*
-*   numItems: The number of items to parse, not including items in sockets
-*
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item list.
-*                  On error, set to the number of bytes successfully parsed before the error.
-*
-* Return value: D2ERR_OK on success
+* @see d2itemlist_destroy(), d2itemlist_parse()
 */
 CHECK_RESULT d2err d2itemlist_parse_num(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, uint16_t numItems, size_t* out_bytesRead);
 CHECK_RESULT d2err d2itemlist_init(d2itemlist* list, size_t initialSize);
@@ -155,13 +150,13 @@ typedef struct d2itemproplist {
 /**
 * Parse the item property list using `br`, and store the result in `list`
 *
-* Parameters:
+* @param br A pointer a bit_reader struct
+* @param list A pointer an uninitialized d2itemproplist object (i.e. d2itemproplist_init() has NOT been called on it).
+*             If this function returns `D2ERR_OK`, then `list` will need to be cleaned up with d2itemproplist_destroy().
+*             If this function returns something other than `D2ERR_OK`, then `list` will remain uninitialized.
+* @return `D2ERR_OK` on success
 *
-*   list: A pointer an uninitialized d2itemproplist object (i.e. d2itemproplist_init has NOT been called on it).
-*         If this function returns D2ERR_OK, then `list` will need to be cleaned up with d2itemproplist_destroy.
-*         If this function returns something other than D2ERR_OK, then `list` will remain uninitialized.
-*
-* Return value: D2ERR_OK on success
+* @see d2itemproplist_destroy()
 */
 CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2itemproplist* list);
 CHECK_RESULT d2err d2itemproplist_init(d2itemproplist* list);
@@ -198,9 +193,9 @@ enum d2panel {
 	D2PANEL_STASH = 5
 };
 
-// all equipment locations are based on character orientation
-// on the inventory screen, the right hand is on the left side of the screen
-// (i.e. imagine that the character is oriented as if it is facing towards the screen)
+/// \attention **NOTE**: All equipment locations are based on character orientation
+/// on the inventory screen, meaning the right hand is on the left side of the screen
+/// (i.e. imagine that the character is oriented as if it is facing towards the screen)
 enum d2equiplocation {
 	D2EQUIP_HEAD = 1,
 	D2EQUIP_NECK = 2,
@@ -360,31 +355,27 @@ struct d2item
 /**
 * Parse the item (+ any socketed items within) in `filename`, and store the result in `item`
 *
-* Parameters:
+* @param item A pointer an uninitialized d2item object.
+*              If this function returns `D2ERR_OK`, then `item` will need to be cleaned up with d2item_destroy().
+*              If this function returns something other than `D2ERR_OK`, then `item` will remain uninitialized.
+* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the item.
+*                      On error, set to the number of bytes successfully parsed before the error.
+* @return `D2ERR_OK` on success
 *
-*   item: A pointer to an uninitialized d2item object.
-*         If this function returns D2ERR_OK, then `item` will need to be cleaned up with d2item_destroy.
-*         If this function returns something other than D2ERR_OK, then `item` will remain uninitialized.
-*
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item.
-*                  On error, set to the number of bytes successfully parsed before the error.
-*
-* Return value: D2ERR_OK on success
+* @see d2item_destroy(), d2item_parse(), d2item_parse_single()
 */
 CHECK_RESULT d2err d2item_parse_file(const char* filename, d2item* item, size_t* out_bytesRead);
 /**
 * Parse the item (+ any socketed items within) in `data` starting at `startByte`, and store the result in `item`
 *
-* Parameters:
+* @param item A pointer an uninitialized d2item object.
+*              If this function returns `D2ERR_OK`, then `item` will need to be cleaned up with d2item_destroy().
+*              If this function returns something other than `D2ERR_OK`, then `item` will remain uninitialized.
+* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the item.
+*                      On error, set to the number of bytes successfully parsed before the error.
+* @return `D2ERR_OK` on success
 *
-*   item: A pointer to an uninitialized d2item object.
-*         If this function returns D2ERR_OK, then `item` will need to be cleaned up with d2item_destroy.
-*         If this function returns something other than D2ERR_OK, then `item` will remain uninitialized.
-*
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item.
-*                  On error, set to the number of bytes successfully parsed before the error.
-*
-* Return value: D2ERR_OK on success
+* @see d2item_destroy(), d2item_parse_file(), d2item_parse_single()
 */
 CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, size_t* out_bytesRead);
 /**
@@ -392,16 +383,14 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 *
 * If the item has items socketed in it, `item->socketedItems` will be initialized with size `item->numItemsInSockets`, but will be empty.
 * 
-* Parameters:
+* @param item A pointer an uninitialized d2item object.
+*             If this function returns `D2ERR_OK`, then `item` will need to be cleaned up with d2item_destroy().
+*             If this function returns something other than `D2ERR_OK`, then `item` will remain uninitialized.
+* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the item.
+*                      On error, set to the number of bytes successfully parsed before the error.
+* @return `D2ERR_OK` on success
 *
-*   item: A pointer to an uninitialized d2item object.
-*         If this function returns D2ERR_OK, then `item` will need to be cleaned up with d2item_destroy.
-*         If this function returns something other than D2ERR_OK, then `item` will remain uninitialized.
-*
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the item.
-*                  On error, set to the number of bytes successfully parsed before the error.
-*
-* Return value: D2ERR_OK on success
+* @see d2item_destroy(), d2item_parse_file(), d2item_parse()
 */
 CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, size_t* out_bytesRead);
 void d2item_destroy(d2item *item);
@@ -416,20 +405,19 @@ typedef struct d2stashpage {
 /**
 * Parse the stash page in `data` starting at `startByte`, and store the result in `page`
 *
-* Parameters:
+* @param page A pointer to an uninitialized d2stashpage object.
+*             If this function returns `D2ERR_OK`, then `page` will need to be cleaned up with d2stashpage_destroy().
+*             If this function returns something other than `D2ERR_OK`, then `page` will remain uninitialized.
+* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the stash page.
+*                      On error, set to the number of bytes successfully parsed before the error.
+* @return `D2ERR_OK` on success
 *
-*   page: A pointer to an uninitialized d2stashpage object.
-*         If this function returns D2ERR_OK, then `page` will need to be cleaned up with d2stashpage_destroy.
-*         If this function returns something other than D2ERR_OK, then `page` will remain uninitialized.
-*
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes used by the stash page.
-*                  On error, set to the number of bytes successfully parsed before the error.
-*
-* Return value: D2ERR_OK on success
+* @see d2stashpage_destroy()
 */
 CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2stashpage *page, size_t* out_bytesRead);
 void d2stashpage_destroy(d2stashpage *page);
 
+/// PlugY Shared Stash (.sss)
 typedef struct d2sharedstash {
 	uint16_t fileVersion;
 	uint32_t sharedGold;
@@ -438,23 +426,20 @@ typedef struct d2sharedstash {
 } d2sharedstash;
 
 /**
-* Parse the shared stash in `filename`, and store the result in `stash`
+* Parse the PlugY shared stash in `filename`, and store the result in `stash`
 *
-* Parameters:
-*
-*   stash: A pointer to an uninitialized d2sharedstash object.
-*          If this function returns D2ERR_OK, then `stash` will need to be cleaned up with d2sharedstash_destroy.
-*          If this function returns something other than D2ERR_OK, then `stash` will remain uninitialized.
-*
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file.
-*                  On error, set to the number of bytes successfully parsed before the error.
-*
-* Return value: D2ERR_OK on success
+* @param stash A pointer to an uninitialized d2sharedstash object.
+*             If this function returns `D2ERR_OK`, then `stash` will need to be cleaned up with d2sharedstash_destroy().
+*             If this function returns something other than `D2ERR_OK`, then `stash` will remain uninitialized.
+* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the stash.
+*                      On error, set to the number of bytes successfully parsed before the error.
+* @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2sharedstash_parse_file(const char* filename, d2sharedstash *stash, size_t* out_bytesRead);
 CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2sharedstash *stash, size_t* out_bytesRead);
 void d2sharedstash_destroy(d2sharedstash *stash);
 
+/// PlugY Personal Stash (.d2x)
 typedef struct d2personalstash {
 	uint16_t fileVersion;
 	uint32_t numPages;
@@ -462,23 +447,20 @@ typedef struct d2personalstash {
 } d2personalstash;
 
 /**
-* Parse the personal stash in `filename`, and store the result in `stash`
+* Parse the PlugY personal stash in `filename`, and store the result in `stash`
 *
-* Parameters:
-*
-*   stash: A pointer to an uninitialized d2personalstash object.
-*          If this function returns D2ERR_OK, then `stash` will need to be cleaned up with d2personalstash_destroy.
-*          If this function returns something other than D2ERR_OK, then `stash` will remain uninitialized.
-*
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file.
-*                  On error, set to the number of bytes successfully parsed before the error.
-*
-* Return value: D2ERR_OK on success
+* @param stash A pointer to an uninitialized d2personalstash object.
+*             If this function returns `D2ERR_OK`, then `stash` will need to be cleaned up with d2personalstash_destroy().
+*             If this function returns something other than `D2ERR_OK`, then `stash` will remain uninitialized.
+* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the stash.
+*                      On error, set to the number of bytes successfully parsed before the error.
+* @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2personalstash_parse_file(const char* filename, d2personalstash *stash, size_t* out_bytesRead);
 CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2personalstash *stash, size_t* out_bytesRead);
 void d2personalstash_destroy(d2personalstash *stash);
 
+/// Character Save File (.d2s)
 typedef struct d2char {
 	d2itemlist items;
 	d2itemlist itemsCorpse;
@@ -488,21 +470,18 @@ typedef struct d2char {
 /**
 * Parse the character in `filename`, and store the result in `character`
 *
-* Parameters:
-*
-*   character: A pointer to an uninitialized d2char object.
-*              If this function returns D2ERR_OK, then `character` will need to be cleaned up with d2char_destroy.
-*              If this function returns something other than D2ERR_OK, then `character` will remain uninitialized.
-*
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file.
-*                  On error, set to the number of bytes successfully parsed before the error.
-*
-* Return value: D2ERR_OK on success
+* @param character A pointer to an uninitialized d2char object.
+*             If this function returns `D2ERR_OK`, then `character` will need to be cleaned up with d2char_destroy().
+*             If this function returns something other than `D2ERR_OK`, then `character` will remain uninitialized.
+* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the character.
+*                      On error, set to the number of bytes successfully parsed before the error.
+* @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, size_t* out_bytesRead);
 CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSizeBytes, d2char *character, size_t* out_bytesRead);
 void d2char_destroy(d2char *character);
 
+/// ATMA Stash (.d2x)
 typedef struct d2atmastash {
 	uint16_t fileVersion;
 	d2itemlist items;
@@ -511,16 +490,12 @@ typedef struct d2atmastash {
 /**
 * Parse the d2x ATMA stash in `filename`, and store the result in `stash`
 *
-* Parameters:
-*
-*   stash: A pointer to an uninitialized d2atmastash object.
-*          If this function returns D2ERR_OK, then `stash` will need to be cleaned up with d2atmastash_destroy.
-*          If this function returns something other than D2ERR_OK, then `stash` will remain uninitialized.
-*
-*   out_bytesRead: On D2ERR_OK, set to the total number of bytes in the file.
-*                  On error, set to the number of bytes successfully parsed before the error.
-*
-* Return value: D2ERR_OK on success
+* @param stash A pointer to an uninitialized d2atmastash object.
+*              If this function returns `D2ERR_OK`, then `stash` will need to be cleaned up with d2atmastash_destroy().
+*              If this function returns something other than `D2ERR_OK`, then `stash` will remain uninitialized.
+* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the stash.
+*                      On error, set to the number of bytes successfully parsed before the error.
+* @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2atmastash_parse_file(const char* filename, d2atmastash* stash, size_t* out_bytesRead);
 CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dataSizeBytes, d2atmastash* stash, size_t* out_bytesRead);
