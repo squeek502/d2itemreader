@@ -261,16 +261,16 @@
 <td><code>enum</code><a href="#d2itemreader_8h_1ae7b5ef1d626b8492b4c59c7ad41d6f52"><code>d2lowquality</code></a></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a1266b87292ebb00b43ad85c4f0660aee"><code>d2itemreader_init_default</code></a><code>()</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2gamedata_8h_1a3fd9bdb116033553efcf1b22f9604270"><code>d2gamedata_init_default</code></a><code>(</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* data)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a864f81ddadd285acc26e44ebe663351d"><code>d2itemreader_init_files</code></a><code>(</code><a href="#structd2datafiles"><code>d2datafiles</code></a> <code>files)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2gamedata_8h_1a24bc1f01d747ac250a3f5f424500257b"><code>d2gamedata_init_files</code></a><code>(</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* data,</code><a href="#structd2gamedatafiles"><code>d2gamedatafiles</code></a> <code>files)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1adce81b4a41c0c042a03d848af22a1ce2"><code>d2itemreader_init_bufs</code></a><code>(</code><a href="#structd2databufs"><code>d2databufs</code></a> <code>bufs)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2gamedata_8h_1a3366361cc519b10b08d8b00034230faf"><code>d2gamedata_init_bufs</code></a><code>(</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* data,</code><a href="#structd2gamedatabufs"><code>d2gamedatabufs</code></a> <code>bufs)</code></td>
 </tr>
 <tr>
-<td><code>void</code><a href="#d2itemreader_8h_1ae0e4bb19d1dadebf8e7d86dea85f20a8"><code>d2itemreader_destroy</code></a><code>()</code></td>
+<td><code>void</code><a href="#d2gamedata_8h_1af607e2e695b9fcc7eb58b5ec5fe22363"><code>d2gamedata_destroy</code></a><code>(</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* data)</code></td>
 </tr>
 <tr>
 <td><code>enum</code><a href="#d2itemreader_8h_1a41224a32bcd9efbd1930734851ede34d"><code>d2filetype</code></a> <a href="#d2itemreader_8h_1a111ed71e377ad98743603f815480697a"><code>d2filetype_get</code></a><code>(const unsigned char * data, size_t size)</code></td>
@@ -279,10 +279,10 @@
 <td><code>enum</code><a href="#d2itemreader_8h_1a41224a32bcd9efbd1930734851ede34d"><code>d2filetype</code></a> <a href="#d2itemreader_8h_1a2d637c46e4d7704eaae2bb139a2e84aa"><code>d2filetype_of_file</code></a><code>(const char * filename)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ada01d7d36e6453cbd1f24e31552bd6f8"><code>d2itemlist_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a5f907bb018a3ec7eb8f34962c3a7f288"><code>d2itemlist_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1accda544fbc157d045ac62f734b3b3509"><code>d2itemlist_parse_num</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items, uint16_t numItems, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a4c8f6b191df1895992fc8284d4208d97"><code>d2itemlist_parse_num</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items, uint16_t numItems,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
 <td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a8ec941586029258474ef14084cb11a2b"><code>d2itemlist_init</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list, size_t initialSize)</code></td>
@@ -294,7 +294,7 @@
 <td><code>void</code><a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2"><code>d2itemlist_destroy</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad9aeb5e22f17ea9c877307bf6cc7c056"><code>d2itemproplist_parse</code></a><code>(bit_reader * br,</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a556b5ad5a6e2c26deeef79a31199dd34"><code>d2itemproplist_parse</code></a><code>(bit_reader * br,</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData)</code></td>
 </tr>
 <tr>
 <td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319"><code>d2itemproplist_init</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code></td>
@@ -306,55 +306,55 @@
 <td><code>void</code><a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531"><code>d2itemproplist_destroy</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e"><code>d2item_parse_file</code></a><code>(const char * filename,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a552acca883d7b90357610b4d967ee4d2"><code>d2item_parse_file</code></a><code>(const char * filename,</code><a href="#structd2item"><code>d2item</code></a><code>* item,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f"><code>d2item_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad2d8ae817d252b1bc44407cf1b3be121"><code>d2item_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a3d4ca3bda5b561f6521fc93f9f7f2cbb"><code>d2item_parse_single</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ab4c3781c4e949124e2ee2f25b5d9ecc9"><code>d2item_parse_single</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
 <td><code>void</code><a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706"><code>d2item_destroy</code></a><code>(</code><a href="#structd2item"><code>d2item</code></a><code>* item)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1acba760f3a2e2c7fd4d4b0118914ca8a4"><code>d2stashpage_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2stashpage"><code>d2stashpage</code></a><code>* page, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ac090a4e81cdf4ce39ee641ab16b52681"><code>d2stashpage_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2stashpage"><code>d2stashpage</code></a><code>* page,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
 <td><code>void</code><a href="#d2itemreader_8h_1a3d68c883fac68cb61789ce95e04771db"><code>d2stashpage_destroy</code></a><code>(</code><a href="#structd2stashpage"><code>d2stashpage</code></a><code>* page)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a1d66dee87f0800e9a24a2b396b6a5899"><code>d2sharedstash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1aa3d1a2b6c3ce84440d5ff105f9c4702d"><code>d2sharedstash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ab2525651d9147d077ac3d847a30a34f5"><code>d2sharedstash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad03509526a53bb12c69d778e1b023e0d"><code>d2sharedstash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
 <td><code>void</code><a href="#d2itemreader_8h_1a0ba23b5ab0e118706c5d3e4c4d16c597"><code>d2sharedstash_destroy</code></a><code>(</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a9923c53c51d49bd0e0c2dea1ab9f0b89"><code>d2personalstash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a74793949215252237643304a1308aa39"><code>d2personalstash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ab7ce5d7daf035ecca2d13aa18eb990b7"><code>d2personalstash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a6129c6f9fc592e4e1a714aab2b274795"><code>d2personalstash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
 <td><code>void</code><a href="#d2itemreader_8h_1a3332b7d6e481625047dbac4b6fe25e1e"><code>d2personalstash_destroy</code></a><code>(</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ac001f93854b63b196ea9ae14f7f53a39"><code>d2char_parse_file</code></a><code>(const char * filename,</code><a href="#structd2char"><code>d2char</code></a><code>* character, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ab28fb0954a77ed1f683a524907d9493f"><code>d2char_parse_file</code></a><code>(const char * filename,</code><a href="#structd2char"><code>d2char</code></a><code>* character,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a04b5ad0afb8ffb490bc554ddf4574832"><code>d2char_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2char"><code>d2char</code></a><code>* character, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad26cdb7c423e6e23837f66a2dda548ba"><code>d2char_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2char"><code>d2char</code></a><code>* character,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
 <td><code>void</code><a href="#d2itemreader_8h_1a935e23bc19f5f21ff1c231a67ec7aca2"><code>d2char_destroy</code></a><code>(</code><a href="#structd2char"><code>d2char</code></a><code>* character)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a13ab3bd5a4187eacfd8d6de76f0be877"><code>d2atmastash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ac71cba5f9ebde144d8184d36da1b4034"><code>d2atmastash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad801fb233ce25a3101a3a1f4f8f3c674"><code>d2atmastash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash, size_t * out_bytesRead)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ae7753909e990ec9debe0695eb6a229ee"><code>d2atmastash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
 <td><code>void</code><a href="#d2itemreader_8h_1a37436a366e203e09e7f6f35ebbd10a86"><code>d2atmastash_destroy</code></a><code>(</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash)</code></td>
@@ -366,13 +366,19 @@
 <td><code>struct</code><a href="#structd2char"><code>d2char</code></a></td>
 </tr>
 <tr>
-<td><code>struct</code><a href="#structd2databufs"><code>d2databufs</code></a></td>
-</tr>
-<tr>
-<td><code>struct</code><a href="#structd2datafiles"><code>d2datafiles</code></a></td>
-</tr>
-<tr>
 <td><code>struct</code><a href="#structd2ear"><code>d2ear</code></a></td>
+</tr>
+<tr>
+<td><code>struct</code><a href="#structd2gamedata"><code>d2gamedata</code></a></td>
+</tr>
+<tr>
+<td><code>struct</code><a href="#structd2gamedata__itemstat"><code>d2gamedata_itemstat</code></a></td>
+</tr>
+<tr>
+<td><code>struct</code><a href="#structd2gamedatabufs"><code>d2gamedatabufs</code></a></td>
+</tr>
+<tr>
+<td><code>struct</code><a href="#structd2gamedatafiles"><code>d2gamedatafiles</code></a></td>
 </tr>
 <tr>
 <td><code>struct</code><a href="#structd2item"><code>d2item</code></a></td>
@@ -414,23 +420,23 @@
 </tr>
 <tr>
 <td>D2FILETYPE_D2_CHARACTER</td>
-<td>Parsable using <a href="#d2itemreader_8h_1a04b5ad0afb8ffb490bc554ddf4574832">d2char_parse()</a> or <a href="#d2itemreader_8h_1ac001f93854b63b196ea9ae14f7f53a39">d2char_parse_file()</a></td>
+<td>Parsable using <a href="#d2itemreader_8h_1ad26cdb7c423e6e23837f66a2dda548ba">d2char_parse()</a> or <a href="#d2itemreader_8h_1ab28fb0954a77ed1f683a524907d9493f">d2char_parse_file()</a></td>
 </tr>
 <tr>
 <td>D2FILETYPE_PLUGY_SHARED_STASH</td>
-<td>Parsable using <a href="#d2itemreader_8h_1ab2525651d9147d077ac3d847a30a34f5">d2sharedstash_parse()</a> or <a href="#d2itemreader_8h_1a1d66dee87f0800e9a24a2b396b6a5899">d2sharedstash_parse_file()</a></td>
+<td>Parsable using <a href="#d2itemreader_8h_1ad03509526a53bb12c69d778e1b023e0d">d2sharedstash_parse()</a> or <a href="#d2itemreader_8h_1aa3d1a2b6c3ce84440d5ff105f9c4702d">d2sharedstash_parse_file()</a></td>
 </tr>
 <tr>
 <td>D2FILETYPE_PLUGY_PERSONAL_STASH</td>
-<td>Parsable using <a href="#d2itemreader_8h_1ab7ce5d7daf035ecca2d13aa18eb990b7">d2personalstash_parse()</a> or <a href="#d2itemreader_8h_1a9923c53c51d49bd0e0c2dea1ab9f0b89">d2personalstash_parse_file()</a></td>
+<td>Parsable using <a href="#d2itemreader_8h_1a6129c6f9fc592e4e1a714aab2b274795">d2personalstash_parse()</a> or <a href="#d2itemreader_8h_1a74793949215252237643304a1308aa39">d2personalstash_parse_file()</a></td>
 </tr>
 <tr>
 <td>D2FILETYPE_ATMA_STASH</td>
-<td>Parsable using <a href="#d2itemreader_8h_1ad801fb233ce25a3101a3a1f4f8f3c674">d2atmastash_parse()</a> or <a href="#d2itemreader_8h_1a13ab3bd5a4187eacfd8d6de76f0be877">d2atmastash_parse_file()</a></td>
+<td>Parsable using <a href="#d2itemreader_8h_1ae7753909e990ec9debe0695eb6a229ee">d2atmastash_parse()</a> or <a href="#d2itemreader_8h_1ac71cba5f9ebde144d8184d36da1b4034">d2atmastash_parse_file()</a></td>
 </tr>
 <tr>
 <td>D2FILETYPE_D2_ITEM</td>
-<td>Parsable using <a href="#d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f">d2item_parse()</a> or <a href="#d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e">d2item_parse_file()</a></td>
+<td>Parsable using <a href="#d2itemreader_8h_1ad2d8ae817d252b1bc44407cf1b3be121">d2item_parse()</a> or <a href="#d2itemreader_8h_1a552acca883d7b90357610b4d967ee4d2">d2item_parse_file()</a></td>
 </tr>
 </tbody>
 </table>
@@ -637,15 +643,15 @@
 </tr>
 </tbody>
 </table>
-<h3 id="d2itemreader_8h_1a1266b87292ebb00b43ad85c4f0660aee"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a1266b87292ebb00b43ad85c4f0660aee"><code>d2itemreader_init_default</code></a><code>()</code> </h3>
+<h3 id="d2gamedata_8h_1a3fd9bdb116033553efcf1b22f9604270"><code>CHECK_RESULT d2err</code><a href="#d2gamedata_8h_1a3fd9bdb116033553efcf1b22f9604270"><code>d2gamedata_init_default</code></a><code>(</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* data)</code> </h3>
 <p>Load the default data packaged with d2itemreader (should work for un-modded D2 versions &gt;= 1.10)</p>
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
 <blockquote>
-<p><strong>IMPORTANT</strong>: <a href="#d2itemreader_8h_1ae0e4bb19d1dadebf8e7d86dea85f20a8">d2itemreader_destroy()</a> only needs to be called if the init function returns <code>D2ERR_OK</code></p>
+<p><strong>IMPORTANT</strong>: <a href="#d2gamedata_8h_1af607e2e695b9fcc7eb58b5ec5fe22363">d2gamedata_destroy()</a> only needs to be called if the init function returns <code>D2ERR_OK</code></p>
 </blockquote>
-<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a864f81ddadd285acc26e44ebe663351d">d2itemreader_init_files()</a>, <a href="#d2itemreader_8h_1adce81b4a41c0c042a03d848af22a1ce2">d2itemreader_init_bufs()</a>, <a href="#d2itemreader_8h_1ae0e4bb19d1dadebf8e7d86dea85f20a8">d2itemreader_destroy()</a></p>
-<h3 id="d2itemreader_8h_1a864f81ddadd285acc26e44ebe663351d"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a864f81ddadd285acc26e44ebe663351d"><code>d2itemreader_init_files</code></a><code>(</code><a href="#structd2datafiles"><code>d2datafiles</code></a> <code>files)</code> </h3>
+<p><strong>See also</strong>: <a href="#d2gamedata_8h_1a24bc1f01d747ac250a3f5f424500257b">d2gamedata_init_files()</a>, <a href="#d2gamedata_8h_1a3366361cc519b10b08d8b00034230faf">d2gamedata_init_bufs()</a>, <a href="#d2gamedata_8h_1af607e2e695b9fcc7eb58b5ec5fe22363">d2gamedata_destroy()</a></p>
+<h3 id="d2gamedata_8h_1a24bc1f01d747ac250a3f5f424500257b"><code>CHECK_RESULT d2err</code><a href="#d2gamedata_8h_1a24bc1f01d747ac250a3f5f424500257b"><code>d2gamedata_init_files</code></a><code>(</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* data,</code><a href="#structd2gamedatafiles"><code>d2gamedatafiles</code></a> <code>files)</code> </h3>
 <p>Load the data from the file paths given in <code>files</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -654,10 +660,10 @@
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
 <blockquote>
-<p><strong>IMPORTANT</strong>: <a href="#d2itemreader_8h_1ae0e4bb19d1dadebf8e7d86dea85f20a8">d2itemreader_destroy()</a> only needs to be called if the init function returns <code>D2ERR_OK</code></p>
+<p><strong>IMPORTANT</strong>: <a href="#d2gamedata_8h_1af607e2e695b9fcc7eb58b5ec5fe22363">d2gamedata_destroy()</a> only needs to be called if the init function returns <code>D2ERR_OK</code></p>
 </blockquote>
-<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a1266b87292ebb00b43ad85c4f0660aee">d2itemreader_init_default()</a>, <a href="#d2itemreader_8h_1adce81b4a41c0c042a03d848af22a1ce2">d2itemreader_init_bufs()</a>, <a href="#d2itemreader_8h_1ae0e4bb19d1dadebf8e7d86dea85f20a8">d2itemreader_destroy()</a></p>
-<h3 id="d2itemreader_8h_1adce81b4a41c0c042a03d848af22a1ce2"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1adce81b4a41c0c042a03d848af22a1ce2"><code>d2itemreader_init_bufs</code></a><code>(</code><a href="#structd2databufs"><code>d2databufs</code></a> <code>bufs)</code> </h3>
+<p><strong>See also</strong>: <a href="#d2gamedata_8h_1a3fd9bdb116033553efcf1b22f9604270">d2gamedata_init_default()</a>, <a href="#d2gamedata_8h_1a3366361cc519b10b08d8b00034230faf">d2gamedata_init_bufs()</a>, <a href="#d2gamedata_8h_1af607e2e695b9fcc7eb58b5ec5fe22363">d2gamedata_destroy()</a></p>
+<h3 id="d2gamedata_8h_1a3366361cc519b10b08d8b00034230faf"><code>CHECK_RESULT d2err</code><a href="#d2gamedata_8h_1a3366361cc519b10b08d8b00034230faf"><code>d2gamedata_init_bufs</code></a><code>(</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* data,</code><a href="#structd2gamedatabufs"><code>d2gamedatabufs</code></a> <code>bufs)</code> </h3>
 <p>Load the data from the buffers given in <code>bufs</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -666,20 +672,20 @@
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
 <blockquote>
-<p><strong>IMPORTANT</strong>: <a href="#d2itemreader_8h_1ae0e4bb19d1dadebf8e7d86dea85f20a8">d2itemreader_destroy()</a> only needs to be called if the init function returns <code>D2ERR_OK</code></p>
+<p><strong>IMPORTANT</strong>: <a href="#d2gamedata_8h_1af607e2e695b9fcc7eb58b5ec5fe22363">d2gamedata_destroy()</a> only needs to be called if the init function returns <code>D2ERR_OK</code></p>
 </blockquote>
-<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a864f81ddadd285acc26e44ebe663351d">d2itemreader_init_files()</a>, <a href="#d2itemreader_8h_1a1266b87292ebb00b43ad85c4f0660aee">d2itemreader_init_default()</a>, <a href="#d2itemreader_8h_1ae0e4bb19d1dadebf8e7d86dea85f20a8">d2itemreader_destroy()</a></p>
-<h3 id="d2itemreader_8h_1ae0e4bb19d1dadebf8e7d86dea85f20a8"><code>void</code><a href="#d2itemreader_8h_1ae0e4bb19d1dadebf8e7d86dea85f20a8"><code>d2itemreader_destroy</code></a><code>()</code> </h3>
-<p>Cleanup memory used by d2itemreader.</p>
+<p><strong>See also</strong>: <a href="#d2gamedata_8h_1a24bc1f01d747ac250a3f5f424500257b">d2gamedata_init_files()</a>, <a href="#d2gamedata_8h_1a3fd9bdb116033553efcf1b22f9604270">d2gamedata_init_default()</a>, <a href="#d2gamedata_8h_1af607e2e695b9fcc7eb58b5ec5fe22363">d2gamedata_destroy()</a></p>
+<h3 id="d2gamedata_8h_1af607e2e695b9fcc7eb58b5ec5fe22363"><code>void</code><a href="#d2gamedata_8h_1af607e2e695b9fcc7eb58b5ec5fe22363"><code>d2gamedata_destroy</code></a><code>(</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* data)</code> </h3>
+<p>Cleanup memory used by <a href="#structd2gamedata">d2gamedata</a>.</p>
 <blockquote>
-<p><strong>IMPORTANT</strong>: <a href="#d2itemreader_8h_1ae0e4bb19d1dadebf8e7d86dea85f20a8">d2itemreader_destroy()</a> only needs to be called if the init function returns <code>D2ERR_OK</code></p>
+<p><strong>IMPORTANT</strong>: <a href="#d2gamedata_8h_1af607e2e695b9fcc7eb58b5ec5fe22363">d2gamedata_destroy()</a> only needs to be called if the init function returns <code>D2ERR_OK</code></p>
 </blockquote>
-<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a1266b87292ebb00b43ad85c4f0660aee">d2itemreader_init_default()</a>, <a href="#d2itemreader_8h_1a864f81ddadd285acc26e44ebe663351d">d2itemreader_init_files()</a>, <a href="#d2itemreader_8h_1adce81b4a41c0c042a03d848af22a1ce2">d2itemreader_init_bufs()</a></p>
+<p><strong>See also</strong>: <a href="#d2gamedata_8h_1a3fd9bdb116033553efcf1b22f9604270">d2gamedata_init_default()</a>, <a href="#d2gamedata_8h_1a24bc1f01d747ac250a3f5f424500257b">d2gamedata_init_files()</a>, <a href="#d2gamedata_8h_1a3366361cc519b10b08d8b00034230faf">d2gamedata_init_bufs()</a></p>
 <h3 id="d2itemreader_8h_1a111ed71e377ad98743603f815480697a"><code>enum</code><a href="#d2itemreader_8h_1a41224a32bcd9efbd1930734851ede34d"><code>d2filetype</code></a> <a href="#d2itemreader_8h_1a111ed71e377ad98743603f815480697a"><code>d2filetype_get</code></a><code>(const unsigned char * data, size_t size)</code> </h3>
 <p>Attempt to determine the filetype of the given binary data.</p>
 <h3 id="d2itemreader_8h_1a2d637c46e4d7704eaae2bb139a2e84aa"><code>enum</code><a href="#d2itemreader_8h_1a41224a32bcd9efbd1930734851ede34d"><code>d2filetype</code></a> <a href="#d2itemreader_8h_1a2d637c46e4d7704eaae2bb139a2e84aa"><code>d2filetype_of_file</code></a><code>(const char * filename)</code> </h3>
 <p>Attempt to determine the filetype of the given file path.</p>
-<h3 id="d2itemreader_8h_1ada01d7d36e6453cbd1f24e31552bd6f8"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ada01d7d36e6453cbd1f24e31552bd6f8"><code>d2itemlist_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items, size_t * out_bytesRead)</code> </h3>
+<h3 id="d2itemreader_8h_1a5f907bb018a3ec7eb8f34962c3a7f288"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a5f907bb018a3ec7eb8f34962c3a7f288"><code>d2itemlist_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the itemlist in <code>data</code> starting at <code>startByte</code>, and store the result in <code>items</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -690,8 +696,8 @@
 </ul>
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
-<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2">d2itemlist_destroy()</a>, <a href="#d2itemreader_8h_1accda544fbc157d045ac62f734b3b3509">d2itemlist_parse_num()</a></p>
-<h3 id="d2itemreader_8h_1accda544fbc157d045ac62f734b3b3509"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1accda544fbc157d045ac62f734b3b3509"><code>d2itemlist_parse_num</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items, uint16_t numItems, size_t * out_bytesRead)</code> </h3>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2">d2itemlist_destroy()</a>, <a href="#d2itemreader_8h_1a4c8f6b191df1895992fc8284d4208d97">d2itemlist_parse_num()</a></p>
+<h3 id="d2itemreader_8h_1a4c8f6b191df1895992fc8284d4208d97"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a4c8f6b191df1895992fc8284d4208d97"><code>d2itemlist_parse_num</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items, uint16_t numItems,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the itemlist containing exactly <code>numItems</code> items (not including items in sockets) in <code>data</code> starting at <code>startByte</code>, and store the result in <code>items</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -704,11 +710,11 @@
 </ul>
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
-<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2">d2itemlist_destroy()</a>, <a href="#d2itemreader_8h_1ada01d7d36e6453cbd1f24e31552bd6f8">d2itemlist_parse()</a></p>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2">d2itemlist_destroy()</a>, <a href="#d2itemreader_8h_1a5f907bb018a3ec7eb8f34962c3a7f288">d2itemlist_parse()</a></p>
 <h3 id="d2itemreader_8h_1a8ec941586029258474ef14084cb11a2b"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a8ec941586029258474ef14084cb11a2b"><code>d2itemlist_init</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list, size_t initialSize)</code> </h3>
 <h3 id="d2itemreader_8h_1afaed3890c1d785445c9954deab2dfb5f"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1afaed3890c1d785445c9954deab2dfb5f"><code>d2itemlist_append</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list, const</code><a href="#structd2item"><code>d2item</code></a><code>*const item)</code> </h3>
 <h3 id="d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2"><code>void</code><a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2"><code>d2itemlist_destroy</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list)</code> </h3>
-<h3 id="d2itemreader_8h_1ad9aeb5e22f17ea9c877307bf6cc7c056"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad9aeb5e22f17ea9c877307bf6cc7c056"><code>d2itemproplist_parse</code></a><code>(bit_reader * br,</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code> </h3>
+<h3 id="d2itemreader_8h_1a556b5ad5a6e2c26deeef79a31199dd34"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a556b5ad5a6e2c26deeef79a31199dd34"><code>d2itemproplist_parse</code></a><code>(bit_reader * br,</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData)</code> </h3>
 <p>Parse the item property list using <code>br</code>, and store the result in <code>list</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -723,7 +729,7 @@
 <h3 id="d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319"><code>d2itemproplist_init</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code> </h3>
 <h3 id="d2itemreader_8h_1a5af918937df19a669f9328dd7c699b98"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a5af918937df19a669f9328dd7c699b98"><code>d2itemproplist_append</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list,</code><a href="#structd2itemprop"><code>d2itemprop</code></a> <code>prop)</code> </h3>
 <h3 id="d2itemreader_8h_1a713385d41a888e980409f60d622ac531"><code>void</code><a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531"><code>d2itemproplist_destroy</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code> </h3>
-<h3 id="d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e"><code>d2item_parse_file</code></a><code>(const char * filename,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code> </h3>
+<h3 id="d2itemreader_8h_1a552acca883d7b90357610b4d967ee4d2"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a552acca883d7b90357610b4d967ee4d2"><code>d2item_parse_file</code></a><code>(const char * filename,</code><a href="#structd2item"><code>d2item</code></a><code>* item,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the item (+ any socketed items within) in <code>filename</code>, and store the result in <code>item</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -734,8 +740,8 @@
 </ul>
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
-<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>, <a href="#d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f">d2item_parse()</a>, <a href="#d2itemreader_8h_1a3d4ca3bda5b561f6521fc93f9f7f2cbb">d2item_parse_single()</a></p>
-<h3 id="d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f"><code>d2item_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code> </h3>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>, <a href="#d2itemreader_8h_1ad2d8ae817d252b1bc44407cf1b3be121">d2item_parse()</a>, <a href="#d2itemreader_8h_1ab4c3781c4e949124e2ee2f25b5d9ecc9">d2item_parse_single()</a></p>
+<h3 id="d2itemreader_8h_1ad2d8ae817d252b1bc44407cf1b3be121"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad2d8ae817d252b1bc44407cf1b3be121"><code>d2item_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the item (+ any socketed items within) in <code>data</code> starting at <code>startByte</code>, and store the result in <code>item</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -746,8 +752,8 @@
 </ul>
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
-<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>, <a href="#d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e">d2item_parse_file()</a>, <a href="#d2itemreader_8h_1a3d4ca3bda5b561f6521fc93f9f7f2cbb">d2item_parse_single()</a></p>
-<h3 id="d2itemreader_8h_1a3d4ca3bda5b561f6521fc93f9f7f2cbb"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a3d4ca3bda5b561f6521fc93f9f7f2cbb"><code>d2item_parse_single</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item, size_t * out_bytesRead)</code> </h3>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>, <a href="#d2itemreader_8h_1a552acca883d7b90357610b4d967ee4d2">d2item_parse_file()</a>, <a href="#d2itemreader_8h_1ab4c3781c4e949124e2ee2f25b5d9ecc9">d2item_parse_single()</a></p>
+<h3 id="d2itemreader_8h_1ab4c3781c4e949124e2ee2f25b5d9ecc9"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ab4c3781c4e949124e2ee2f25b5d9ecc9"><code>d2item_parse_single</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the item (but not socketed items within) in <code>data</code> starting at <code>startByte</code>, and store the result in <code>item</code></p>
 <p>If the item has items socketed in it, <code>item-&gt;socketedItems</code> will be initialized with size <code>item-&gt;numItemsInSockets</code>, but will be empty.</p>
 <h4 id="parameters">Parameters</h4>
@@ -759,9 +765,9 @@
 </ul>
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
-<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>, <a href="#d2itemreader_8h_1a2a7da27926b0b9c0ca4ee9cc6ac0bb4e">d2item_parse_file()</a>, <a href="#d2itemreader_8h_1a10d5070e2f961c40ba515e759b129b0f">d2item_parse()</a></p>
+<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>, <a href="#d2itemreader_8h_1a552acca883d7b90357610b4d967ee4d2">d2item_parse_file()</a>, <a href="#d2itemreader_8h_1ad2d8ae817d252b1bc44407cf1b3be121">d2item_parse()</a></p>
 <h3 id="d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706"><code>void</code><a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706"><code>d2item_destroy</code></a><code>(</code><a href="#structd2item"><code>d2item</code></a><code>* item)</code> </h3>
-<h3 id="d2itemreader_8h_1acba760f3a2e2c7fd4d4b0118914ca8a4"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1acba760f3a2e2c7fd4d4b0118914ca8a4"><code>d2stashpage_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2stashpage"><code>d2stashpage</code></a><code>* page, size_t * out_bytesRead)</code> </h3>
+<h3 id="d2itemreader_8h_1ac090a4e81cdf4ce39ee641ab16b52681"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ac090a4e81cdf4ce39ee641ab16b52681"><code>d2stashpage_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2stashpage"><code>d2stashpage</code></a><code>* page,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the stash page in <code>data</code> starting at <code>startByte</code>, and store the result in <code>page</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -774,7 +780,7 @@
 <p><code>D2ERR_OK</code> on success</p>
 <p><strong>See also</strong>: <a href="#d2itemreader_8h_1a3d68c883fac68cb61789ce95e04771db">d2stashpage_destroy()</a></p>
 <h3 id="d2itemreader_8h_1a3d68c883fac68cb61789ce95e04771db"><code>void</code><a href="#d2itemreader_8h_1a3d68c883fac68cb61789ce95e04771db"><code>d2stashpage_destroy</code></a><code>(</code><a href="#structd2stashpage"><code>d2stashpage</code></a><code>* page)</code> </h3>
-<h3 id="d2itemreader_8h_1a1d66dee87f0800e9a24a2b396b6a5899"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a1d66dee87f0800e9a24a2b396b6a5899"><code>d2sharedstash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
+<h3 id="d2itemreader_8h_1aa3d1a2b6c3ce84440d5ff105f9c4702d"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1aa3d1a2b6c3ce84440d5ff105f9c4702d"><code>d2sharedstash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the PlugY shared stash in <code>filename</code>, and store the result in <code>stash</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -785,9 +791,9 @@
 </ul>
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
-<h3 id="d2itemreader_8h_1ab2525651d9147d077ac3d847a30a34f5"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ab2525651d9147d077ac3d847a30a34f5"><code>d2sharedstash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
+<h3 id="d2itemreader_8h_1ad03509526a53bb12c69d778e1b023e0d"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad03509526a53bb12c69d778e1b023e0d"><code>d2sharedstash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <h3 id="d2itemreader_8h_1a0ba23b5ab0e118706c5d3e4c4d16c597"><code>void</code><a href="#d2itemreader_8h_1a0ba23b5ab0e118706c5d3e4c4d16c597"><code>d2sharedstash_destroy</code></a><code>(</code><a href="#structd2sharedstash"><code>d2sharedstash</code></a><code>* stash)</code> </h3>
-<h3 id="d2itemreader_8h_1a9923c53c51d49bd0e0c2dea1ab9f0b89"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a9923c53c51d49bd0e0c2dea1ab9f0b89"><code>d2personalstash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
+<h3 id="d2itemreader_8h_1a74793949215252237643304a1308aa39"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a74793949215252237643304a1308aa39"><code>d2personalstash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the PlugY personal stash in <code>filename</code>, and store the result in <code>stash</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -798,9 +804,9 @@
 </ul>
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
-<h3 id="d2itemreader_8h_1ab7ce5d7daf035ecca2d13aa18eb990b7"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ab7ce5d7daf035ecca2d13aa18eb990b7"><code>d2personalstash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
+<h3 id="d2itemreader_8h_1a6129c6f9fc592e4e1a714aab2b274795"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a6129c6f9fc592e4e1a714aab2b274795"><code>d2personalstash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <h3 id="d2itemreader_8h_1a3332b7d6e481625047dbac4b6fe25e1e"><code>void</code><a href="#d2itemreader_8h_1a3332b7d6e481625047dbac4b6fe25e1e"><code>d2personalstash_destroy</code></a><code>(</code><a href="#structd2personalstash"><code>d2personalstash</code></a><code>* stash)</code> </h3>
-<h3 id="d2itemreader_8h_1ac001f93854b63b196ea9ae14f7f53a39"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ac001f93854b63b196ea9ae14f7f53a39"><code>d2char_parse_file</code></a><code>(const char * filename,</code><a href="#structd2char"><code>d2char</code></a><code>* character, size_t * out_bytesRead)</code> </h3>
+<h3 id="d2itemreader_8h_1ab28fb0954a77ed1f683a524907d9493f"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ab28fb0954a77ed1f683a524907d9493f"><code>d2char_parse_file</code></a><code>(const char * filename,</code><a href="#structd2char"><code>d2char</code></a><code>* character,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the character in <code>filename</code>, and store the result in <code>character</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -811,9 +817,9 @@
 </ul>
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
-<h3 id="d2itemreader_8h_1a04b5ad0afb8ffb490bc554ddf4574832"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a04b5ad0afb8ffb490bc554ddf4574832"><code>d2char_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2char"><code>d2char</code></a><code>* character, size_t * out_bytesRead)</code> </h3>
+<h3 id="d2itemreader_8h_1ad26cdb7c423e6e23837f66a2dda548ba"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad26cdb7c423e6e23837f66a2dda548ba"><code>d2char_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2char"><code>d2char</code></a><code>* character,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <h3 id="d2itemreader_8h_1a935e23bc19f5f21ff1c231a67ec7aca2"><code>void</code><a href="#d2itemreader_8h_1a935e23bc19f5f21ff1c231a67ec7aca2"><code>d2char_destroy</code></a><code>(</code><a href="#structd2char"><code>d2char</code></a><code>* character)</code> </h3>
-<h3 id="d2itemreader_8h_1a13ab3bd5a4187eacfd8d6de76f0be877"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a13ab3bd5a4187eacfd8d6de76f0be877"><code>d2atmastash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
+<h3 id="d2itemreader_8h_1ac71cba5f9ebde144d8184d36da1b4034"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ac71cba5f9ebde144d8184d36da1b4034"><code>d2atmastash_parse_file</code></a><code>(const char * filename,</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the d2x ATMA stash in <code>filename</code>, and store the result in <code>stash</code></p>
 <h4 id="parameters">Parameters</h4>
 <ul>
@@ -824,7 +830,7 @@
 </ul>
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
-<h3 id="d2itemreader_8h_1ad801fb233ce25a3101a3a1f4f8f3c674"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ad801fb233ce25a3101a3a1f4f8f3c674"><code>d2atmastash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash, size_t * out_bytesRead)</code> </h3>
+<h3 id="d2itemreader_8h_1ae7753909e990ec9debe0695eb6a229ee"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ae7753909e990ec9debe0695eb6a229ee"><code>d2atmastash_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <h3 id="d2itemreader_8h_1a37436a366e203e09e7f6f35ebbd10a86"><code>void</code><a href="#d2itemreader_8h_1a37436a366e203e09e7f6f35ebbd10a86"><code>d2atmastash_destroy</code></a><code>(</code><a href="#structd2atmastash"><code>d2atmastash</code></a><code>* stash)</code> </h3>
 <h3 id="structd2atmastash">struct <code>d2atmastash</code> </h3>
 <p>ATMA Stash (.d2x)</p>
@@ -870,78 +876,6 @@
 </tr>
 </tbody>
 </table>
-<h3 id="structd2databufs">struct <code>d2databufs</code> </h3>
-<p><strong>See also</strong>: <a href="#d2itemreader_8h_1adce81b4a41c0c042a03d848af22a1ce2">d2itemreader_init_bufs()</a></p>
-<table>
-<thead>
-<tr>
-<th>Members</th>
-<th>Descriptions                                </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>char *</code><a href="#structd2databufs_1a28a98e5635c159a5caa71bcec4af14bc"><code>armorTxt</code></a></td>
-<td></td>
-</tr>
-<tr>
-<td><code>size_t</code><a href="#structd2databufs_1aecb138b09e4cefbc2d038a0e249ad285"><code>armorTxtSize</code></a></td>
-<td></td>
-</tr>
-<tr>
-<td><code>char *</code><a href="#structd2databufs_1a63e9cb82d987926b63cb3904b1ef0a3a"><code>weaponsTxt</code></a></td>
-<td></td>
-</tr>
-<tr>
-<td><code>size_t</code><a href="#structd2databufs_1ab134102969068bc281b3a9a32150ed15"><code>weaponsTxtSize</code></a></td>
-<td></td>
-</tr>
-<tr>
-<td><code>char *</code><a href="#structd2databufs_1a036585e1c92fb09c0ea981dfca25d75f"><code>miscTxt</code></a></td>
-<td></td>
-</tr>
-<tr>
-<td><code>size_t</code><a href="#structd2databufs_1a242f22464bc8cfc0565a846caf5d9fea"><code>miscTxtSize</code></a></td>
-<td></td>
-</tr>
-<tr>
-<td><code>char *</code><a href="#structd2databufs_1aee71b399b11dcb4ec4bbfe9bb1adb666"><code>itemStatCostTxt</code></a></td>
-<td></td>
-</tr>
-<tr>
-<td><code>size_t</code><a href="#structd2databufs_1a556f4b86a3bb80120a071ef9f46d27a9"><code>itemStatCostTxtSize</code></a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3 id="structd2datafiles">struct <code>d2datafiles</code> </h3>
-<p><strong>See also</strong>: <a href="#d2itemreader_8h_1a864f81ddadd285acc26e44ebe663351d">d2itemreader_init_files()</a></p>
-<table>
-<thead>
-<tr>
-<th>Members</th>
-<th>Descriptions                                </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>const char *</code><a href="#structd2datafiles_1aa409a8bef4151fe3c2bb687c98dd2754"><code>armorTxtFilepath</code></a></td>
-<td></td>
-</tr>
-<tr>
-<td><code>const char *</code><a href="#structd2datafiles_1aef189110b5278c0f45f10b9c11c4e9b5"><code>weaponsTxtFilepath</code></a></td>
-<td></td>
-</tr>
-<tr>
-<td><code>const char *</code><a href="#structd2datafiles_1a212912757511e4749bd3d8791061e7b0"><code>miscTxtFilepath</code></a></td>
-<td></td>
-</tr>
-<tr>
-<td><code>const char *</code><a href="#structd2datafiles_1aecee8ce3e91633a326ae22d5365a9e62"><code>itemStatCostTxtFilepath</code></a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <h3 id="structd2ear">struct <code>d2ear</code> </h3>
 <table>
 <thead>
@@ -962,6 +896,148 @@
 <tr>
 <td><code>char</code><a href="#structd2ear_1a77157674ffb567431daa2437b20e8a20"><code>name</code></a><code>[D2_MAX_CHAR_NAME_BYTELEN]</code></td>
 <td>null-terminated player name</td>
+</tr>
+</tbody>
+</table>
+<h3 id="structd2gamedata">struct <code>d2gamedata</code> </h3>
+<table>
+<thead>
+<tr>
+<th>Members</th>
+<th>Descriptions                                </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uint16_t</code><a href="#structd2gamedata_1a27a11962637c3027352e35804c3095d7"><code>initState</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>strset_t *</code><a href="#structd2gamedata_1a223febc26fddf5c85eba81b7510b453a"><code>armorsSet</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>strset_t *</code><a href="#structd2gamedata_1a61630a84ed9df82beef1205f1b5f7895"><code>weaponsSet</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>strset_t *</code><a href="#structd2gamedata_1a6dd56ce330e9a8acc605921ab053f497"><code>stackablesSet</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="#structd2gamedata__itemstat"><code>d2gamedata_itemstat</code></a> <a href="#structd2gamedata_1a3352589efc369059cdda171652916ddf"><code>itemstats</code></a><code>[D2DATA_MAX_ITEMSTATCOST_IDS]</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="structd2gamedata__itemstat">struct <code>d2gamedata_itemstat</code> </h3>
+<table>
+<thead>
+<tr>
+<th>Members</th>
+<th>Descriptions                                </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uint16_t</code><a href="#structd2gamedata__itemstat_1a4ce46f226b7858eb58f33975e1c15555"><code>id</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>uint8_t</code><a href="#structd2gamedata__itemstat_1a031fd1affe13b8b7a7058c7a649183e1"><code>encode</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>uint16_t</code><a href="#structd2gamedata__itemstat_1abe94b0633bd365ec02bad557726b621e"><code>saveBits</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>int16_t</code><a href="#structd2gamedata__itemstat_1a3ef40d3f923f09650a76cf96d721644b"><code>saveAdd</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>uint16_t</code><a href="#structd2gamedata__itemstat_1ac63506bca1dfa7771ca406b4ab69df77"><code>saveParamBits</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>uint16_t</code><a href="#structd2gamedata__itemstat_1a71f565e0f1f8c9ad26293194f77c875b"><code>nextInChain</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>uint16_t</code><a href="#structd2gamedata__itemstat_1a159105908fff6b5ea1b373d80a0ee79c"><code>charSaveBits</code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="structd2gamedatabufs">struct <code>d2gamedatabufs</code> </h3>
+<p><strong>See also</strong>: <a href="#d2gamedata_8h_1a3366361cc519b10b08d8b00034230faf">d2gamedata_init_bufs()</a></p>
+<table>
+<thead>
+<tr>
+<th>Members</th>
+<th>Descriptions                                </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>char *</code><a href="#structd2gamedatabufs_1a760f671636654e5098a69c0ca9578bc3"><code>armorTxt</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>size_t</code><a href="#structd2gamedatabufs_1a020dd1ff567b2c0313c220c37c6b0578"><code>armorTxtSize</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>char *</code><a href="#structd2gamedatabufs_1ad0743799b316fa5e5149d3fc2ee5cb60"><code>weaponsTxt</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>size_t</code><a href="#structd2gamedatabufs_1aebb78ca9c76500411d75d193a86d49e3"><code>weaponsTxtSize</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>char *</code><a href="#structd2gamedatabufs_1a16053f9b957cebcec1b8c1737390f9af"><code>miscTxt</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>size_t</code><a href="#structd2gamedatabufs_1a70b4a9be81c9bbadb5855a12de93483f"><code>miscTxtSize</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>char *</code><a href="#structd2gamedatabufs_1af0a4c806ced269064dbb1004c3230038"><code>itemStatCostTxt</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>size_t</code><a href="#structd2gamedatabufs_1a411138886f7fe349ff170aa52bb3c09b"><code>itemStatCostTxtSize</code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="structd2gamedatafiles">struct <code>d2gamedatafiles</code> </h3>
+<p><strong>See also</strong>: <a href="#d2gamedata_8h_1a24bc1f01d747ac250a3f5f424500257b">d2gamedata_init_files()</a></p>
+<table>
+<thead>
+<tr>
+<th>Members</th>
+<th>Descriptions                                </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>const char *</code><a href="#structd2gamedatafiles_1acdda68c7d3cc2711f44e9af631ba98a1"><code>armorTxtFilepath</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>const char *</code><a href="#structd2gamedatafiles_1a22701113369a13bda96c1fd318cf40fb"><code>weaponsTxtFilepath</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>const char *</code><a href="#structd2gamedatafiles_1a1128b8d8a46b80434b2193e34c43c9e4"><code>miscTxtFilepath</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>const char *</code><a href="#structd2gamedatafiles_1a9e2066ca2a2a0c1883d7e5e0f2fc0ab5"><code>itemStatCostTxtFilepath</code></a></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -1350,7 +1426,7 @@
 
 <script>
 (function() {
-    gitbook.page.hasChanged({"page":{"title":"API Reference","level":"1.2","depth":1,"next":{"title":"Diablo II items, etc","level":"2.1","depth":1,"path":"formats/d2.md","ref":"formats/d2.md","articles":[]},"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"INDEX.md","ref":"INDEX.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"api.md","mtime":"2019-02-12T08:11:09.235Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-02-12T08:11:46.302Z"},"basePath":".","book":{"language":""}});
+    gitbook.page.hasChanged({"page":{"title":"API Reference","level":"1.2","depth":1,"next":{"title":"Diablo II items, etc","level":"2.1","depth":1,"path":"formats/d2.md","ref":"formats/d2.md","articles":[]},"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"INDEX.md","ref":"INDEX.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"api.md","mtime":"2019-02-12T11:01:57.713Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-02-12T11:02:32.680Z"},"basePath":".","book":{"language":""}});
 })();
 </script>
 

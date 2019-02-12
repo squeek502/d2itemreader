@@ -238,13 +238,14 @@
 </ul>
 </li>
 </ul>
-<p>On program startup, the library needs to be initialized with the data from some of Diablo II&apos;s <code>.txt</code> files that can be found in its <code>.mpq</code> archives. For convenience, <code>d2itemreader</code> bundles the relevant data from the latest <code>.txt</code> files (1.14d), which can be loaded by calling:</p>
-<pre><code class="lang-c">d2err err = d2itemreader_init_default();
+<p>On program startup, you will need to initialize a d2gamedata struct with the data from some of Diablo II&apos;s <code>.txt</code> files that can be found in its <code>.mpq</code> archives. For convenience, <code>d2itemreader</code> bundles the relevant data from the latest <code>.txt</code> files (1.14d), which can be loaded by calling:</p>
+<pre><code class="lang-c">d2gamedata gameData;
+d2err err = d2gamedata_init_default(&amp;gameData);
 </code></pre>
-<p>If the <code>d2itemreader_init</code> function returns <code>D2ERR_OK</code>, the following function should be called on shutdown (or when you&apos;re done using the d2itemreader library):</p>
-<pre><code class="lang-c">d2itemreader_destroy();
+<p>If the <code>d2gamedata_init</code> function returns <code>D2ERR_OK</code>, the following function should be called on shutdown (or when you&apos;re done using the d2itemreader library):</p>
+<pre><code class="lang-c">d2gamedata_destroy(&amp;gameData);
 </code></pre>
-<p>After the <code>d2itemreader_init</code> function is called, you can parse files like so:</p>
+<p>After the <code>d2gamedata_init</code> function is called, you can parse files like so:</p>
 <pre><code class="lang-c"><span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *filename = <span class="hljs-string">&quot;path/to/file&quot;</span>;
 
 <span class="hljs-comment">// determine the filetype if it is not known in advance</span>
@@ -258,7 +259,7 @@
 
 <span class="hljs-keyword">size_t</span> bytesRead;
 d2char character;
-d2err err = d2char_parse_file(filename, &amp;character, &amp;bytesRead);
+d2err err = d2char_parse_file(filename, &amp;character, &amp;gameData, &amp;bytesRead);
 <span class="hljs-keyword">if</span> (err != D2ERR_OK)
 {
     <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>, <span class="hljs-string">&quot;Failed to parse %s: %s at byte 0x%zx\n&quot;</span>, filename, d2err_str(err), bytesRead);
@@ -316,7 +317,7 @@ d2err err = d2char_parse_file(filename, &amp;character, &amp;bytesRead);
 
 <script>
 (function() {
-    gitbook.page.hasChanged({"page":{"title":"Introduction","level":"1.1","depth":1,"next":{"title":"API Reference","level":"1.2","depth":1,"path":"api.md","ref":"api.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"INDEX.md","mtime":"2019-02-12T08:11:08.555Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-02-12T08:11:46.302Z"},"basePath":".","book":{"language":""}});
+    gitbook.page.hasChanged({"page":{"title":"Introduction","level":"1.1","depth":1,"next":{"title":"API Reference","level":"1.2","depth":1,"path":"api.md","ref":"api.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"INDEX.md","mtime":"2019-02-12T11:01:57.025Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-02-12T11:02:32.680Z"},"basePath":".","book":{"language":""}});
 })();
 </script>
 
