@@ -6,17 +6,6 @@ if (ENABLE_FUZZING)
   enable_language(CXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS}")
 
-  set(fuzzer_dir ${CMAKE_CURRENT_BINARY_DIR}/fuzzer)
-  add_custom_command(OUTPUT ${fuzzer_dir}
-    COMMAND git clone https://chromium.googlesource.com/chromium/llvm-project/compiler-rt/lib/fuzzer
-  )
-  add_custom_target(fuzzer_src DEPENDS ${fuzzer_dir})
-
-  set(fuzzer_static ${CMAKE_CURRENT_BINARY_DIR}/libFuzzer.a)
-  add_custom_command(OUTPUT ${fuzzer_static} COMMAND "${fuzzer_dir}/build.sh")
-  add_custom_target(libFuzzer DEPENDS ${fuzzer_static})
-  add_dependencies(libFuzzer fuzzer_src)
-
   add_custom_target(fuzz_check_all)
 
   function(add_fuzz name dict)
@@ -29,7 +18,7 @@ if (ENABLE_FUZZING)
       )
     else()
       add_executable(${name} "${name}.cc")
-      target_link_libraries(${name} d2itemreader ${fuzzer_static} pthread)
+      target_link_libraries(${name} d2itemreader pthread)
       set(${name}_corpus "${CMAKE_CURRENT_SOURCE_DIR}/corpus/${name}")
       add_custom_target(${name}_run COMMAND ${CMAKE_COMMAND} -E env "ASAN_OPTIONS=allocator_may_return_null=1" "${CMAKE_CURRENT_BINARY_DIR}/${name}" -timeout=2 -dict="${CMAKE_CURRENT_SOURCE_DIR}/dict/${dict}" "${${name}_corpus}" DEPENDS ${name})
       set(${name}_new_corpus "${CMAKE_CURRENT_BINARY_DIR}/corpus/${name}")
@@ -42,7 +31,6 @@ if (ENABLE_FUZZING)
       # for checking that the corpus still runs without exploding
       add_custom_target(${name}_check COMMAND "${CMAKE_CURRENT_BINARY_DIR}/${name}" -timeout=2 "${${name}_corpus}/*" DEPENDS ${name})
       add_dependencies(fuzz_check_all ${name}_check)
-      add_dependencies(${name} libFuzzer)
     endif()
   endfunction()
 

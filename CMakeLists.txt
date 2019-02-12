@@ -40,7 +40,7 @@ if (ENABLE_FUZZING)
 
   set(CMAKE_BUILD_TYPE Debug)
   if (NOT COVERAGE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address,undefined -fno-sanitize=alignment -fsanitize-coverage=trace-pc-guard -fno-omit-frame-pointer")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -fsanitize=address,undefined,fuzzer -fno-sanitize=alignment -fno-omit-frame-pointer")
   endif()
 
   add_subdirectory(tests/fuzz)
