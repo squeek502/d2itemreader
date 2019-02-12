@@ -56,7 +56,7 @@ enum d2filetype d2filetype_of_file(const char* filename)
 
 // Parses the magical property list in the byte queue that belongs to an item
 // and returns the list of properties.
-CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2itemproplist* list, d2gamedata *gameData)
+CHECK_RESULT d2err d2itemproplist_parse(d2bitreader* br, d2itemproplist* list, d2gamedata *gameData)
 {
 	if (gameData->initState != D2DATA_INIT_STATE_ALL)
 	{
@@ -71,7 +71,7 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2itemproplist* list, d2
 
 	while (true)
 	{
-		uint16_t id = (uint16_t)read_bits(br, 9);
+		uint16_t id = (uint16_t)d2bitreader_read(br, 9);
 
 		if (br->cursor == BIT_READER_CURSOR_BEYOND_EOF)
 		{
@@ -107,9 +107,9 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2itemproplist* list, d2
 				err = D2ERR_PARSE;
 				goto err;
 			}
-			prop.params[0] = (int)read_bits(br, 6) - stat->saveAdd;
-			prop.params[1] = (int)read_bits(br, 10) - stat->saveAdd;
-			prop.params[2] = (int)read_bits(br, stat->saveBits) - stat->saveAdd;
+			prop.params[0] = (int)d2bitreader_read(br, 6) - stat->saveAdd;
+			prop.params[1] = (int)d2bitreader_read(br, 10) - stat->saveAdd;
+			prop.params[2] = (int)d2bitreader_read(br, stat->saveBits) - stat->saveAdd;
 			prop.numParams = 3;
 		}
 		else if (stat->encode == 3)
@@ -119,21 +119,21 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2itemproplist* list, d2
 				err = D2ERR_PARSE;
 				goto err;
 			}
-			prop.params[0] = (int)read_bits(br, 6) - stat->saveAdd;
-			prop.params[1] = (int)read_bits(br, 10) - stat->saveAdd;
-			prop.params[2] = (int)read_bits(br, 8) - stat->saveAdd;
-			prop.params[3] = (int)read_bits(br, 8) - stat->saveAdd;
+			prop.params[0] = (int)d2bitreader_read(br, 6) - stat->saveAdd;
+			prop.params[1] = (int)d2bitreader_read(br, 10) - stat->saveAdd;
+			prop.params[2] = (int)d2bitreader_read(br, 8) - stat->saveAdd;
+			prop.params[3] = (int)d2bitreader_read(br, 8) - stat->saveAdd;
 			prop.numParams = 4;
 		}
 		else if (stat->saveParamBits > 0)
 		{
-			prop.params[0] = (int)read_bits(br, stat->saveParamBits) - stat->saveAdd;
-			prop.params[1] = (int)read_bits(br, stat->saveBits) - stat->saveAdd;
+			prop.params[0] = (int)d2bitreader_read(br, stat->saveParamBits) - stat->saveAdd;
+			prop.params[1] = (int)d2bitreader_read(br, stat->saveBits) - stat->saveAdd;
 			prop.numParams = 2;
 		}
 		else
 		{
-			prop.params[0] = (int)read_bits(br, stat->saveBits) - stat->saveAdd;
+			prop.params[0] = (int)d2bitreader_read(br, stat->saveBits) - stat->saveAdd;
 			prop.numParams = 1;
 		}
 
@@ -145,7 +145,7 @@ CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2itemproplist* list, d2
 				err = D2ERR_PARSE;
 				goto err;
 			}
-			prop.params[prop.numParams] = (int)read_bits(br, stat->saveBits) - stat->saveAdd;
+			prop.params[prop.numParams] = (int)d2bitreader_read(br, stat->saveBits) - stat->saveAdd;
 			prop.numParams++;
 		}
 
@@ -404,57 +404,57 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 	// memset everything to 0 just to be safe
 	memset(item, 0, sizeof(d2item));
 
-	bit_reader br = { data, dataSizeBytes, curByte, curByte * BITS_PER_BYTE, 16 };
+	d2bitreader br = { data, dataSizeBytes, curByte, curByte * BITS_PER_BYTE, 16 };
 	// offset: 16, unknown
-	skip_bits(&br, 4);
+	d2bitreader_skip(&br, 4);
 	// offset: 20
-	item->identified = read_bits(&br, 1);
+	item->identified = d2bitreader_read(&br, 1);
 	// offset: 21, unknown
-	skip_bits(&br, 6);
+	d2bitreader_skip(&br, 6);
 	// offset: 27
-	item->socketed = read_bits(&br, 1);
+	item->socketed = d2bitreader_read(&br, 1);
 	// offset 28, unknown
-	read_bits(&br, 1);
+	d2bitreader_read(&br, 1);
 	// offset 29
-	item->isNew = read_bits(&br, 1);
+	item->isNew = d2bitreader_read(&br, 1);
 	// offset 30, unknown
-	read_bits(&br, 2);
+	d2bitreader_read(&br, 2);
 	// offset 32
-	item->isEar = read_bits(&br, 1);
+	item->isEar = d2bitreader_read(&br, 1);
 	// offset 33
-	item->starterItem = read_bits(&br, 1);
+	item->starterItem = d2bitreader_read(&br, 1);
 	// offset 34, unknown
-	read_bits(&br, 3);
+	d2bitreader_read(&br, 3);
 	// offset 37, if it's a simple item, it only contains 111 bits data
-	item->simpleItem = read_bits(&br, 1);
+	item->simpleItem = d2bitreader_read(&br, 1);
 	// offset 38
-	item->ethereal = read_bits(&br, 1);
+	item->ethereal = d2bitreader_read(&br, 1);
 	// offset 39, unknown
-	read_bits(&br, 1);
+	d2bitreader_read(&br, 1);
 	// offset 40
-	item->personalized = read_bits(&br, 1);
+	item->personalized = d2bitreader_read(&br, 1);
 	// offset 41, unknown
-	read_bits(&br, 1);
+	d2bitreader_read(&br, 1);
 	// offset 42
-	item->isRuneword = read_bits(&br, 1);
+	item->isRuneword = d2bitreader_read(&br, 1);
 	// offset 43, unknown
-	skip_bits(&br, 5);
+	d2bitreader_skip(&br, 5);
 	// offset 48, version
-	item->version = (uint8_t)read_bits(&br, 8);
+	item->version = (uint8_t)d2bitreader_read(&br, 8);
 	// offset 56, unknown
-	skip_bits(&br, 2);
+	d2bitreader_skip(&br, 2);
 	// offset 58
-	item->locationID = (uint8_t)read_bits(&br, 3);
+	item->locationID = (uint8_t)d2bitreader_read(&br, 3);
 	// offset 61
-	item->equippedID = (uint8_t)read_bits(&br, 4);
+	item->equippedID = (uint8_t)d2bitreader_read(&br, 4);
 	// offset 65
-	item->positionX = (uint8_t)read_bits(&br, 4);
+	item->positionX = (uint8_t)d2bitreader_read(&br, 4);
 	// offset 69
-	item->positionY = (uint8_t)read_bits(&br, 3);
+	item->positionY = (uint8_t)d2bitreader_read(&br, 3);
 	// offset 72
-	read_bits(&br, 1);
+	d2bitreader_read(&br, 1);
 	// offset 73, if item is neither equipped or in the belt, this tells us where it is.
-	item->panelID = (uint8_t)read_bits(&br, 3);
+	item->panelID = (uint8_t)d2bitreader_read(&br, 3);
 
 	if (!item->isEar)
 	{
@@ -462,7 +462,7 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 		// also not null terminated, item codes can be 4 chars long
 		for (int i = 0; i < 4; i++)
 		{
-			char c = (char)read_bits(&br, 8);
+			char c = (char)d2bitreader_read(&br, 8);
 			if (c == ' ') c = '\0';
 			item->code[i] = c;
 		}
@@ -470,7 +470,7 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 
 		// offset 108
 		// If sockets exist, read the items, they'll be 108 bit basic items * nrOfSockets
-		item->numItemsInSockets = (uint8_t)read_bits(&br, 3);
+		item->numItemsInSockets = (uint8_t)d2bitreader_read(&br, 3);
 		if ((err = d2itemlist_init(&item->socketedItems, item->numItemsInSockets)) != D2ERR_OK)
 		{
 			goto exit;
@@ -479,12 +479,12 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 	else
 	{
 		// offset 76, the item is an ear, we need to read the ear data.
-		item->ear.classID = (uint8_t)read_bits(&br, 3);
-		item->ear.level = (uint8_t)read_bits(&br, 7);
+		item->ear.classID = (uint8_t)d2bitreader_read(&br, 3);
+		item->ear.level = (uint8_t)d2bitreader_read(&br, 7);
 
 		for (int i = 0; i < D2_MAX_CHAR_NAME_BYTELEN; i++)
 		{
-			char c = (char)read_bits(&br, 7);
+			char c = (char)d2bitreader_read(&br, 7);
 			item->ear.name[i] = c;
 			if (c == '\0') break;
 		}
@@ -496,55 +496,55 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 		// offset 111, item id is 8 chars, each 4 bit
 		// note: printf("%08X", item->id) will match what GoMule and
 		// Hero Editor display
-		item->id = (uint32_t)read_bits(&br, 32);
+		item->id = (uint32_t)d2bitreader_read(&br, 32);
 		// offset 143
-		item->level = (uint8_t)read_bits(&br, 7);
+		item->level = (uint8_t)d2bitreader_read(&br, 7);
 		// offset 150
-		item->rarity = (uint8_t)read_bits(&br, 4);
+		item->rarity = (uint8_t)d2bitreader_read(&br, 4);
 		// If this is TRUE, it means the item has more than one picture associated
 		// with it.
-		item->multiplePictures = read_bits(&br, 1);
+		item->multiplePictures = d2bitreader_read(&br, 1);
 		if (item->multiplePictures)
 		{
 			// The next 3 bits contain the picture ID.
-			item->pictureID = (uint8_t)read_bits(&br, 3);
+			item->pictureID = (uint8_t)d2bitreader_read(&br, 3);
 		}
 
 		// If this is TRUE, it means the item is class specific.
-		item->classSpecific = read_bits(&br, 1);
+		item->classSpecific = d2bitreader_read(&br, 1);
 		// If the item is class specific, the next 11 bits will
 		// contain the class specific data.
 		if (item->classSpecific)
 		{
-			item->automagicID = (uint16_t)read_bits(&br, 11);
+			item->automagicID = (uint16_t)d2bitreader_read(&br, 11);
 		}
 
 		switch (item->rarity)
 		{
 		case D2RARITY_LOW_QUALITY:
-			item->lowQualityID = (uint8_t)read_bits(&br, 3);
+			item->lowQualityID = (uint8_t)d2bitreader_read(&br, 3);
 			break;
 		case D2RARITY_NORMAL:
 			// No extra data present
 			break;
 		case D2RARITY_HIGH_QUALITY:
-			item->superiorID = (uint8_t)read_bits(&br, 3);
+			item->superiorID = (uint8_t)d2bitreader_read(&br, 3);
 			break;
 		case D2RARITY_MAGIC:
-			item->magicPrefix = (uint16_t)read_bits(&br, 11);
-			item->magicSuffix = (uint16_t)read_bits(&br, 11);
+			item->magicPrefix = (uint16_t)d2bitreader_read(&br, 11);
+			item->magicSuffix = (uint16_t)d2bitreader_read(&br, 11);
 			break;
 		case D2RARITY_SET:
-			item->setID = (uint16_t)read_bits(&br, 12);
+			item->setID = (uint16_t)d2bitreader_read(&br, 12);
 			break;
 		case D2RARITY_UNIQUE:
-			item->uniqueID = (uint16_t)read_bits(&br, 12);
+			item->uniqueID = (uint16_t)d2bitreader_read(&br, 12);
 			break;
 		case D2RARITY_RARE:
 		case D2RARITY_CRAFTED:
 		case D2RARITY_TEMPERED:
-			item->nameID1 = (uint8_t)read_bits(&br, 8);
-			item->nameID2 = (uint8_t)read_bits(&br, 8);
+			item->nameID1 = (uint8_t)d2bitreader_read(&br, 8);
+			item->nameID2 = (uint8_t)d2bitreader_read(&br, 8);
 
 			item->numRarePrefixes = item->numRareSuffixes = 0;
 			// Following the name IDs, we got 6 possible magical affixes, the pattern
@@ -552,13 +552,13 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 			// is 1. So we'll read the id first and check it against 1.
 			for (int i = 0; i < D2_MAX_RARE_AFFIXES; i++)
 			{
-				bool hasAffix = read_bits(&br, 1);
+				bool hasAffix = d2bitreader_read(&br, 1);
 				bool isPrefix = i % 2 == 0; // every other affix is a prefix
 
 				if (!hasAffix)
 					continue;
 
-				uint16_t affix = (uint16_t)read_bits(&br, 11);
+				uint16_t affix = (uint16_t)d2bitreader_read(&br, 11);
 
 				if (isPrefix)
 				{
@@ -616,14 +616,14 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 			//    + Removing Runeword22 from patchstring.tbl and creating Delirium creates an item with runewordID 48
 			//      (the Runeword22 + 26 pattern matches) and extra bits of 5, so its clear that runewordID and the extra bits
 			//      are string table lookups, and not related in any way to Runes.txt
-			skip_bits(&br, 16);
+			d2bitreader_skip(&br, 16);
 		}
 
 		if (item->personalized)
 		{
 			for (int i = 0; i < D2_MAX_CHAR_NAME_BYTELEN; i++)
 			{
-				char c = (char)read_bits(&br, 7);
+				char c = (char)d2bitreader_read(&br, 7);
 				item->personalizedName[i] = c;
 				if (c == '\0') break;
 			}
@@ -635,12 +635,12 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 		// what it is.
 		if (strcmp(item->code, D2ITEMTYPE_TOME_ID) == 0 || strcmp(item->code, D2ITEMTYPE_TOME_TP) == 0)
 		{
-			read_bits(&br, 5);
+			d2bitreader_read(&br, 5);
 		}
 
 		// All items have this field between the personalization (if it exists)
 		// and the item specific data
-		item->timestamp = read_bits(&br, 1);
+		item->timestamp = d2bitreader_read(&br, 1);
 
 		if (d2gamedata_is_armor(gameData, item->code))
 		{
@@ -648,20 +648,20 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 			// (see `d2itemproplist_parse`)
 			// TODO: Find out if this is actually linked, or if this -10 is hardcoded
 			//       separate from the ItemStatCost.txt values
-			item->defenseRating = (uint16_t)read_bits(&br, 11) - 10;
+			item->defenseRating = (uint16_t)d2bitreader_read(&br, 11) - 10;
 		}
 
 		if (d2gamedata_is_armor(gameData, item->code) || d2gamedata_is_weapon(gameData, item->code))
 		{
-			item->maxDurability = (uint8_t)read_bits(&br, 8);
+			item->maxDurability = (uint8_t)d2bitreader_read(&br, 8);
 			// Some weapons like phase blades don't have durability, so we'll
 			// check if the item has max durability, then we can safely assume
 			// it has current durability too.
 			if (item->maxDurability > 0)
 			{
-				item->currentDurability = (uint8_t)read_bits(&br, 8);
+				item->currentDurability = (uint8_t)d2bitreader_read(&br, 8);
 				// Seems to be a random bit here (always seems to be 0).
-				read_bits(&br, 1);
+				d2bitreader_read(&br, 1);
 			}
 		}
 
@@ -669,7 +669,7 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 		{
 			// If the item is a stacked item, e.g. a javelin or something, these 9
 			// bits will contain the quantity.
-			item->quantity = (uint16_t)read_bits(&br, 9);
+			item->quantity = (uint16_t)d2bitreader_read(&br, 9);
 		}
 
 		// If the item is socketed, it will contain 4 bits of data which are the nr
@@ -677,7 +677,7 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 		// an item.
 		if (item->socketed)
 		{
-			item->numSockets = (uint8_t)read_bits(&br, 4);
+			item->numSockets = (uint8_t)d2bitreader_read(&br, 4);
 		}
 
 		// If the item is part of a set, these bit will tell us how many lists
@@ -685,7 +685,7 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 		uint8_t setPropertyFlags = 0;
 		if (item->rarity == D2RARITY_SET)
 		{
-			setPropertyFlags = (uint8_t)read_bits(&br, 5);
+			setPropertyFlags = (uint8_t)d2bitreader_read(&br, 5);
 		}
 
 		// magical properties
@@ -1091,11 +1091,11 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSize
 		goto err;
 	}
 
-	bit_reader br = { data, dataSizeBytes, curByte, curByte * BITS_PER_BYTE, curByte * BITS_PER_BYTE };
+	d2bitreader br = { data, dataSizeBytes, curByte, curByte * BITS_PER_BYTE, curByte * BITS_PER_BYTE };
 
 	while (true)
 	{
-		uint16_t id = (uint16_t)read_bits(&br, 9);
+		uint16_t id = (uint16_t)d2bitreader_read(&br, 9);
 
 		if (br.cursor == BIT_READER_CURSOR_BEYOND_EOF)
 		{
@@ -1122,10 +1122,10 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSize
 			goto err;
 		}
 
-		skip_bits(&br, stat->charSaveBits);
+		d2bitreader_skip(&br, stat->charSaveBits);
 	}
 
-	curByte = bitreader_next_byte_pos(&br) + D2S_SKILLS_BYTELEN;
+	curByte = d2bitreader_next_byte_pos(&br) + D2S_SKILLS_BYTELEN;
 
 	if (curByte > dataSizeBytes || br.cursor == BIT_READER_CURSOR_BEYOND_EOF)
 	{

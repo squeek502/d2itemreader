@@ -17,7 +17,7 @@ Most API functions in d2itemreader.h work in the following way:
   + If the function returns anything other than `D2ERR_OK`, then the `_destroy` function *does not* need to be called; any allocated memory is cleaned up by the `_parse` or `_init` function before it returns an error.
   + The `out_bytesRead` parameter will always be set regardless of the result of the `_parse` function. On failure, it will contain the number of bytes read before the error occured.
 
-On program startup, you will need to initialize a d2gamedata struct with the data from some of Diablo II's `.txt` files that can be found in its `.mpq` archives. For convenience, `d2itemreader` bundles the relevant data from the latest `.txt` files (1.14d), which can be loaded by calling:
+On program startup, you will need to initialize a `d2gamedata` struct with the data from some of Diablo II's `.txt` files found in its `.mpq` archives. For convenience, `d2itemreader` bundles the relevant data from the latest `.txt` files (1.14d), which can be loaded by calling:
 
 ```c
 d2gamedata gameData;

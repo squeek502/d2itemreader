@@ -1,5 +1,5 @@
-#ifndef BITREADER_H
-#define BITREADER_H
+#ifndef D2BITREADER_H
+#define D2BITREADER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,20 +13,20 @@ extern "C" {
 #define BIT_READER_RAW_READ_SIZE_BITS (BIT_READER_RAW_READ_SIZE_BYTES * 8)
 
 // from https://user.xmission.com/~trevin/DiabloIIv1.09_Item_Format.shtml
-#define read_bits_raw(data,start,size) \
+#define d2bitreader_read_raw(data,start,size) \
 	((*((uint64_t*) &(data)[(start) / 8]) >> ((start) & 7)) & (((uint64_t)1 << (size)) - 1))
 
-typedef struct bit_reader {
+typedef struct d2bitreader {
 	const unsigned char* const data;
 	size_t dataSizeBytes;
 	size_t cursor;
 	size_t bitCursor;
 	size_t bitsRead;
-} bit_reader;
+} d2bitreader;
 
-void skip_bits(bit_reader* reader, size_t bitsToSkip);
-uint64_t read_bits(bit_reader* reader, size_t bitsToRead);
-size_t bitreader_next_byte_pos(bit_reader* reader);
+void d2bitreader_skip(d2bitreader* reader, size_t bitsToSkip);
+uint64_t d2bitreader_read(d2bitreader* reader, size_t bitsToRead);
+size_t d2bitreader_next_byte_pos(d2bitreader* reader);
 
 #ifdef __cplusplus
 }

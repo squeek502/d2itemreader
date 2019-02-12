@@ -11,7 +11,7 @@ extern "C" {
 #include "d2util.h"
 #include "d2const.h"
 #include "d2gamedata.h"
-#include "bitreader.h"
+#include "d2bitreader.h"
 
 // TODO: remove this hardcoding, but first need to check
 // if the itemtype controls the save format, or if it actually
@@ -90,7 +90,7 @@ typedef struct d2itemproplist {
 /**
 * Parse the item property list using `br`, and store the result in `list`
 *
-* @param br A pointer a bit_reader struct
+* @param br A pointer a d2bitreader struct
 * @param list A pointer an uninitialized d2itemproplist object (i.e. d2itemproplist_init() has NOT been called on it).
 *             If this function returns `D2ERR_OK`, then `list` will need to be cleaned up with d2itemproplist_destroy().
 *             If this function returns something other than `D2ERR_OK`, then `list` will remain uninitialized.
@@ -98,7 +98,7 @@ typedef struct d2itemproplist {
 *
 * @see d2itemproplist_destroy()
 */
-CHECK_RESULT d2err d2itemproplist_parse(bit_reader* br, d2itemproplist* list, d2gamedata *gameData);
+CHECK_RESULT d2err d2itemproplist_parse(d2bitreader* br, d2itemproplist* list, d2gamedata *gameData);
 CHECK_RESULT d2err d2itemproplist_init(d2itemproplist* list);
 CHECK_RESULT d2err d2itemproplist_append(d2itemproplist* list, d2itemprop prop);
 void d2itemproplist_destroy(d2itemproplist* list);
