@@ -12,6 +12,8 @@ extern "C" {
 #include "d2err.h"
 #include "d2util.h"
 
+/// @private
+/// @{
 #define D2DATA_ITEMSTAT_END_ID 0x1ff
 #define D2DATA_MAX_ITEMSTATCOST_IDS D2DATA_ITEMSTAT_END_ID
 
@@ -21,6 +23,7 @@ extern "C" {
 #define D2DATA_INIT_STATE_MISCS (1 << 2)
 #define D2DATA_INIT_STATE_ITEMSTATS (1 << 3)
 #define D2DATA_INIT_STATE_ALL (D2DATA_INIT_STATE_ARMORS|D2DATA_INIT_STATE_WEAPONS|D2DATA_INIT_STATE_MISCS|D2DATA_INIT_STATE_ITEMSTATS)
+/// @}
 
 typedef struct d2gamedata_itemstat {
 	uint16_t id;
@@ -61,7 +64,7 @@ typedef struct d2gamedatabufs {
 } d2gamedatabufs;
 
 /**
-* Load the default data packaged with d2gamedata (should work for un-modded D2 versions >= 1.10)
+* Load the default data packaged with d2itemreader (should work for un-modded D2 versions >= 1.10)
 *
 * @return `D2ERR_OK` on success
 *
@@ -92,20 +95,26 @@ CHECK_RESULT d2err d2gamedata_init_files(d2gamedata* data, d2gamedatafiles files
 * @see d2gamedata_init_files(), d2gamedata_init_default(), d2gamedata_destroy()
 */
 CHECK_RESULT d2err d2gamedata_init_bufs(d2gamedata* data, d2gamedatabufs bufs);
-/**
-* Initialize an empty d2gamedata struct
-*/
-CHECK_RESULT d2err d2gamedata_init(d2gamedata* data);
 
 /**
 * Cleanup memory used by d2gamedata.
 *
 * \attention **IMPORTANT**: d2gamedata_destroy() only needs to be called if the init function returns `D2ERR_OK`
 *
-* @see d2gamedata_init_default(), d2gamedata_init_files(), d2gamedata_init_bufs(), d2gamedata_init()
+* @see d2gamedata_init_default(), d2gamedata_init_files(), d2gamedata_init_bufs()
 */
 void d2gamedata_destroy(d2gamedata* data);
 
+/// @private
+/// @{
+/*
+* Initialize an empty d2gamedata struct. Not typically necessary outside of internal library functions
+*/
+CHECK_RESULT d2err d2gamedata_init(d2gamedata* data);
+/// @}
+
+/// @private
+/// @{
 bool d2gamedata_is_armor(const d2gamedata* data, const char* itemCode);
 bool d2gamedata_is_weapon(const d2gamedata* data, const char* itemCode);
 bool d2gamedata_is_stackable(const d2gamedata* data, const char* itemCode);
@@ -119,6 +128,7 @@ CHECK_RESULT d2err d2gamedata_load_miscs(d2gamedata* data, const char* txtdata, 
 CHECK_RESULT d2err d2gamedata_load_miscs_from_file(d2gamedata* data, const char* filename);
 CHECK_RESULT d2err d2gamedata_load_itemstats(d2gamedata* data, const char* txtdata, size_t length);
 CHECK_RESULT d2err d2gamedata_load_itemstats_from_file(d2gamedata* data, const char* filename);
+/// @}
 
 #ifdef __cplusplus
 }
