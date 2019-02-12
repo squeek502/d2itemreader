@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "d2data.h"
+#include "d2gamedata.h"
 
 void dumpstrset(const char* str, void* context)
 {
@@ -18,27 +18,32 @@ void dumpstrset(const char* str, void* context)
 
 int main(int argc, const char* argv[])
 {
-	d2data data = {0};
-	d2err err;
-	err = d2data_load_armors_from_file(&data, "data/Armor.txt");
+	d2gamedata data;
+	d2err err = d2gamedata_init(&data);
+	if (err != D2ERR_OK)
+	{
+		printf("failed to init d2gamedata struct: %s\n", d2err_str(err));
+		return 1;
+	}
+	err = d2gamedata_load_armors_from_file(&data, "data/Armor.txt");
 	if (err != D2ERR_OK)
 	{
 		printf("failed to load data/Armor.txt: %s\n", d2err_str(err));
 		return 1;
 	}
-	err = d2data_load_weapons_from_file(&data, "data/Weapons.txt");
+	err = d2gamedata_load_weapons_from_file(&data, "data/Weapons.txt");
 	if (err != D2ERR_OK)
 	{
 		printf("failed to load data/Weapons.txt: %s\n", d2err_str(err));
 		return 1;
 	}
-	err = d2data_load_miscs_from_file(&data, "data/Misc.txt");
+	err = d2gamedata_load_miscs_from_file(&data, "data/Misc.txt");
 	if (err != D2ERR_OK)
 	{
 		printf("failed to load data/Misc.txt: %s\n", d2err_str(err));
 		return 1;
 	}
-	err = d2data_load_itemstats_from_file(&data, "data/ItemStatCost.txt");
+	err = d2gamedata_load_itemstats_from_file(&data, "data/ItemStatCost.txt");
 	if (err != D2ERR_OK)
 	{
 		printf("failed to load data/ItemStatCost.txt: %s\n", d2err_str(err));
@@ -47,25 +52,25 @@ int main(int argc, const char* argv[])
 
 	size_t pos[2];
 
-	printf("const char* d2data_default_stackables[] = {");
+	printf("const char* d2gamedata_default_stackables[] = {");
 	pos[0] = 0; pos[1] = strset_count(data.stackablesSet);
 	strset_iterate(data.stackablesSet, &dumpstrset, pos);
 	printf("};\n");
 
-	printf("const char* d2data_default_weapons[] = {");
+	printf("const char* d2gamedata_default_weapons[] = {");
 	pos[0] = 0; pos[1] = strset_count(data.weaponsSet);
 	strset_iterate(data.weaponsSet, &dumpstrset, pos);
 	printf("};\n");
 
-	printf("const char* d2data_default_armors[] = {");
+	printf("const char* d2gamedata_default_armors[] = {");
 	pos[0] = 0; pos[1] = strset_count(data.armorsSet);
 	strset_iterate(data.armorsSet, &dumpstrset, pos);
 	printf("};\n");
 
-	printf("d2data_itemstat d2data_default_itemstats[] = { ");
+	printf("d2gamedata_itemstat d2gamedata_default_itemstats[] = { ");
 	for (int id = 0; id < D2DATA_MAX_ITEMSTATCOST_IDS; id++)
 	{
-		d2data_itemstat* stat = &data.itemstats[id];
+		d2gamedata_itemstat* stat = &data.itemstats[id];
 		if (id == stat->id)
 		{
 			int isLast = (id == D2DATA_MAX_ITEMSTATCOST_IDS - 1) || (data.itemstats[id + 1].id != id + 1);
@@ -78,5 +83,5 @@ int main(int argc, const char* argv[])
 	}
 	printf(" };\n");
 
-	d2data_destroy(&data);
+	d2gamedata_destroy(&data);
 }

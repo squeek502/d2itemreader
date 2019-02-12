@@ -17,19 +17,20 @@ Most API functions in d2itemreader.h work in the following way:
   + If the function returns anything other than `D2ERR_OK`, then the `_destroy` function *does not* need to be called; any allocated memory is cleaned up by the `_parse` or `_init` function before it returns an error.
   + The `out_bytesRead` parameter will always be set regardless of the result of the `_parse` function. On failure, it will contain the number of bytes read before the error occured.
 
-On program startup, the library needs to be initialized with the data from some of Diablo II's `.txt` files that can be found in its `.mpq` archives. For convenience, `d2itemreader` bundles the relevant data from the latest `.txt` files (1.14d), which can be loaded by calling:
+On program startup, you will need to initialize a d2gamedata struct with the data from some of Diablo II's `.txt` files that can be found in its `.mpq` archives. For convenience, `d2itemreader` bundles the relevant data from the latest `.txt` files (1.14d), which can be loaded by calling:
 
 ```c
-d2err err = d2itemreader_init_default();
+d2gamedata gameData;
+d2err err = d2gamedata_init_default(&gameData);
 ```
 
-If the `d2itemreader_init` function returns `D2ERR_OK`, the following function should be called on shutdown (or when you're done using the d2itemreader library):
+If the `d2gamedata_init` function returns `D2ERR_OK`, the following function should be called on shutdown (or when you're done using the d2itemreader library):
 
 ```c
-d2itemreader_destroy();
+d2gamedata_destroy(&gameData);
 ```
 
-After the `d2itemreader_init` function is called, you can parse files like so:
+After the `d2gamedata_init` function is called, you can parse files like so:
 
 ```c
 const char *filename = "path/to/file";
@@ -45,7 +46,7 @@ if (filetype != D2FILETYPE_D2_CHARACTER)
 
 size_t bytesRead;
 d2char character;
-d2err err = d2char_parse_file(filename, &character, &bytesRead);
+d2err err = d2char_parse_file(filename, &character, &gameData, &bytesRead);
 if (err != D2ERR_OK)
 {
 	fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);

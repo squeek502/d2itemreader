@@ -1,11 +1,13 @@
 #include "d2itemreader.h"
 #include "minunit.h"
 
+d2gamedata gameData;
+
 MU_TEST(nodata)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/classic.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/classic.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_DATA_NOT_LOADED);
 }
 
@@ -13,7 +15,7 @@ MU_TEST(classic)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/classic.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/classic.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(character.items.count == 7);
 	mu_check(character.itemsCorpse.count == 0);
@@ -25,7 +27,7 @@ MU_TEST(golem)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/golem.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/golem.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(character.items.count == 7);
 	mu_check(character.itemsCorpse.count == 0);
@@ -37,7 +39,7 @@ MU_TEST(nomerc)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/nomerc.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/nomerc.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(character.items.count == 2);
 	mu_check(character.itemsCorpse.count == 0);
@@ -49,7 +51,7 @@ MU_TEST(badcorpseheader)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/badcorpseheader.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/badcorpseheader.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_PARSE_BAD_HEADER_OR_TAG);
 }
 
@@ -57,7 +59,7 @@ MU_TEST(atma)
 {
 	d2atmastash stash;
 	size_t bytesRead;
-	d2err err = d2atmastash_parse_file("data/atma.d2x", &stash, &bytesRead);
+	d2err err = d2atmastash_parse_file("data/atma.d2x", &stash, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(stash.items.count == 6);
 	d2atmastash_destroy(&stash);
@@ -67,7 +69,7 @@ MU_TEST(plugy_sss)
 {
 	d2sharedstash stash;
 	size_t bytesRead;
-	d2err err = d2sharedstash_parse_file("data/simple.sss", &stash, &bytesRead);
+	d2err err = d2sharedstash_parse_file("data/simple.sss", &stash, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(stash.sharedGold == 10);
 	mu_check(stash.numPages == 20);
@@ -78,7 +80,7 @@ MU_TEST(plugy_d2x)
 {
 	d2personalstash stash;
 	size_t bytesRead;
-	d2err err = d2personalstash_parse_file("data/simple.d2x", &stash, &bytesRead);
+	d2err err = d2personalstash_parse_file("data/simple.d2x", &stash, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(stash.numPages == 1);
 	d2personalstash_destroy(&stash);
@@ -95,7 +97,7 @@ MU_TEST(unexpected_eof)
 
 	d2atmastash stash;
 	size_t bytesRead;
-	err = d2atmastash_parse(data, dataSizeBytes / 2, &stash, &bytesRead);
+	err = d2atmastash_parse(data, dataSizeBytes / 2, &stash, &gameData, &bytesRead);
 
 	mu_check(err == D2ERR_PARSE_UNEXPECTED_EOF);
 	free(data);
@@ -108,7 +110,7 @@ MU_TEST(d2i)
 
 	d2item d2i;
 	size_t bytesRead;
-	d2err err = d2item_parse_file(filename, &d2i, &bytesRead);
+	d2err err = d2item_parse_file(filename, &d2i, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 
 	mu_check(d2i.numItemsInSockets == 3);
@@ -121,7 +123,7 @@ MU_TEST(v107)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/d2v107.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/d2v107.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_UNSUPPORTED_VERSION);
 }
 
@@ -129,7 +131,7 @@ MU_TEST(v108)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/d2v108.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/d2v108.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_UNSUPPORTED_VERSION);
 }
 
@@ -137,7 +139,7 @@ MU_TEST(v109b)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/d2v109b.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/d2v109b.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_UNSUPPORTED_VERSION);
 }
 
@@ -145,7 +147,7 @@ MU_TEST(v109d)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/d2v109d.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/d2v109d.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_UNSUPPORTED_VERSION);
 }
 
@@ -153,7 +155,7 @@ MU_TEST(v110f)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/d2v110f.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/d2v110f.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(character.items.count == 8);
 	mu_check(character.itemsCorpse.count == 0);
@@ -165,7 +167,7 @@ MU_TEST(v111b)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/d2v111b.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/d2v111b.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(character.items.count == 8);
 	mu_check(character.itemsCorpse.count == 0);
@@ -177,7 +179,7 @@ MU_TEST(v112a)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/d2v112a.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/d2v112a.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(character.items.count == 8);
 	mu_check(character.itemsCorpse.count == 0);
@@ -189,7 +191,7 @@ MU_TEST(v113c)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/d2v113c.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/d2v113c.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(character.items.count == 4);
 	mu_check(character.itemsCorpse.count == 0);
@@ -201,7 +203,7 @@ MU_TEST(properties1)
 {
 	d2item item;
 	size_t bytesRead;
-	d2err err = d2item_parse_file("data/properties_test1.d2i", &item, &bytesRead);
+	d2err err = d2item_parse_file("data/properties_test1.d2i", &item, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(item.magicProperties.count == 3);
 
@@ -227,7 +229,7 @@ MU_TEST(ear)
 {
 	d2item item;
 	size_t bytesRead;
-	d2err err = d2item_parse_file("data/ear.d2i", &item, &bytesRead);
+	d2err err = d2item_parse_file("data/ear.d2i", &item, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(item.isEar);
 	mu_check(item.ear.classID == 4);
@@ -240,7 +242,7 @@ MU_TEST(earchar)
 {
 	d2char character;
 	size_t bytesRead;
-	d2err err = d2char_parse_file("data/ear.d2s", &character, &bytesRead);
+	d2err err = d2char_parse_file("data/ear.d2s", &character, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	d2char_destroy(&character);
 }
@@ -248,7 +250,7 @@ MU_TEST(earchar)
 MU_TEST_SUITE(test_d2itemreader)
 {
 	MU_RUN_TEST(nodata);
-	d2err err = d2itemreader_init_default();
+	d2err err = d2gamedata_init_default(&gameData);
 	mu_check(err == D2ERR_OK);
 	MU_RUN_TEST(classic);
 	MU_RUN_TEST(golem);
@@ -270,7 +272,7 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(properties1);
 	MU_RUN_TEST(ear);
 	MU_RUN_TEST(earchar);
-	d2itemreader_destroy();
+	d2gamedata_destroy(&gameData);
 }
 
 int main()

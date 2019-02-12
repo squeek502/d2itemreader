@@ -12,7 +12,8 @@ int main(int argc, const char* argv[])
 	}
 
 	// init data
-	d2err err = d2itemreader_init_default();
+	d2gamedata gameData;
+	d2err err = d2gamedata_init_default(&gameData);
 	if (err != D2ERR_OK)
 	{
 		fprintf(stderr, "Failed to initialize default data: %s\n", d2err_str(err));
@@ -33,7 +34,7 @@ int main(int argc, const char* argv[])
 	if (type == D2FILETYPE_D2_CHARACTER)
 	{
 		d2char character;
-		err = d2char_parse_file(filename, &character, &bytesRead);
+		err = d2char_parse_file(filename, &character, &gameData, &bytesRead);
 		if (err != D2ERR_OK)
 		{
 			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
@@ -47,7 +48,7 @@ int main(int argc, const char* argv[])
 	else if (type == D2FILETYPE_PLUGY_PERSONAL_STASH)
 	{
 		d2personalstash stash;
-		err = d2personalstash_parse_file(filename, &stash, &bytesRead);
+		err = d2personalstash_parse_file(filename, &stash, &gameData, &bytesRead);
 		if (err != D2ERR_OK)
 		{
 			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
@@ -63,7 +64,7 @@ int main(int argc, const char* argv[])
 	else if (type == D2FILETYPE_PLUGY_SHARED_STASH)
 	{
 		d2sharedstash stash;
-		err = d2sharedstash_parse_file(filename, &stash, &bytesRead);
+		err = d2sharedstash_parse_file(filename, &stash, &gameData, &bytesRead);
 		if (err != D2ERR_OK)
 		{
 			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
@@ -79,7 +80,7 @@ int main(int argc, const char* argv[])
 	else if (type == D2FILETYPE_ATMA_STASH)
 	{
 		d2atmastash stash;
-		err = d2atmastash_parse_file(filename, &stash, &bytesRead);
+		err = d2atmastash_parse_file(filename, &stash, &gameData, &bytesRead);
 		if (err != D2ERR_OK)
 		{
 			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
@@ -91,5 +92,5 @@ int main(int argc, const char* argv[])
 
 	printf("%zu items found in %s\n", itemCount, filename);
 
-	d2itemreader_destroy();
+	d2gamedata_destroy(&gameData);
 }
