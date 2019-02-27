@@ -1,0 +1,17 @@
+base: ubuntu:16.04
+environment: # global env vars here
+language: c
+setup:
+  - rm -rf build.fuzzbuzz && mkdir build.fuzzbuzz && cd build.fuzzbuzz
+  - cmake .. -DENABLE_FUZZING=On -DFUZZ_ENTRY=FuzzerEntrypoint -DFUZZ_ENGINE=$FUZZ_ENGINE -DCMAKE_C_COMPILER=$FUZZ_CC -DCMAKE_CXX_COMPILER=$FUZZ_CXX
+
+targets:
+- name: d2char
+  language: c
+  setup:
+    - make fuzz_d2char
+  harness: 
+    binary: ./tests/fuzz/fuzz_d2char
+  sanitizers:
+    address: detect_stack_use_after_return=1
+  corpus: ../tests/fuzz/corpus/fuzz_d2char
