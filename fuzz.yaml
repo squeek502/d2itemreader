@@ -2,6 +2,8 @@ base: ubuntu:16.04
 environment: # global env vars here
 language: c
 setup:
+  - sudo apt-get update
+  - sudo apt-get -y install cmake
   - rm -rf build.fuzzbuzz && mkdir build.fuzzbuzz
   - cd build.fuzzbuzz
   - cmake .. -DENABLE_FUZZING=On -DFUZZ_ENTRY=FuzzerEntrypoint -DFUZZ_ENGINE=$FUZZ_ENGINE -DCMAKE_C_COMPILER=$FUZZ_CC -DCMAKE_CXX_COMPILER=$FUZZ_CXX
