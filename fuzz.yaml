@@ -11,7 +11,7 @@ targets:
 - name: d2char
   language: c
   setup:
-  	- cd build.fuzzbuzz
+    - cd build.fuzzbuzz
     - make fuzz_d2char
     - cd ..
   harness:
