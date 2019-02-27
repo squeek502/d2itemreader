@@ -5,7 +5,7 @@ if (ENABLE_FUZZING)
   add_custom_target(fuzz_check_all)
 
   if (FUZZ_ENTRY)
-    add_compile_definitions(FUZZ_ENTRY=${FUZZ_ENTRY})
+    add_definitions(-DFUZZ_ENTRY=${FUZZ_ENTRY})
   endif()
 
   function(add_fuzz name dict)
