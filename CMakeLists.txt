@@ -34,7 +34,7 @@ if (COVERAGE)
   set(COVERAGE_LINKER_FLAGS  "-fprofile-instr-generate -fcoverage-mapping")
 endif()
 if (ENABLE_FUZZING)
-  if(NOT FUZZ_ENGINE OR NOT "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+  if(NOT FUZZ_ENGINE AND NOT "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
     message(FATAL_ERROR "Fuzzing requires a FUZZ_ENGINE or the Clang compiler")
   endif()
 
