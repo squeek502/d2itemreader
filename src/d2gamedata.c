@@ -25,7 +25,12 @@ CHECK_RESULT d2err d2gamedata_init_default(d2gamedata* data)
 	{
 		return err;
 	}
-	return d2gamedata_load_defaults(data);
+	err = d2gamedata_load_defaults(data);
+	if (err != D2ERR_OK)
+	{
+		d2gamedata_destroy(data);
+	}
+	return err;
 }
 
 CHECK_RESULT d2err d2gamedata_init_files(d2gamedata* data, d2gamedatafiles files)
@@ -37,21 +42,25 @@ CHECK_RESULT d2err d2gamedata_init_files(d2gamedata* data, d2gamedatafiles files
 	}
 	if ((err = d2gamedata_load_armors_from_file(data, files.armorTxtFilepath)) != D2ERR_OK)
 	{
-		return err;
+		goto err;
 	}
 	if ((err = d2gamedata_load_weapons_from_file(data, files.weaponsTxtFilepath)) != D2ERR_OK)
 	{
-		return err;
+		goto err;
 	}
 	if ((err = d2gamedata_load_miscs_from_file(data, files.miscTxtFilepath)) != D2ERR_OK)
 	{
-		return err;
+		goto err;
 	}
 	if ((err = d2gamedata_load_itemstats_from_file(data, files.itemStatCostTxtFilepath)) != D2ERR_OK)
 	{
-		return err;
+		goto err;
 	}
 	return D2ERR_OK;
+
+err:
+	d2gamedata_destroy(data);
+	return err;
 }
 
 CHECK_RESULT d2err d2gamedata_init_bufs(d2gamedata* data, d2gamedatabufs bufs)
@@ -63,21 +72,25 @@ CHECK_RESULT d2err d2gamedata_init_bufs(d2gamedata* data, d2gamedatabufs bufs)
 	}
 	if ((err = d2gamedata_load_armors(data, bufs.armorTxt, bufs.armorTxtSize)) != D2ERR_OK)
 	{
-		return err;
+		goto err;
 	}
 	if ((err = d2gamedata_load_weapons(data, bufs.weaponsTxt, bufs.weaponsTxtSize)) != D2ERR_OK)
 	{
-		return err;
+		goto err;
 	}
 	if ((err = d2gamedata_load_miscs(data, bufs.miscTxt, bufs.miscTxtSize)) != D2ERR_OK)
 	{
-		return err;
+		goto err;
 	}
 	if ((err = d2gamedata_load_itemstats(data, bufs.itemStatCostTxt, bufs.itemStatCostTxtSize)) != D2ERR_OK)
 	{
-		return err;
+		goto err;
 	}
 	return D2ERR_OK;
+
+err:
+	d2gamedata_destroy(data);
+	return err;
 }
 
 CHECK_RESULT d2err d2gamedata_init(d2gamedata* data)
@@ -97,6 +110,8 @@ oom_stackables:
 oom_weapons:
 	strset_free(data->armorsSet);
 oom_armors:
+	// set these all to NULL so errors gets us into a predictable state
+	data->armorsSet = data->weaponsSet = data->stackablesSet = NULL;
 	return D2ERR_OUT_OF_MEMORY;
 }
 
