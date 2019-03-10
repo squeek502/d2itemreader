@@ -131,7 +131,10 @@ static CHECK_RESULT d2err d2gamedata_load_armors_common(d2gamedata* data, d2txt_
 		d2txt_field code = row[codeCol];
 		if (!code[0]) continue;
 
-		strset_put(data->armorsSet, code);
+		if (strset_put(data->armorsSet, code) < 0)
+		{
+			return D2ERR_OUT_OF_MEMORY;
+		}
 		i++;
 	}
 	data->initState |= D2DATA_INIT_STATE_ARMORS;
@@ -183,10 +186,16 @@ static CHECK_RESULT d2err d2gamedata_load_weapons_common(d2gamedata* data, d2txt
 		d2txt_field code = row[codeCol];
 		if (!code[0]) continue;
 
-		strset_put(data->weaponsSet, code);
+		if (strset_put(data->weaponsSet, code) < 0)
+		{
+			return D2ERR_OUT_OF_MEMORY;
+		}
 		if (row[stackableCol][0] == '1')
 		{
-			strset_put(data->stackablesSet, code);
+			if (strset_put(data->stackablesSet, code) < 0)
+			{
+				return D2ERR_OUT_OF_MEMORY;
+			}
 		}
 		i++;
 	}
@@ -241,7 +250,10 @@ static CHECK_RESULT d2err d2gamedata_load_miscs_common(d2gamedata* data, d2txt_f
 
 		if (row[stackableCol][0] == '1')
 		{
-			strset_put(data->stackablesSet, code);
+			if (strset_put(data->stackablesSet, code) < 0)
+			{
+				return D2ERR_OUT_OF_MEMORY;
+			}
 		}
 		i++;
 	}
@@ -376,15 +388,24 @@ CHECK_RESULT d2err d2gamedata_load_defaults(d2gamedata* data)
 {
 	for (size_t i = 0; i < d2gamedata_default_count(d2gamedata_default_armors); i++)
 	{
-		strset_put(data->armorsSet, d2gamedata_default_armors[i]);
+		if (strset_put(data->armorsSet, d2gamedata_default_armors[i]) < 0)
+		{
+			return D2ERR_OUT_OF_MEMORY;
+		}
 	}
 	for (size_t i = 0; i < d2gamedata_default_count(d2gamedata_default_weapons); i++)
 	{
-		strset_put(data->weaponsSet, d2gamedata_default_weapons[i]);
+		if (strset_put(data->weaponsSet, d2gamedata_default_weapons[i]) < 0)
+		{
+			return D2ERR_OUT_OF_MEMORY;
+		}
 	}
 	for (size_t i = 0; i < d2gamedata_default_count(d2gamedata_default_stackables); i++)
 	{
-		strset_put(data->stackablesSet, d2gamedata_default_stackables[i]);
+		if (strset_put(data->stackablesSet, d2gamedata_default_stackables[i]) < 0)
+		{
+			return D2ERR_OUT_OF_MEMORY;
+		}
 	}
 	for (size_t i = 0; i < d2gamedata_default_count(d2gamedata_default_itemstats); i++)
 	{

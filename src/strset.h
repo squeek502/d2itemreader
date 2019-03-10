@@ -15,7 +15,10 @@ strset_t* strset_new(size_t numBuckets, strset_hash_fn hash_fn);
 void strset_free(strset_t* set);
 
 int strset_has(strset_t* set, const char* str);
-void strset_put(strset_t* set, const char* str);
+// returns 1 if the value is successfully added to the set
+// returns 0 if the value is already in the set
+// returns < 0 on error
+int strset_put(strset_t* set, const char* str);
 void strset_iterate(strset_t* set, void(*callback)(const char* str, void* context), void* context);
 size_t strset_count(strset_t* set);
 

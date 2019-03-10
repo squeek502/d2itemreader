@@ -15,10 +15,10 @@ static void test_teardown(void)
 
 MU_TEST(test)
 {
-	strset_put(set, "hello");
-	strset_put(set, "a");
-	strset_put(set, "a");
-	strset_put(set, "a");
+	mu_check(strset_put(set, "hello") == 1);
+	mu_check(strset_put(set, "a") == 1);
+	mu_check(strset_put(set, "a") == 0);
+	mu_check(strset_put(set, "a") == 0);
 
 	mu_check(strset_has(set, "hello"));
 	mu_check(strset_has(set, "hello"));

@@ -3,6 +3,7 @@
 
 #define STRSET_BUCKET_INITIAL_SIZE 1
 #define STRSET_BUCKET_RESIZE_BITS 2
+#define STRSET_ERR_OOM -1
 
 #if defined(_MSC_VER)
 #define inline __inline
@@ -87,14 +88,14 @@ int strset_has(strset_t* set, const char* str)
 	return strset_bucket_has(bucket, str);
 }
 
-void strset_put(strset_t* set, const char* str)
+int strset_put(strset_t* set, const char* str)
 {
 	if (set == NULL || str == NULL) return;
 
 	strset_bucket* bucket = strset_get_bucket(set, str);
 	if (strset_bucket_has(bucket, str))
 	{
-		return;
+		return 0;
 	}
 
 	// resize the bucket if needed
@@ -104,7 +105,7 @@ void strset_put(strset_t* set, const char* str)
 		void* tmp = realloc(bucket->values, newSize * sizeof(*bucket->values));
 		if (tmp == NULL)
 		{
-			return;
+			return STRSET_ERR_OOM;
 		}
 		bucket->size = newSize;
 		bucket->values = tmp;
@@ -114,11 +115,12 @@ void strset_put(strset_t* set, const char* str)
 	char* value = malloc(strlen(str) + 1);
 	if (value == NULL)
 	{
-		return;
+		return STRSET_ERR_OOM;
 	}
 	bucket->values[bucket->count] = strcpy(value, str);
 	bucket->count++;
 	set->valueCount++;
+	return 1;
 }
 
 void strset_iterate(strset_t* set, void(*callback)(const char *str, void* context), void* context)
