@@ -92,7 +92,7 @@ int strset_has(strset_t* set, const char* str)
 
 int strset_put(strset_t* set, const char* str)
 {
-	if (set == NULL || str == NULL) return;
+	if (set == NULL || str == NULL) return 0;
 
 	strset_bucket* bucket = strset_get_bucket(set, str);
 	if (strset_bucket_has(bucket, str))
