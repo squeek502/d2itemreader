@@ -3,7 +3,9 @@
 
 #define STRSET_BUCKET_INITIAL_SIZE 1
 #define STRSET_BUCKET_RESIZE_BITS 2
-#define STRSET_ERR_OOM -1
+
+#include <errno.h>
+#define STRSET_ERR_OOM -ENOMEM
 
 #if defined(_MSC_VER)
 #define inline __inline
