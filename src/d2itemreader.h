@@ -282,11 +282,21 @@ struct d2item
 	/// list of magic properties, not including set bonuses, runeword properties, 
 	/// or the properties of any socketed items
 	d2itemproplist magicProperties;
-	/// list of currently active set bonuses 
-	/// (i.e. this is only non-empty when multiple set pieces are worn at the same time)
+	/// list of per-item set bonuses (i.e. green bonuses, not the overall set bonuses)
+	/// these are always set even when the bonuses are not active and the index
+	/// of the bonus cooresponds to how many items of the set need to be
+	/// worn to recieve the bonus:
+	///  - The property list at index 0 is active when >= 2 items of the set are worn
+	///  - The property list at index 1 is active when >= 3 items of the set are worn
+	///  - etc
+	///
+	/// > NOTE: Not all indexes are valid. Use setBonusesBits to determine which indexes are valid
 	d2itemproplist setBonuses[D2_MAX_SET_PROPERTIES];
-	/// number of valid elements in the setBonuses array
-	uint8_t numSetBonuses;
+	/// bit field containing the position of valid elements in the setBonuses array
+	///  - if bit 0 is set, then setBonuses will have a valid d2itemproplist at index 0
+	///  - if bit 1 is set, then setBonuses will have a valid d2itemproplist at index 1
+	///  - etc
+	uint8_t setBonusesBits;
 	/// list of magic properties added to the item via a runeword (see also `isRuneword`)
 	d2itemproplist runewordProperties;
 

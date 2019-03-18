@@ -682,10 +682,10 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 
 		// If the item is part of a set, these bit will tell us how many lists
 		// of magical properties follow the one regular magical property list.
-		uint8_t setPropertyFlags = 0;
+		item->setBonusesBits = 0;
 		if (item->rarity == D2RARITY_SET)
 		{
-			setPropertyFlags = (uint8_t)d2bitreader_read(&br, 5);
+			item->setBonusesBits = (uint8_t)d2bitreader_read(&br, 5);
 		}
 
 		// magical properties
@@ -696,19 +696,18 @@ CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t d
 		}
 
 		// Item has more magical property lists due to being a set item
-		if (setPropertyFlags)
+		if (item->setBonusesBits)
 		{
 			for (int i = 0; i < D2_MAX_SET_PROPERTIES; i++)
 			{
 				unsigned short mask = 1 << i;
-				if (setPropertyFlags & mask)
+				if (item->setBonusesBits & mask)
 				{
-					if ((err = d2itemproplist_parse(&br, &item->setBonuses[item->numSetBonuses], gameData)) != D2ERR_OK)
+					if ((err = d2itemproplist_parse(&br, &item->setBonuses[i], gameData)) != D2ERR_OK)
 					{
 						d2item_destroy(item);
 						goto exit;
 					}
-					item->numSetBonuses++;
 				}
 			}
 		}
@@ -744,9 +743,13 @@ void d2item_destroy(d2item *item)
 
 	d2itemproplist_destroy(&item->magicProperties);
 	d2itemproplist_destroy(&item->runewordProperties);
-	for (int i = 0; i < item->numSetBonuses; i++)
+	for (int i = 0; i < item->setBonusesBits; i++)
 	{
-		d2itemproplist_destroy(&item->setBonuses[i]);
+		unsigned short mask = 1 << i;
+		if (item->setBonusesBits & mask)
+		{
+			d2itemproplist_destroy(&item->setBonuses[i]);
+		}
 	}
 }
 

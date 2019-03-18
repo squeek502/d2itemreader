@@ -247,6 +247,16 @@ MU_TEST(earchar)
 	d2char_destroy(&character);
 }
 
+MU_TEST(sets)
+{
+	d2char character;
+	size_t bytesRead;
+	d2err err = d2char_parse_file("data/sets.d2s", &character, &gameData, &bytesRead);
+	mu_check(character.items.count == 11);
+	mu_check(err == D2ERR_OK);
+	d2char_destroy(&character);
+}
+
 MU_TEST_SUITE(test_d2itemreader)
 {
 	MU_RUN_TEST(nodata);
@@ -272,6 +282,7 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(properties1);
 	MU_RUN_TEST(ear);
 	MU_RUN_TEST(earchar);
+	MU_RUN_TEST(sets);
 	d2gamedata_destroy(&gameData);
 }
 
