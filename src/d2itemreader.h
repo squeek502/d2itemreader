@@ -185,7 +185,7 @@ struct d2item
 	/// Note: The game performs this sanity check on every runeword item on load, and removes any that
 	/// are invalid
 	bool isRuneword;
-	/// 0 = pre-1.08, 1 = classic, 100 = expansion, 101 = expansion 1.10+ 
+	/// 0 = pre-1.08, 1 = classic, 100 = expansion, 101 = expansion 1.10+
 	uint8_t version;
 	/// see the #d2location enum
 	uint8_t locationID;
@@ -279,23 +279,39 @@ struct d2item
 	uint16_t quantity;
 	/// number of total sockets in the item (regardless of their filled state)
 	uint8_t numSockets;
-	/// list of magic properties, not including set bonuses, runeword properties, 
+	/// list of magic properties, not including set bonuses, runeword properties,
 	/// or the properties of any socketed items
 	d2itemproplist magicProperties;
-	/// list of per-item set bonuses (i.e. green bonuses, not the overall set bonuses)
-	/// these are always set even when the bonuses are not active and the index
-	/// of the bonus cooresponds to how many items of the set need to be
-	/// worn to recieve the bonus:
-	///  - The property list at index 0 is active when >= 2 items of the set are worn
-	///  - The property list at index 1 is active when >= 3 items of the set are worn
-	///  - etc
+	/// List of per-item set bonuses (i.e. green bonuses, not the overall set bonuses).
+	/// These are always set even when the bonuses are not active.
 	///
-	/// > NOTE: Not all indexes are valid. Use setBonusesBits to determine which indexes are valid
+	/// NOTE: Not all indexes are valid. Use setBonusesBits to determine which indexes are valid
+	///
+	/// When the bonuses are active depends on the value of add_func in SetItems.txt
+	/// for the setID of the item:
+	///
+	/// If add_func=2, then the set bits correspond to the number of items of the set that
+	/// need to be worn:
+	/// The property list at index 0 is active when >= 2 items of the set are worn.
+	/// The property list at index 1 is active when >= 3 items of the set are worn.
+	/// etc.
+	///
+	/// If add_func=1, then the both the setID and the set bits matter for determining
+	/// which specific other items of the set need to be worn:
+	/// If the item's setID is the first of the set:
+	/// then if bit 0 is set, the property list at index 0 is active when the second setID of the set is worn
+	/// and if bit 1 is set, the property list at index 1 is active when the third setID of the set is worn
+	/// etc.
+	/// If the item's setID is the second of the set:
+	/// then if bit 0 is set, the property list at index 0 is active when the first setID of the set is worn
+	/// and if bit 1 is set, the property list at index 1 is active when the third setID of the set is worn
+	/// etc.
 	d2itemproplist setBonuses[D2_MAX_SET_PROPERTIES];
-	/// bit field containing the position of valid elements in the setBonuses array
-	///  - if bit 0 is set, then setBonuses will have a valid d2itemproplist at index 0
-	///  - if bit 1 is set, then setBonuses will have a valid d2itemproplist at index 1
-	///  - etc
+	/// Bit field containing the position of valid elements in the setBonuses array.
+	///
+	/// If bit 0 is set, then setBonuses will have a valid d2itemproplist at index 0.
+	/// If bit 1 is set, then setBonuses will have a valid d2itemproplist at index 1.
+	/// etc.
 	uint8_t setBonusesBits;
 	/// list of magic properties added to the item via a runeword (see also `isRuneword`)
 	d2itemproplist runewordProperties;
@@ -332,7 +348,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 * Parse the item (but not socketed items within) in `data` starting at `startByte`, and store the result in `item`
 *
 * If the item has items socketed in it, `item->socketedItems` will be initialized with size `item->numItemsInSockets`, but will be empty.
-* 
+*
 * @param item A pointer an uninitialized d2item object.
 *             If this function returns `D2ERR_OK`, then `item` will need to be cleaned up with d2item_destroy().
 *             If this function returns something other than `D2ERR_OK`, then `item` will remain uninitialized.
