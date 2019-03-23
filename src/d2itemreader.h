@@ -290,28 +290,26 @@ struct d2item
 	/// When the bonuses are active depends on the value of add_func in SetItems.txt
 	/// for the setID of the item:
 	///
-	/// If add_func=2, then the set bits correspond to the number of items of the set that
-	/// need to be worn:
-	/// The property list at index 0 is active when >= 2 items of the set are worn.
-	/// The property list at index 1 is active when >= 3 items of the set are worn.
-	/// etc.
+	/// If add_func=2, then it uses the number of items of the set that are worn:
+	///  - The property list at index 0 is active when >= 2 items of the set are worn.
+	///  - The property list at index 1 is active when >= 3 items of the set are worn.
+	///  - etc.
 	///
-	/// If add_func=1, then the both the setID and the set bits matter for determining
-	/// which specific other items of the set need to be worn:
-	/// If the item's setID is the first of the set:
-	/// then if bit 0 is set, the property list at index 0 is active when the second setID of the set is worn
-	/// and if bit 1 is set, the property list at index 1 is active when the third setID of the set is worn
-	/// etc.
-	/// If the item's setID is the second of the set:
-	/// then if bit 0 is set, the property list at index 0 is active when the first setID of the set is worn
-	/// and if bit 1 is set, the property list at index 1 is active when the third setID of the set is worn
-	/// etc.
+	/// If add_func=1, then specific other items of the set need to be worn:
+	///  - If the item's setID is the first of the set:
+	///   + then the property list at index 0 is active when the second setID of the set is worn
+	///   + and the property list at index 1 is active when the third setID of the set is worn
+	///   + etc.
+	///  - If the item's setID is the second of the set:
+	///   + then the property list at index 0 is active when the first setID of the set is worn
+	///   + and the property list at index 1 is active when the third setID of the set is worn
+	///   + etc.
 	d2itemproplist setBonuses[D2_MAX_SET_PROPERTIES];
 	/// Bit field containing the position of valid elements in the setBonuses array.
 	///
-	/// If bit 0 is set, then setBonuses will have a valid d2itemproplist at index 0.
-	/// If bit 1 is set, then setBonuses will have a valid d2itemproplist at index 1.
-	/// etc.
+	/// - If bit 0 is set, then setBonuses will have a valid d2itemproplist at index 0.
+	/// - If bit 1 is set, then setBonuses will have a valid d2itemproplist at index 1.
+	/// - etc.
 	uint8_t setBonusesBits;
 	/// list of magic properties added to the item via a runeword (see also `isRuneword`)
 	d2itemproplist runewordProperties;
