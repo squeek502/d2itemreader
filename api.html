@@ -279,6 +279,12 @@
 <td><code>enum</code><a href="#d2itemreader_8h_1a41224a32bcd9efbd1930734851ede34d"><code>d2filetype</code></a> <a href="#d2itemreader_8h_1a2d637c46e4d7704eaae2bb139a2e84aa"><code>d2filetype_of_file</code></a><code>(const char * filename)</code></td>
 </tr>
 <tr>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a78fb29707f84b1f4dfa675672b189b71"><code>d2itemreader_parse_any_file</code></a><code>(const char * filename,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* itemList,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
+</tr>
+<tr>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a4d6ea9e3a2371b7c69634842e30e76f0"><code>d2itemreader_parse_any</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* itemList,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
+</tr>
+<tr>
 <td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a5f907bb018a3ec7eb8f34962c3a7f288"><code>d2itemlist_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
 </tr>
 <tr>
@@ -291,16 +297,28 @@
 <td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1afaed3890c1d785445c9954deab2dfb5f"><code>d2itemlist_append</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list, const</code><a href="#structd2item"><code>d2item</code></a><code>*const item)</code></td>
 </tr>
 <tr>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1acee7e5545014695b9554e42441f98588"><code>d2itemlist_append_copy</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list, const</code><a href="#structd2item"><code>d2item</code></a><code>*const item)</code></td>
+</tr>
+<tr>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1aa71ce06b1b3d4280afaa57bf48ad7ddd"><code>d2itemlist_append_list_copy</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* dest, const</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>*const src)</code></td>
+</tr>
+<tr>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1aa5a83f7c72528ddd8f66fff1470aa78e"><code>d2itemlist_copy</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* dest, const</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>*const src)</code></td>
+</tr>
+<tr>
 <td><code>void</code><a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2"><code>d2itemlist_destroy</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list)</code></td>
 </tr>
 <tr>
 <td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1adb4e7ffb0c122ef1d992d6c16e3800fe"><code>d2itemproplist_parse</code></a><code>(d2bitreader * br,</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData)</code></td>
 </tr>
 <tr>
-<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319"><code>d2itemproplist_init</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code></td>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a46e0162e26e152f9b54fc7e4fa4f8d20"><code>d2itemproplist_init</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list, size_t initialSize)</code></td>
 </tr>
 <tr>
 <td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a5af918937df19a669f9328dd7c699b98"><code>d2itemproplist_append</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list,</code><a href="#structd2itemprop"><code>d2itemprop</code></a> <code>prop)</code></td>
+</tr>
+<tr>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a9faecc30c83e266b43e6f177a186127b"><code>d2itemproplist_copy</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* dest, const</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>*const src)</code></td>
 </tr>
 <tr>
 <td><code>void</code><a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531"><code>d2itemproplist_destroy</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code></td>
@@ -313,6 +331,9 @@
 </tr>
 <tr>
 <td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ab4c3781c4e949124e2ee2f25b5d9ecc9"><code>d2item_parse_single</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2item"><code>d2item</code></a><code>* item,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code></td>
+</tr>
+<tr>
+<td><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a0bb5d0c42bdf04f895545955fdddde21"><code>d2item_copy</code></a><code>(</code><a href="#structd2item"><code>d2item</code></a><code>* dest, const</code><a href="#structd2item"><code>d2item</code></a><code>*const src)</code></td>
 </tr>
 <tr>
 <td><code>void</code><a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706"><code>d2item_destroy</code></a><code>(</code><a href="#structd2item"><code>d2item</code></a><code>* item)</code></td>
@@ -685,6 +706,19 @@
 <p>Attempt to determine the filetype of the given binary data.</p>
 <h3 id="d2itemreader_8h_1a2d637c46e4d7704eaae2bb139a2e84aa"><code>enum</code><a href="#d2itemreader_8h_1a41224a32bcd9efbd1930734851ede34d"><code>d2filetype</code></a> <a href="#d2itemreader_8h_1a2d637c46e4d7704eaae2bb139a2e84aa"><code>d2filetype_of_file</code></a><code>(const char * filename)</code> </h3>
 <p>Attempt to determine the filetype of the given file path.</p>
+<h3 id="d2itemreader_8h_1a78fb29707f84b1f4dfa675672b189b71"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a78fb29707f84b1f4dfa675672b189b71"><code>d2itemreader_parse_any_file</code></a><code>(const char * filename,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* itemList,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
+<p>Parse the file in <code>filename</code> if it is of any parsable format, and store the result in <code>itemList</code></p>
+<p>This is a convenience function for when you are only interested in the items in a file, and don&apos;t care about anything else (i.e. when the metadata you get from more specific parsers is irrelevent)</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><p><code>itemList</code> A pointer to an uninitialized <a href="#structd2itemlist">d2itemlist</a> object. If this function returns <code>D2ERR_OK</code>, then <code>itemList</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2">d2itemlist_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>itemList</code> will remain uninitialized. </p>
+</li>
+<li><p><code>out_bytesRead</code> On <code>D2ERR_OK</code>, set to the number of bytes read when parsing the file. On error, set to the number of bytes successfully parsed before the error. </p>
+</li>
+</ul>
+<h4 id="returns">Returns</h4>
+<p><code>D2ERR_OK</code> on success</p>
+<h3 id="d2itemreader_8h_1a4d6ea9e3a2371b7c69634842e30e76f0"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a4d6ea9e3a2371b7c69634842e30e76f0"><code>d2itemreader_parse_any</code></a><code>(const unsigned char *const data, size_t dataSizeBytes,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* itemList,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <h3 id="d2itemreader_8h_1a5f907bb018a3ec7eb8f34962c3a7f288"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a5f907bb018a3ec7eb8f34962c3a7f288"><code>d2itemlist_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* items,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the itemlist in <code>data</code> starting at <code>startByte</code>, and store the result in <code>items</code></p>
 <h4 id="parameters">Parameters</h4>
@@ -713,6 +747,9 @@
 <p><strong>See also</strong>: <a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2">d2itemlist_destroy()</a>, <a href="#d2itemreader_8h_1a5f907bb018a3ec7eb8f34962c3a7f288">d2itemlist_parse()</a></p>
 <h3 id="d2itemreader_8h_1a8ec941586029258474ef14084cb11a2b"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a8ec941586029258474ef14084cb11a2b"><code>d2itemlist_init</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list, size_t initialSize)</code> </h3>
 <h3 id="d2itemreader_8h_1afaed3890c1d785445c9954deab2dfb5f"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1afaed3890c1d785445c9954deab2dfb5f"><code>d2itemlist_append</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list, const</code><a href="#structd2item"><code>d2item</code></a><code>*const item)</code> </h3>
+<h3 id="d2itemreader_8h_1acee7e5545014695b9554e42441f98588"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1acee7e5545014695b9554e42441f98588"><code>d2itemlist_append_copy</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list, const</code><a href="#structd2item"><code>d2item</code></a><code>*const item)</code> </h3>
+<h3 id="d2itemreader_8h_1aa71ce06b1b3d4280afaa57bf48ad7ddd"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1aa71ce06b1b3d4280afaa57bf48ad7ddd"><code>d2itemlist_append_list_copy</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* dest, const</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>*const src)</code> </h3>
+<h3 id="d2itemreader_8h_1aa5a83f7c72528ddd8f66fff1470aa78e"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1aa5a83f7c72528ddd8f66fff1470aa78e"><code>d2itemlist_copy</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* dest, const</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>*const src)</code> </h3>
 <h3 id="d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2"><code>void</code><a href="#d2itemreader_8h_1a1485c44bbdbf1942ca8dad5be7d24bf2"><code>d2itemlist_destroy</code></a><code>(</code><a href="#structd2itemlist"><code>d2itemlist</code></a><code>* list)</code> </h3>
 <h3 id="d2itemreader_8h_1adb4e7ffb0c122ef1d992d6c16e3800fe"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1adb4e7ffb0c122ef1d992d6c16e3800fe"><code>d2itemproplist_parse</code></a><code>(d2bitreader * br,</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData)</code> </h3>
 <p>Parse the item property list using <code>br</code>, and store the result in <code>list</code></p>
@@ -720,14 +757,15 @@
 <ul>
 <li><p><code>br</code> A pointer a d2bitreader struct </p>
 </li>
-<li><p><code>list</code> A pointer an uninitialized <a href="#structd2itemproplist">d2itemproplist</a> object (i.e. <a href="#d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319">d2itemproplist_init()</a> has NOT been called on it). If this function returns <code>D2ERR_OK</code>, then <code>list</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531">d2itemproplist_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>list</code> will remain uninitialized. </p>
+<li><p><code>list</code> A pointer an uninitialized <a href="#structd2itemproplist">d2itemproplist</a> object (i.e. <a href="#d2itemreader_8h_1a46e0162e26e152f9b54fc7e4fa4f8d20">d2itemproplist_init()</a> has NOT been called on it). If this function returns <code>D2ERR_OK</code>, then <code>list</code> will need to be cleaned up with <a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531">d2itemproplist_destroy()</a>. If this function returns something other than <code>D2ERR_OK</code>, then <code>list</code> will remain uninitialized. </p>
 </li>
 </ul>
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
 <p><strong>See also</strong>: <a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531">d2itemproplist_destroy()</a></p>
-<h3 id="d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1af4b60a23bd5f1db2eb8d611d3ca3c319"><code>d2itemproplist_init</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code> </h3>
+<h3 id="d2itemreader_8h_1a46e0162e26e152f9b54fc7e4fa4f8d20"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a46e0162e26e152f9b54fc7e4fa4f8d20"><code>d2itemproplist_init</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list, size_t initialSize)</code> </h3>
 <h3 id="d2itemreader_8h_1a5af918937df19a669f9328dd7c699b98"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a5af918937df19a669f9328dd7c699b98"><code>d2itemproplist_append</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list,</code><a href="#structd2itemprop"><code>d2itemprop</code></a> <code>prop)</code> </h3>
+<h3 id="d2itemreader_8h_1a9faecc30c83e266b43e6f177a186127b"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a9faecc30c83e266b43e6f177a186127b"><code>d2itemproplist_copy</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* dest, const</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>*const src)</code> </h3>
 <h3 id="d2itemreader_8h_1a713385d41a888e980409f60d622ac531"><code>void</code><a href="#d2itemreader_8h_1a713385d41a888e980409f60d622ac531"><code>d2itemproplist_destroy</code></a><code>(</code><a href="#structd2itemproplist"><code>d2itemproplist</code></a><code>* list)</code> </h3>
 <h3 id="d2itemreader_8h_1a552acca883d7b90357610b4d967ee4d2"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a552acca883d7b90357610b4d967ee4d2"><code>d2item_parse_file</code></a><code>(const char * filename,</code><a href="#structd2item"><code>d2item</code></a><code>* item,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the item (+ any socketed items within) in <code>filename</code>, and store the result in <code>item</code></p>
@@ -766,6 +804,7 @@
 <h4 id="returns">Returns</h4>
 <p><code>D2ERR_OK</code> on success</p>
 <p><strong>See also</strong>: <a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706">d2item_destroy()</a>, <a href="#d2itemreader_8h_1a552acca883d7b90357610b4d967ee4d2">d2item_parse_file()</a>, <a href="#d2itemreader_8h_1ad2d8ae817d252b1bc44407cf1b3be121">d2item_parse()</a></p>
+<h3 id="d2itemreader_8h_1a0bb5d0c42bdf04f895545955fdddde21"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1a0bb5d0c42bdf04f895545955fdddde21"><code>d2item_copy</code></a><code>(</code><a href="#structd2item"><code>d2item</code></a><code>* dest, const</code><a href="#structd2item"><code>d2item</code></a><code>*const src)</code> </h3>
 <h3 id="d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706"><code>void</code><a href="#d2itemreader_8h_1a9daec0569a81f590fd605f45187eb706"><code>d2item_destroy</code></a><code>(</code><a href="#structd2item"><code>d2item</code></a><code>* item)</code> </h3>
 <h3 id="d2itemreader_8h_1ac090a4e81cdf4ce39ee641ab16b52681"><code>CHECK_RESULT d2err</code><a href="#d2itemreader_8h_1ac090a4e81cdf4ce39ee641ab16b52681"><code>d2stashpage_parse</code></a><code>(const unsigned char *const data, size_t dataSizeBytes, size_t startByte,</code><a href="#structd2stashpage"><code>d2stashpage</code></a><code>* page,</code><a href="#structd2gamedata"><code>d2gamedata</code></a><code>* gameData, size_t * out_bytesRead)</code> </h3>
 <p>Parse the stash page in <code>data</code> starting at <code>startByte</code>, and store the result in <code>page</code></p>
@@ -1415,7 +1454,7 @@
                     <a href="#">Return to the top</a>
                 </li>
                 <li>
-                    <a href="#">Updated Mar 23rd 19</a>
+                    <a href="#">Updated Mar 30th 19</a>
                 </li>
             </ul>
         </div>
@@ -1426,7 +1465,7 @@
 
 <script>
 (function() {
-    gitbook.page.hasChanged({"page":{"title":"API Reference","level":"1.2","depth":1,"next":{"title":"Diablo II items, etc","level":"2.1","depth":1,"path":"formats/d2.md","ref":"formats/d2.md","articles":[]},"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"INDEX.md","ref":"INDEX.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"api.md","mtime":"2019-03-23T04:47:39.577Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-03-23T04:48:16.257Z"},"basePath":".","book":{"language":""}});
+    gitbook.page.hasChanged({"page":{"title":"API Reference","level":"1.2","depth":1,"next":{"title":"Diablo II items, etc","level":"2.1","depth":1,"path":"formats/d2.md","ref":"formats/d2.md","articles":[]},"previous":{"title":"Introduction","level":"1.1","depth":1,"path":"INDEX.md","ref":"INDEX.md","articles":[]},"dir":"ltr"},"config":{"plugins":["theme-official","-sharing","-fontsettings","-search","-lunr"],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"theme-official":{},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"INDEX.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"github_url":"https://github.com/squeek502/d2itemreader","variables":{},"title":"d2itemreader","gitbook":"*"},"file":{"path":"api.md","mtime":"2019-03-30T23:38:51.121Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-03-30T23:39:30.327Z"},"basePath":".","book":{"language":""}});
 })();
 </script>
 
