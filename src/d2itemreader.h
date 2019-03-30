@@ -465,6 +465,12 @@ CHECK_RESULT d2err d2atmastash_parse_file(const char* filename, d2atmastash* sta
 CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dataSizeBytes, d2atmastash* stash, d2gamedata *gameData, size_t* out_bytesRead);
 void d2atmastash_destroy(d2atmastash* stash);
 
+/// @private
+/// @{
+typedef void(*d2itemreader_parse_item_cb)(d2item*, const unsigned char* const, size_t);
+void d2itemreader_set_parse_item_cb(d2itemreader_parse_item_cb callback);
+/// @}
+
 #ifdef __cplusplus
 }
 #endif

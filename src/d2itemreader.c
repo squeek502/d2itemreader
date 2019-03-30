@@ -10,6 +10,8 @@
 #define D2ITEMREADER_SKIP(T) if (curByte+sizeof(T)<=dataSizeBytes) { D2ITEMREADER_INC(T); }
 #define D2ITEMREADER_READ(T) (curByte+sizeof(T)<=dataSizeBytes ? *(T*)D2ITEMREADER_DATA : (T)0); D2ITEMREADER_SKIP(T)
 
+d2itemreader_parse_item_cb g_d2itemreader_parse_item_callback = NULL;
+
 enum d2filetype d2filetype_get(const unsigned char* data, size_t size)
 {
 	if (size < 4)
@@ -229,6 +231,11 @@ CHECK_RESULT d2err d2itemlist_parse_num(const unsigned char* const data, size_t 
 		{
 			d2item_destroy(&item);
 			goto err;
+		}
+
+		if (g_d2itemreader_parse_item_callback != NULL)
+		{
+			g_d2itemreader_parse_item_callback(&item, data+curByte, itemSizeBytes);
 		}
 
 		curByte += itemSizeBytes;
@@ -1321,4 +1328,9 @@ eof:
 void d2atmastash_destroy(d2atmastash* stash)
 {
 	d2itemlist_destroy(&stash->items);
+}
+
+void d2itemreader_set_parse_item_cb(d2itemreader_parse_item_cb callback)
+{
+	g_d2itemreader_parse_item_callback = callback;
 }

@@ -3,5 +3,7 @@ project(d2itemreader-tools C)
 add_executable( tool_gen_d2gamedata_default EXCLUDE_FROM_ALL gen_d2gamedata_default.c )
 target_link_libraries( tool_gen_d2gamedata_default PRIVATE d2itemreader )
 set_target_properties(tool_gen_d2gamedata_default PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-
 add_custom_target(tool_gen_d2gamedata_default_run tool_gen_d2gamedata_default > src/d2gamedata_default.inc DEPENDS tool_gen_d2gamedata_default WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+add_executable( tool_extract_item EXCLUDE_FROM_ALL extract_item.c )
+target_link_libraries( tool_extract_item PRIVATE d2itemreader )
