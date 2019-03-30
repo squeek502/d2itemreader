@@ -54,6 +54,172 @@ enum d2filetype d2filetype_of_file(const char* filename)
 	return d2filetype_get((unsigned char*)&header, bytesRead);
 }
 
+CHECK_RESULT d2err d2itemreader_parse_any_file(const char* filename, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead)
+{
+	d2err err;
+	unsigned char* data;
+	size_t dataSizeBytes;
+	err = d2util_read_file(filename, &data, &dataSizeBytes);
+	if (err != D2ERR_OK)
+	{
+		*out_bytesRead = 0;
+		return err;
+	}
+	err = d2itemreader_parse_any(data, dataSizeBytes, itemList, gameData, out_bytesRead);
+	free(data);
+	return err;
+}
+
+CHECK_RESULT d2err d2itemreader_parse_any(const unsigned char* const data, size_t dataSizeBytes, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead)
+{
+	d2err err;
+	*out_bytesRead = 0;
+	enum d2filetype type = d2filetype_get(data, dataSizeBytes);
+	if (type == D2FILETYPE_UNKNOWN)
+	{
+		return D2ERR_UNKNOWN_FILE_TYPE;
+	}
+
+	if (type == D2FILETYPE_D2_ITEM)
+	{
+		d2item item;
+		err = d2item_parse(data, dataSizeBytes, 0, &item, gameData, out_bytesRead);
+		if (err != D2ERR_OK)
+		{
+			return err;
+		}
+		if ((err = d2itemlist_init(itemList, 1)) != D2ERR_OK)
+		{
+			d2item_destroy(&item);
+			return err;
+		}
+		if ((err = d2itemlist_append_copy(itemList, &item)) != D2ERR_OK)
+		{
+			d2item_destroy(&item);
+			d2itemlist_destroy(itemList);
+			return err;
+		}
+		d2item_destroy(&item);
+	}
+	else if (type == D2FILETYPE_D2_CHARACTER)
+	{
+		d2char character;
+		err = d2char_parse(data, dataSizeBytes, &character, gameData, out_bytesRead);
+		if (err != D2ERR_OK)
+		{
+			return err;
+		}
+
+		size_t totalCount = character.items.count + character.itemsCorpse.count + character.itemsMerc.count;
+		if ((err = d2itemlist_init(itemList, totalCount)) != D2ERR_OK)
+		{
+			d2char_destroy(&character);
+			return err;
+		}
+		if ((err = d2itemlist_append_list_copy(itemList, &character.items)) != D2ERR_OK)
+		{
+			d2char_destroy(&character);
+			d2itemlist_destroy(itemList);
+			return err;
+		}
+		if ((err = d2itemlist_append_list_copy(itemList, &character.itemsCorpse)) != D2ERR_OK)
+		{
+			d2char_destroy(&character);
+			d2itemlist_destroy(itemList);
+			return err;
+		}
+		if ((err = d2itemlist_append_list_copy(itemList, &character.itemsMerc)) != D2ERR_OK)
+		{
+			d2char_destroy(&character);
+			d2itemlist_destroy(itemList);
+			return err;
+		}
+		d2char_destroy(&character);
+	}
+	else if (type == D2FILETYPE_PLUGY_PERSONAL_STASH)
+	{
+		d2personalstash stash;
+		err = d2personalstash_parse(data, dataSizeBytes, &stash, gameData, out_bytesRead);
+		if (err != D2ERR_OK)
+		{
+			return err;
+		}
+		// get total item count
+		size_t itemCount = 0;
+		for (size_t i = 0; i<stash.numPages; i++)
+		{
+			itemCount += stash.pages[i].items.count;
+		}
+		if ((err = d2itemlist_init(itemList, itemCount)) != D2ERR_OK)
+		{
+			d2personalstash_destroy(&stash);
+			return err;
+		}
+		for (size_t i = 0; i<stash.numPages; i++)
+		{
+			if ((err = d2itemlist_append_list_copy(itemList, &stash.pages[i].items)) != D2ERR_OK)
+			{
+				d2personalstash_destroy(&stash);
+				d2itemlist_destroy(itemList);
+				return err;
+			}
+		}
+		d2personalstash_destroy(&stash);
+	}
+	else if (type == D2FILETYPE_PLUGY_SHARED_STASH)
+	{
+		d2sharedstash stash;
+		err = d2sharedstash_parse(data, dataSizeBytes, &stash, gameData, out_bytesRead);
+		if (err != D2ERR_OK)
+		{
+			return err;
+		}
+		// get total item count
+		size_t itemCount = 0;
+		for (size_t i = 0; i<stash.numPages; i++)
+		{
+			itemCount += stash.pages[i].items.count;
+		}
+		if ((err = d2itemlist_init(itemList, itemCount)) != D2ERR_OK)
+		{
+			d2sharedstash_destroy(&stash);
+			return err;
+		}
+		for (size_t i = 0; i<stash.numPages; i++)
+		{
+			if ((err = d2itemlist_append_list_copy(itemList, &stash.pages[i].items)) != D2ERR_OK)
+			{
+				d2sharedstash_destroy(&stash);
+				d2itemlist_destroy(itemList);
+				return err;
+			}
+		}
+		d2sharedstash_destroy(&stash);
+	}
+	else if (type == D2FILETYPE_ATMA_STASH)
+	{
+		d2atmastash stash;
+		err = d2atmastash_parse(data, dataSizeBytes, &stash, gameData, out_bytesRead);
+		if (err != D2ERR_OK)
+		{
+			return err;
+		}
+
+		if ((err = d2itemlist_copy(itemList, &stash.items)) != D2ERR_OK)
+		{
+			d2atmastash_destroy(&stash);
+			return err;
+		}
+		d2atmastash_destroy(&stash);
+	}
+	else
+	{
+		return D2ERR_UNKNOWN_FILE_TYPE;
+	}
+	return D2ERR_OK;
+}
+
+
 // Parses the magical property list in the byte queue that belongs to an item
 // and returns the list of properties.
 CHECK_RESULT d2err d2itemproplist_parse(d2bitreader* br, d2itemproplist* list, d2gamedata *gameData)
@@ -64,7 +230,7 @@ CHECK_RESULT d2err d2itemproplist_parse(d2bitreader* br, d2itemproplist* list, d
 	}
 
 	d2err err;
-	if ((err = d2itemproplist_init(list)) != D2ERR_OK)
+	if ((err = d2itemproplist_init(list, 4)) != D2ERR_OK)
 	{
 		return err;
 	}
@@ -161,10 +327,10 @@ err:
 	return err;
 }
 
-CHECK_RESULT d2err d2itemproplist_init(d2itemproplist* list)
+CHECK_RESULT d2err d2itemproplist_init(d2itemproplist* list, size_t initialSize)
 {
 	list->count = 0;
-	list->_size = 4;
+	list->_size = initialSize;
 	list->properties = malloc(list->_size * sizeof(*list->properties));
 	return list->properties != NULL ? D2ERR_OK : D2ERR_OUT_OF_MEMORY;
 }
@@ -182,6 +348,25 @@ CHECK_RESULT d2err d2itemproplist_append(d2itemproplist* list, d2itemprop prop)
 		list->properties = tmp;
 	}
 	list->properties[list->count++] = prop;
+	return D2ERR_OK;
+}
+
+CHECK_RESULT d2err d2itemproplist_copy(d2itemproplist* dest, const d2itemproplist* const src)
+{
+	d2err err;
+
+	if ((err = d2itemproplist_init(dest, src->count)) != D2ERR_OK)
+	{
+		return err;
+	}
+	for (size_t i=0; i < src->count; i++)
+	{
+		if ((err = d2itemproplist_append(dest, src->properties[i])) != D2ERR_OK)
+		{
+			d2itemproplist_destroy(dest);
+			return err;
+		}
+	}
 	return D2ERR_OK;
 }
 
@@ -298,6 +483,64 @@ CHECK_RESULT d2err d2itemlist_append(d2itemlist* list, const d2item* const item)
 		list->items = tmp;
 	}
 	list->items[list->count++] = *item;
+	return D2ERR_OK;
+}
+
+CHECK_RESULT d2err d2itemlist_append_copy(d2itemlist* list, const d2item* const item)
+{
+	d2err err;
+	if (list->count == list->_size)
+	{
+		list->_size = list->_size > 0 ? list->_size * 2 : 4;
+		void* tmp = realloc(list->items, list->_size * sizeof(*list->items));
+		if (tmp == NULL)
+		{
+			return D2ERR_OUT_OF_MEMORY;
+		}
+		list->items = tmp;
+	}
+	d2item* dest = &list->items[list->count];
+	if ((err = d2item_copy(dest, item)) != D2ERR_OK)
+	{
+		return err;
+	}
+	list->count++;
+	return D2ERR_OK;
+}
+
+CHECK_RESULT d2err d2itemlist_append_list_copy(d2itemlist* dest, const d2itemlist* const src)
+{
+	d2err err;
+	for (size_t i=0; i < src->count; i++)
+	{
+		d2item* item = &(src->items[i]);
+		if ((err = d2itemlist_append_copy(dest, item)) != D2ERR_OK)
+		{
+			return err;
+		}
+	}
+	return D2ERR_OK;
+}
+
+CHECK_RESULT d2err d2itemlist_copy(d2itemlist* dest, const d2itemlist* const src)
+{
+	d2err err;
+
+	if ((err = d2itemlist_init(dest, src->count)) != D2ERR_OK)
+	{
+		return err;
+	}
+	for (size_t i=0; i < src->count; i++)
+	{
+		d2item* srcitem = &src->items[i];
+		d2item* destitem = &dest->items[i];
+		if ((err = d2item_copy(destitem, srcitem)) != D2ERR_OK)
+		{
+			d2itemlist_destroy(dest);
+			return err;
+		}
+		dest->count++;
+	}
 	return D2ERR_OK;
 }
 
@@ -737,13 +980,60 @@ eof:
 	return D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
+CHECK_RESULT d2err d2item_copy(d2item* dest, const d2item* const src)
+{
+	d2err err;
+
+	// simple copy
+	*dest = *src;
+
+	// NULL any heap allocated members so we can safely destroy on err
+	dest->socketedItems.items = NULL;
+	dest->magicProperties.properties = NULL;
+	dest->runewordProperties.properties = NULL;
+	for (int i=0; i < D2_MAX_SET_PROPERTIES; i++)
+	{
+		dest->setBonuses[i].properties = NULL;
+	}
+
+	// copy heap allocated members
+	if ((err = d2itemlist_copy(&dest->socketedItems, &src->socketedItems)) != D2ERR_OK)
+	{
+		d2item_destroy(dest);
+		return err;
+	}
+	if ((err = d2itemproplist_copy(&dest->magicProperties, &src->magicProperties)) != D2ERR_OK)
+	{
+		d2item_destroy(dest);
+		return err;
+	}
+	if ((err = d2itemproplist_copy(&dest->runewordProperties, &src->runewordProperties)) != D2ERR_OK)
+	{
+		d2item_destroy(dest);
+		return err;
+	}
+	for (int i=0; i < D2_MAX_SET_PROPERTIES; i++)
+	{
+		unsigned short mask = 1 << i;
+		if (src->setBonusesBits & mask)
+		{
+			if ((err = d2itemproplist_copy(&dest->setBonuses[i], &src->setBonuses[i])) != D2ERR_OK)
+			{
+				d2item_destroy(dest);
+				return err;
+			}
+		}
+	}
+	return D2ERR_OK;
+}
+
 void d2item_destroy(d2item *item)
 {
 	d2itemlist_destroy(&item->socketedItems);
 
 	d2itemproplist_destroy(&item->magicProperties);
 	d2itemproplist_destroy(&item->runewordProperties);
-	for (int i = 0; i < item->setBonusesBits; i++)
+	for (int i = 0; i < D2_MAX_SET_PROPERTIES; i++)
 	{
 		unsigned short mask = 1 << i;
 		if (item->setBonusesBits & mask)

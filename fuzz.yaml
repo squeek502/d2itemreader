@@ -21,3 +21,14 @@ targets:
   sanitizers:
     address: detect_stack_use_after_return=1
   corpus: ./tests/fuzz/corpus/fuzz_d2char
+- name: d2itemreader
+  language: c
+  setup:
+    - cd build.fuzzbuzz
+    - make fuzz_d2itemreader
+    - cd ..
+  harness:
+    binary: ./build.fuzzbuzz/tests/fuzz/fuzz_d2itemreader
+  sanitizers:
+    address: detect_stack_use_after_return=1
+  corpus: ./build.fuzzbuzz/tests/fuzz/corpus/fuzz_d2itemreader_gen

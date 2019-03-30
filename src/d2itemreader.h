@@ -44,6 +44,22 @@ typedef struct d2itemlist {
 } d2itemlist;
 
 /**
+* Parse the file in `filename` if it is of any parsable format, and store the result in `itemList`
+*
+* This is a convenience function for when you are only interested in the items in a file, and
+* don't care about anything else (i.e. when the metadata you get from more specific parsers is irrelevent)
+*
+* @param itemList A pointer to an uninitialized d2itemlist object.
+*                 If this function returns `D2ERR_OK`, then `itemList` will need to be cleaned up with d2itemlist_destroy().
+*                 If this function returns something other than `D2ERR_OK`, then `itemList` will remain uninitialized.
+* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the file.
+*                      On error, set to the number of bytes successfully parsed before the error.
+* @return `D2ERR_OK` on success
+*/
+CHECK_RESULT d2err d2itemreader_parse_any_file(const char* filename, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2itemreader_parse_any(const unsigned char* const data, size_t dataSizeBytes, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead);
+
+/**
 * Parse the itemlist in `data` starting at `startByte`, and store the result in `items`
 *
 * @param items A pointer an uninitialized d2itemlist object (i.e. d2itemlist_init() has NOT been called on it).
@@ -73,6 +89,9 @@ CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t data
 CHECK_RESULT d2err d2itemlist_parse_num(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, uint16_t numItems, d2gamedata *gameData, size_t* out_bytesRead);
 CHECK_RESULT d2err d2itemlist_init(d2itemlist* list, size_t initialSize);
 CHECK_RESULT d2err d2itemlist_append(d2itemlist* list, const d2item* const item);
+CHECK_RESULT d2err d2itemlist_append_copy(d2itemlist* list, const d2item* const item);
+CHECK_RESULT d2err d2itemlist_append_list_copy(d2itemlist* dest, const d2itemlist* const src);
+CHECK_RESULT d2err d2itemlist_copy(d2itemlist* dest, const d2itemlist* const src);
 void d2itemlist_destroy(d2itemlist* list);
 
 typedef struct d2itemprop {
@@ -99,8 +118,9 @@ typedef struct d2itemproplist {
 * @see d2itemproplist_destroy()
 */
 CHECK_RESULT d2err d2itemproplist_parse(d2bitreader* br, d2itemproplist* list, d2gamedata *gameData);
-CHECK_RESULT d2err d2itemproplist_init(d2itemproplist* list);
+CHECK_RESULT d2err d2itemproplist_init(d2itemproplist* list, size_t initialSize);
 CHECK_RESULT d2err d2itemproplist_append(d2itemproplist* list, d2itemprop prop);
+CHECK_RESULT d2err d2itemproplist_copy(d2itemproplist* dest, const d2itemproplist* const src);
 void d2itemproplist_destroy(d2itemproplist* list);
 
 enum d2rarity {
@@ -357,6 +377,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 * @see d2item_destroy(), d2item_parse_file(), d2item_parse()
 */
 CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2item_copy(d2item* dest, const d2item* const src);
 void d2item_destroy(d2item *item);
 
 typedef struct d2stashpage {

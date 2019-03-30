@@ -28,69 +28,16 @@ int main(int argc, const char* argv[])
 		return 1;
 	}
 
-	size_t itemCount = 0;
+	d2itemlist itemList;
 	size_t bytesRead;
+	err = d2itemreader_parse_any_file(filename, &itemList, &gameData, &bytesRead);
+	if (err != D2ERR_OK)
+	{
+		fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
+		return 1;
+	}
+	printf("%zu items found in %s\n", itemList.count, filename);
 
-	if (type == D2FILETYPE_D2_CHARACTER)
-	{
-		d2char character;
-		err = d2char_parse_file(filename, &character, &gameData, &bytesRead);
-		if (err != D2ERR_OK)
-		{
-			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
-			return 1;
-		}
-		itemCount += character.items.count;
-		itemCount += character.itemsCorpse.count;
-		itemCount += character.itemsMerc.count;
-		d2char_destroy(&character);
-	}
-	else if (type == D2FILETYPE_PLUGY_PERSONAL_STASH)
-	{
-		d2personalstash stash;
-		err = d2personalstash_parse_file(filename, &stash, &gameData, &bytesRead);
-		if (err != D2ERR_OK)
-		{
-			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
-			return 1;
-		}
-		for (size_t i = 0; i<stash.numPages; i++)
-		{
-			d2stashpage* page = &stash.pages[i];
-			itemCount += page->items.count;
-		}
-		d2personalstash_destroy(&stash);
-	}
-	else if (type == D2FILETYPE_PLUGY_SHARED_STASH)
-	{
-		d2sharedstash stash;
-		err = d2sharedstash_parse_file(filename, &stash, &gameData, &bytesRead);
-		if (err != D2ERR_OK)
-		{
-			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
-			return 1;
-		}
-		for (size_t i = 0; i<stash.numPages; i++)
-		{
-			d2stashpage* page = &stash.pages[i];
-			itemCount += page->items.count;
-		}
-		d2sharedstash_destroy(&stash);
-	}
-	else if (type == D2FILETYPE_ATMA_STASH)
-	{
-		d2atmastash stash;
-		err = d2atmastash_parse_file(filename, &stash, &gameData, &bytesRead);
-		if (err != D2ERR_OK)
-		{
-			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
-			return 1;
-		}
-		itemCount += stash.items.count;
-		d2atmastash_destroy(&stash);
-	}
-
-	printf("%zu items found in %s\n", itemCount, filename);
-
+	d2itemlist_destroy(&itemList);
 	d2gamedata_destroy(&gameData);
 }

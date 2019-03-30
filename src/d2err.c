@@ -19,6 +19,7 @@ const char* d2err_str(d2err err)
 		case D2ERR_PARSE_TOO_FEW_STASH_PAGES: return "actual number of stash pages lower than number given in header";
 		case D2ERR_DATA_NOT_LOADED: return "game data (.txt files) not loaded";
 		case D2ERR_UNSUPPORTED_VERSION: return "unsupported game version";
+		case D2ERR_UNKNOWN_FILE_TYPE: return "unknown file type";
 		default: return "unknown error";
 	}
 }
