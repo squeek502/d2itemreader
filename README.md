@@ -73,6 +73,10 @@ else
 }
 ```
 
+## Bindings
+
+- Lua: [lua-d2itemreader](https://github.com/squeek502/lua-d2itemreader)
+
 ## Acknowledgements
 
 - [nokka/d2s](https://github.com/nokka/d2s) - much of the d2s parsing of d2itemreader is ported from `nokka/d2s`
