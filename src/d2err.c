@@ -20,6 +20,7 @@ const char* d2err_str(d2err err)
 		case D2ERR_DATA_NOT_LOADED: return "game data (.txt files) not loaded";
 		case D2ERR_UNSUPPORTED_VERSION: return "unsupported game version";
 		case D2ERR_UNKNOWN_FILE_TYPE: return "unknown file type";
+		case D2ERR_INTERNAL: return "internal error";
 		default: return "unknown error";
 	}
 }
