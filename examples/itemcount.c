@@ -7,7 +7,7 @@ int main(int argc, const char* argv[])
 {
 	if (argc <= 1)
 	{
-		printf("usage: %s filename\n", argv[0]);
+		printf("usage: %s filename [filename ...]\n", argv[0]);
 		return 0;
 	}
 
@@ -20,24 +20,28 @@ int main(int argc, const char* argv[])
 		return 1;
 	}
 
-	const char* filename = argv[1];
-	enum d2filetype type = d2filetype_of_file(filename);
-	if (type == D2FILETYPE_UNKNOWN)
+	for (int i = 1; i <= argc && argv[i]; i++)
 	{
-		fprintf(stderr, "Could not determine file format for: %s\n", filename);
-		return 1;
+		const char* filename = argv[i];
+		d2filetype type = d2filetype_of_file(filename);
+		if (type == D2FILETYPE_UNKNOWN)
+		{
+			fprintf(stderr, "Could not determine file format for: %s\n", filename);
+			continue;
+		}
+
+		d2itemlist itemList;
+		size_t bytesRead;
+		err = d2itemreader_parse_any_file(filename, &itemList, &gameData, &bytesRead);
+		if (err != D2ERR_OK)
+		{
+			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
+			continue;
+		}
+
+		printf("%zu items found in %s\n", itemList.count, filename);
+		d2itemlist_destroy(&itemList);
 	}
 
-	d2itemlist itemList;
-	size_t bytesRead;
-	err = d2itemreader_parse_any_file(filename, &itemList, &gameData, &bytesRead);
-	if (err != D2ERR_OK)
-	{
-		fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(err), bytesRead);
-		return 1;
-	}
-	printf("%zu items found in %s\n", itemList.count, filename);
-
-	d2itemlist_destroy(&itemList);
 	d2gamedata_destroy(&gameData);
 }

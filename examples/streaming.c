@@ -37,12 +37,12 @@ int main(int argc, const char* argv[])
 		{
 			count++;
 		}
-
 		if (stream.err != D2ERR_OK)
 		{
 			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(stream.err), stream.curByte);
 			continue;
 		}
+
 		printf("%zu items found in %s\n", count, filename);
 		d2itemreader_close(&stream);
 	}

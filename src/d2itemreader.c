@@ -16,7 +16,7 @@
 #define D2ITEMREADER_STREAM_SKIP(T) if (stream->curByte+sizeof(T)<=stream->dataSizeBytes) { D2ITEMREADER_STREAM_INC(T); }
 #define D2ITEMREADER_STREAM_READ(T) (stream->curByte+sizeof(T)<=stream->dataSizeBytes ? *(T*)D2ITEMREADER_STREAM_DATA : (T)0); D2ITEMREADER_STREAM_SKIP(T)
 
-enum d2filetype d2filetype_get(const unsigned char* data, size_t size)
+d2filetype d2filetype_get(const unsigned char* data, size_t size)
 {
 	if (size < 4)
 		return D2FILETYPE_UNKNOWN;
@@ -46,7 +46,7 @@ enum d2filetype d2filetype_get(const unsigned char* data, size_t size)
 	}
 }
 
-enum d2filetype d2filetype_of_file(const char* filename)
+d2filetype d2filetype_of_file(const char* filename)
 {
 	FILE* file = fopen(filename, "rb");
 
