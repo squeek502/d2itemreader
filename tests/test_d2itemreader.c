@@ -73,6 +73,18 @@ MU_TEST(plugy_sss)
 	mu_check(err == D2ERR_OK);
 	mu_check(stash.sharedGold == 10);
 	mu_check(stash.numPages == 20);
+	for (size_t i = 0; i < stash.numPages; i++)
+	{
+		d2stashpage* page = &stash.pages[i];
+		mu_check(page->pageNum == i + 1);
+		d2itemlist* items = &stash.pages[i].items;
+		if (page->pageNum == 1)
+			mu_check(items->count == 4);
+		else if (page->pageNum == 20)
+			mu_check(items->count == 1);
+		else
+			mu_check(items->count == 0);
+	}
 	d2sharedstash_destroy(&stash);
 }
 
@@ -83,6 +95,7 @@ MU_TEST(plugy_d2x)
 	d2err err = d2personalstash_parse_file("data/simple.d2x", &stash, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(stash.numPages == 1);
+	mu_check(stash.pages[0].items.count == 24);
 	d2personalstash_destroy(&stash);
 }
 
