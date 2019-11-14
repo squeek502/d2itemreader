@@ -1081,7 +1081,7 @@ CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, size_t dat
 	size_t nameLen = strnlen(namePtr, dataSizeBytes - curByte - 1);
 	if (nameLen > D2_MAX_STASH_PAGE_NAME_STRLEN)
 	{
-		*out_bytesRead = curByte;
+		*out_bytesRead = curByte - startByte;
 		return D2ERR_PARSE_STRING_TOO_LONG;
 	}
 	if (nameLen)

@@ -257,6 +257,15 @@ MU_TEST(sets)
 	d2char_destroy(&character);
 }
 
+MU_TEST(string_too_long)
+{
+	d2personalstash stash;
+	size_t bytesRead;
+	d2err err = d2personalstash_parse_file("data/err-string-too-long.d2x", &stash, &gameData, &bytesRead);
+	mu_check(err == D2ERR_PARSE_STRING_TOO_LONG);
+	mu_check(bytesRead == 0x14);
+}
+
 MU_TEST_SUITE(test_d2itemreader)
 {
 	MU_RUN_TEST(nodata);
@@ -283,6 +292,7 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(ear);
 	MU_RUN_TEST(earchar);
 	MU_RUN_TEST(sets);
+	MU_RUN_TEST(string_too_long);
 	d2gamedata_destroy(&gameData);
 }
 
