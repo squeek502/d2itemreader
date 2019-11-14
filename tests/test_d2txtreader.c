@@ -31,5 +31,5 @@ int main()
 {
 	MU_RUN_SUITE(test_d2txtreader);
 	MU_REPORT();
-	return minunit_fail;
+	return MU_EXIT_CODE;
 }

@@ -39,5 +39,5 @@ int main()
 {
 	MU_RUN_SUITE(test_strset);
 	MU_REPORT();
-	return minunit_fail;
+	return MU_EXIT_CODE;
 }

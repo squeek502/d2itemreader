@@ -20,8 +20,8 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-#ifndef __MINUNIT_H__
-#define __MINUNIT_H__
+#ifndef MINUNIT_MINUNIT_H
+#define MINUNIT_MINUNIT_H
 
 #ifdef __cplusplus
 	extern "C" {
@@ -134,6 +134,7 @@ static void (*minunit_teardown)(void) = NULL;
 		minunit_end_real_timer - minunit_real_timer,\
 		minunit_end_proc_timer - minunit_proc_timer);\
 )
+#define MU_EXIT_CODE minunit_fail
 
 /*  Assertions */
 #define mu_check(test) MU__SAFE_BLOCK(\
@@ -383,4 +384,4 @@ static double mu_timer_cpu(void)
 }
 #endif
 
-#endif /* __MINUNIT_H__ */
+#endif /* MINUNIT_MINUNIT_H */
