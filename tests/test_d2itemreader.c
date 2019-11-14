@@ -290,5 +290,5 @@ int main()
 {
 	MU_RUN_SUITE(test_d2itemreader);
 	MU_REPORT();
-	return minunit_status;
+	return minunit_fail;
 }

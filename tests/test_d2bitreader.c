@@ -169,5 +169,5 @@ int main()
 {
 	MU_RUN_SUITE(test_d2bitreader);
 	MU_REPORT();
-	return minunit_status;
+	return minunit_fail;
 }
