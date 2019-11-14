@@ -424,6 +424,7 @@ CHECK_RESULT d2err d2item_parse_file(const char* filename, d2item* item, d2gamed
 
 CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead)
 {
+	size_t curByte = startByte;
 	size_t bytesRead;
 	d2err err = d2item_parse_single(data, dataSizeBytes, startByte, item, gameData, &bytesRead);
 
@@ -433,14 +434,15 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 		return err;
 	}
 
-	size_t curByte = startByte+bytesRead;
-
 	// any socketed item here is an error (only child items should be socketed)
 	if (item->locationID == D2LOCATION_SOCKETED)
 	{
+		// don't increment curByte so that the error points to the start of the item
 		err = D2ERR_PARSE_UNEXPECTED_SOCKETED_ITEM;
 		goto err;
 	}
+
+	curByte += bytesRead;
 
 	if (item->simpleItem)
 	{
@@ -1050,7 +1052,7 @@ CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t d
 
 		uint32_t pageNum = 0;
 		d2item item;
-		while (stream.err == D2ERR_OK && stream.parseState != PARSE_STATE_FINISHED)
+		while (stream.err == D2ERR_OK && stream.parseState != PARSE_STATE_FINISHED && stash->numPages < stash->info.expectedNumPages)
 		{
 			// seek to the start of a page's items, even if the page is empty
 			if (!d2itemreader_seek_parse_state(&stream, PARSE_STATE_NONE))
@@ -1076,6 +1078,8 @@ CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t d
 			}
 		}
 	}
+	// finish parsing the rest (which should be nothing, we just stopped at the last ITEMLIST_DONE state)
+	d2itemreader_seek_parse_state(&stream, PARSE_STATE_FINISHED);
 	if (stream.err != D2ERR_OK)
 	{
 		err = stream.err;
@@ -1214,7 +1218,7 @@ CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t
 
 		uint32_t pageNum = 0;
 		d2item item;
-		while (stream.err == D2ERR_OK && stream.parseState != PARSE_STATE_FINISHED)
+		while (stream.err == D2ERR_OK && stream.parseState != PARSE_STATE_FINISHED && stash->numPages < stash->info.expectedNumPages)
 		{
 			// seek to the start of a page's items, even if the page is empty
 			if (!d2itemreader_seek_parse_state(&stream, PARSE_STATE_NONE))
@@ -1240,6 +1244,8 @@ CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t
 			}
 		}
 	}
+	// finish parsing the rest (which should be nothing, we just stopped at the last ITEMLIST_DONE state)
+	d2itemreader_seek_parse_state(&stream, PARSE_STATE_FINISHED);
 	if (stream.err != D2ERR_OK)
 	{
 		err = stream.err;
@@ -1791,19 +1797,24 @@ CHECK_RESULT bool d2itemreader_seek_parse_state(d2itemreader_stream* stream, d2i
 	return stream->err == D2ERR_OK;
 }
 
-CHECK_RESULT bool d2itemreader_seek_valid_item(d2itemreader_stream* stream)
+CHECK_RESULT bool d2itemreader_seek_valid_item_but_stop_on(d2itemreader_stream* stream, d2itemreader_parse_state stopOn)
 {
 	// skip over 0 length item lists
-	while (d2itemreader_seek_parse_state(stream, PARSE_STATE_NONE) && stream->parseState == PARSE_STATE_ITEM_READY && stream->state.curItem >= stream->state.numItems)
+	while (d2itemreader_seek_parse_state(stream, stopOn) && stream->parseState == PARSE_STATE_ITEM_READY && stream->state.curItem >= stream->state.numItems)
 	{
 		stream->parseState = PARSE_STATE_ITEMLIST_DONE;
 	}
 	return stream->err == D2ERR_OK;
 }
 
+CHECK_RESULT bool d2itemreader_seek_valid_item(d2itemreader_stream* stream)
+{
+	return d2itemreader_seek_valid_item_but_stop_on(stream, PARSE_STATE_NONE);
+}
+
 CHECK_RESULT bool d2itemreader_next_but_stop_on(d2itemreader_stream* stream, d2item* item, d2itemreader_parse_state stopOn)
 {
-	if (!d2itemreader_seek_valid_item(stream) || stream->parseState == stopOn || stream->parseState == PARSE_STATE_FINISHED)
+	if (!d2itemreader_seek_valid_item_but_stop_on(stream, stopOn) || stream->parseState == stopOn || stream->parseState == PARSE_STATE_FINISHED)
 	{
 		return false;
 	}
