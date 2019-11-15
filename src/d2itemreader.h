@@ -550,7 +550,7 @@ typedef struct d2itemreader_stream {
 CHECK_RESULT d2err d2itemreader_open_file(d2itemreader_stream* stream, const char* filepath, d2gamedata* gameData);
 CHECK_RESULT d2err d2itemreader_open_buffer(d2itemreader_stream* stream, const unsigned char* const data, size_t dataSizeBytes, d2gamedata* gameData);
 void d2itemreader_close(d2itemreader_stream* stream);
-const unsigned char* const d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes);
+unsigned char* const d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes);
 
 /**
 * Get the next item in the `stream`

@@ -1797,7 +1797,7 @@ void d2itemreader_close(d2itemreader_stream* stream)
 	}
 }
 
-const unsigned char* const d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes)
+unsigned char* const d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes)
 {
 	if (stream->err != D2ERR_OK)
 		return NULL;
