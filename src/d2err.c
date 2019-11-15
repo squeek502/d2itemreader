@@ -16,7 +16,6 @@ const char* d2err_str(d2err err)
 		case D2ERR_PARSE_UNEXPECTED_EOF: return "unexpected end of file";
 		case D2ERR_PARSE_UNEXPECTED_NONSOCKETED_ITEM: return "unexpected non-socket item";
 		case D2ERR_PARSE_TOO_MANY_STASH_PAGES: return "impossibly large number of stash pages";
-		case D2ERR_PARSE_TOO_FEW_STASH_PAGES: return "actual number of stash pages lower than number given in header";
 		case D2ERR_DATA_NOT_LOADED: return "game data (.txt files) not loaded";
 		case D2ERR_UNSUPPORTED_VERSION: return "unsupported game version";
 		case D2ERR_UNKNOWN_FILE_TYPE: return "unknown file type";

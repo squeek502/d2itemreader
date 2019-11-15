@@ -1085,11 +1085,6 @@ CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t d
 		err = stream.err;
 		goto err;
 	}
-	if (stash->numPages != stash->info.expectedNumPages)
-	{
-		err = D2ERR_PARSE_TOO_FEW_STASH_PAGES;
-		goto err;
-	}
 
 	*out_bytesRead = stream.curByte;
 	d2itemreader_close(&stream);
@@ -1249,11 +1244,6 @@ CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t
 	if (stream.err != D2ERR_OK)
 	{
 		err = stream.err;
-		goto err;
-	}
-	if (stash->numPages != stash->info.expectedNumPages)
-	{
-		err = D2ERR_PARSE_TOO_FEW_STASH_PAGES;
 		goto err;
 	}
 

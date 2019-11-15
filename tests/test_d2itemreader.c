@@ -297,6 +297,15 @@ MU_TEST(err_unexpected_socketed_atma)
 	mu_check(bytesRead == 0xb);
 }
 
+MU_TEST(err_eof_d2x)
+{
+	d2personalstash stash;
+	size_t bytesRead;
+	d2err err = d2personalstash_parse_file("data/err-eof.d2x", &stash, &gameData, &bytesRead);
+	mu_check(err == D2ERR_PARSE_UNEXPECTED_EOF);
+	mu_check(bytesRead == 0xb1);
+}
+
 MU_TEST_SUITE(test_d2itemreader)
 {
 	MU_RUN_TEST(nodata);
@@ -326,6 +335,7 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(string_too_long);
 	MU_RUN_TEST(err_eof_d2s);
 	MU_RUN_TEST(err_unexpected_socketed_atma);
+	MU_RUN_TEST(err_eof_d2x);
 	d2gamedata_destroy(&gameData);
 }
 
