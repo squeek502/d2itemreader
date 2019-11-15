@@ -288,7 +288,7 @@ void d2itemlist_parse_header(d2itemreader_stream* stream)
 
 	stream->state.curItem = 0;
 	stream->state.numItems = D2ITEMREADER_STREAM_READ(uint16_t) else { goto eof; }
-	stream->parseState = PARSE_STATE_ITEM_READY;
+	stream->state.parseState = PARSE_STATE_ITEM_READY;
 	return;
 
 eof:
@@ -944,7 +944,7 @@ void d2stashpage_parse_header(d2itemreader_stream* stream)
 		strncpy(stream->curPage.name, namePtr, nameLen + 1);
 	stream->curByte += nameLen + 1;
 	stream->curPage.pageNum = stream->state.curPage + 1;
-	stream->parseState = PARSE_STATE_ITEMLIST_READY;
+	stream->state.parseState = PARSE_STATE_ITEMLIST_READY;
 	return;
 
 eof:
@@ -977,7 +977,7 @@ void d2stashpages_parse(d2itemreader_stream* stream, uint32_t expectedNumPages, 
 
 		uint32_t pageNum = 0;
 		d2item item;
-		while (stream->err == D2ERR_OK && stream->parseState != PARSE_STATE_FINISHED && *numPages < expectedNumPages)
+		while (stream->err == D2ERR_OK && stream->state.parseState != PARSE_STATE_FINISHED && *numPages < expectedNumPages)
 		{
 			// seek to the start of a page's items, even if the page is empty
 			if (!d2itemreader_seek_parse_state(stream, PARSE_STATE_NONE))
@@ -1042,7 +1042,7 @@ void d2sharedstash_parse_header(d2itemreader_stream* stream, d2sharedstash_info*
 
 	stream->state.curPage = 0;
 	stream->state.numPages = info->expectedNumPages;
-	stream->parseState = info->expectedNumPages > 0 ? PARSE_STATE_PAGE_READY : PARSE_STATE_NEEDS_VERIFICATION;
+	stream->state.parseState = info->expectedNumPages > 0 ? PARSE_STATE_PAGE_READY : PARSE_STATE_NEEDS_VERIFICATION;
 	return;
 
 eof:
@@ -1154,7 +1154,7 @@ void d2personalstash_parse_header(d2itemreader_stream* stream, d2personalstash_i
 
 	stream->state.curPage = 0;
 	stream->state.numPages = info->expectedNumPages;
-	stream->parseState = info->expectedNumPages > 0 ? PARSE_STATE_PAGE_READY : PARSE_STATE_NEEDS_VERIFICATION;
+	stream->state.parseState = info->expectedNumPages > 0 ? PARSE_STATE_PAGE_READY : PARSE_STATE_NEEDS_VERIFICATION;
 	return;
 
 eof:
@@ -1314,7 +1314,7 @@ void d2char_parse_section_main(d2itemreader_stream* stream, d2char_info* info)
 		goto eof;
 	}
 
-	stream->parseState = PARSE_STATE_ITEMLIST_READY;
+	stream->state.parseState = PARSE_STATE_ITEMLIST_READY;
 	return;
 
 eof:
@@ -1338,10 +1338,10 @@ void d2char_parse_section_corpse(d2itemreader_stream* stream, d2char_info* info)
 	{
 		// 12 unknown bytes
 		stream->curByte += 12;
-		stream->parseState = PARSE_STATE_ITEMLIST_READY;
+		stream->state.parseState = PARSE_STATE_ITEMLIST_READY;
 	}
 	else
-		stream->parseState = PARSE_STATE_ITEMLIST_DONE;
+		stream->state.parseState = PARSE_STATE_ITEMLIST_DONE;
 	return;
 
 eof:
@@ -1360,12 +1360,12 @@ void d2char_parse_section_merc(d2itemreader_stream* stream, d2char_info* info)
 			stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 			return;
 		}
-		stream->parseState = info->mercID ? PARSE_STATE_ITEMLIST_READY : PARSE_STATE_ITEMLIST_DONE;
+		stream->state.parseState = info->mercID ? PARSE_STATE_ITEMLIST_READY : PARSE_STATE_ITEMLIST_DONE;
 	}
 	else
 	{
 		// no merc or golem, we should be at the end of the file
-		stream->parseState = PARSE_STATE_NEEDS_VERIFICATION;
+		stream->state.parseState = PARSE_STATE_NEEDS_VERIFICATION;
 	}
 	return;
 
@@ -1399,7 +1399,7 @@ void d2char_parse_section_golem(d2itemreader_stream* stream, d2char_info* info)
 		d2item_destroy(&ironGolemItem);
 	}
 
-	stream->parseState = PARSE_STATE_NEEDS_VERIFICATION;
+	stream->state.parseState = PARSE_STATE_NEEDS_VERIFICATION;
 	return;
 
 eof:
@@ -1527,7 +1527,7 @@ void d2atmastash_parse_header(d2itemreader_stream* stream, d2atmastash_info* inf
 
 	// 32 bit checksum
 	D2ITEMREADER_STREAM_SKIP(uint32_t) else { goto eof; }
-	stream->parseState = PARSE_STATE_ITEM_READY;
+	stream->state.parseState = PARSE_STATE_ITEM_READY;
 	return;
 
 eof:
@@ -1610,7 +1610,7 @@ static void d2itemreader_stream_init(d2itemreader_stream* stream)
 	stream->err = D2ERR_OK;
 	stream->filetype = D2FILETYPE_UNKNOWN;
 	stream->state = (d2itemreader_state) { 0 };
-	stream->parseState = PARSE_STATE_NOTHING_PARSED;
+	stream->state.parseState = PARSE_STATE_NOTHING_PARSED;
 	stream->curPage = (d2stashpage) { 0 };
 	stream->curSection = D2CHAR_SECTION_MAIN;
 	stream->dataNeedsFree = false;
@@ -1665,9 +1665,9 @@ done:
 
 CHECK_RESULT bool d2itemreader_seek_parse_state(d2itemreader_stream* stream, d2itemreader_parse_state state)
 {
-	while (stream->parseState != state && stream->parseState != PARSE_STATE_ITEM_READY && stream->parseState != PARSE_STATE_FINISHED && stream->err == D2ERR_OK)
+	while (stream->state.parseState != state && stream->state.parseState != PARSE_STATE_ITEM_READY && stream->state.parseState != PARSE_STATE_FINISHED && stream->err == D2ERR_OK)
 	{
-		switch (stream->parseState)
+		switch (stream->state.parseState)
 		{
 		case PARSE_STATE_NOTHING_PARSED:
 			switch (stream->filetype)
@@ -1675,7 +1675,7 @@ CHECK_RESULT bool d2itemreader_seek_parse_state(d2itemreader_stream* stream, d2i
 			case D2FILETYPE_D2_ITEM:
 				stream->state.curItem = 0;
 				stream->state.numItems = 1;
-				stream->parseState = PARSE_STATE_ITEM_READY;
+				stream->state.parseState = PARSE_STATE_ITEM_READY;
 				break;
 			case D2FILETYPE_ATMA_STASH:
 				d2atmastash_parse_header(stream, &stream->info.d2atmastash);
@@ -1705,12 +1705,12 @@ CHECK_RESULT bool d2itemreader_seek_parse_state(d2itemreader_stream* stream, d2i
 			{
 			case D2FILETYPE_D2_ITEM:
 			case D2FILETYPE_ATMA_STASH:
-				stream->parseState = PARSE_STATE_NEEDS_VERIFICATION;
+				stream->state.parseState = PARSE_STATE_NEEDS_VERIFICATION;
 				break;
 			case D2FILETYPE_PLUGY_PERSONAL_STASH:
 			case D2FILETYPE_PLUGY_SHARED_STASH:
 				stream->state.curPage++;
-				stream->parseState = stream->state.curPage < stream->state.numPages ? PARSE_STATE_PAGE_READY : PARSE_STATE_NEEDS_VERIFICATION;
+				stream->state.parseState = stream->state.curPage < stream->state.numPages ? PARSE_STATE_PAGE_READY : PARSE_STATE_NEEDS_VERIFICATION;
 				break;
 			case D2FILETYPE_D2_CHARACTER:
 				switch (stream->curSection)
@@ -1739,7 +1739,7 @@ CHECK_RESULT bool d2itemreader_seek_parse_state(d2itemreader_stream* stream, d2i
 				stream->err = D2ERR_PARSE_TRAILING_BYTES;
 				break;
 			}
-			stream->parseState = PARSE_STATE_FINISHED;
+			stream->state.parseState = PARSE_STATE_FINISHED;
 			break;
 		default:
 			stream->err = D2ERR_INTERNAL;
@@ -1752,9 +1752,9 @@ CHECK_RESULT bool d2itemreader_seek_parse_state(d2itemreader_stream* stream, d2i
 CHECK_RESULT bool d2itemreader_seek_valid_item_but_stop_on(d2itemreader_stream* stream, d2itemreader_parse_state stopOn)
 {
 	// skip over 0 length item lists
-	while (d2itemreader_seek_parse_state(stream, stopOn) && stream->parseState == PARSE_STATE_ITEM_READY && stream->state.curItem >= stream->state.numItems)
+	while (d2itemreader_seek_parse_state(stream, stopOn) && stream->state.parseState == PARSE_STATE_ITEM_READY && stream->state.curItem >= stream->state.numItems)
 	{
-		stream->parseState = PARSE_STATE_ITEMLIST_DONE;
+		stream->state.parseState = PARSE_STATE_ITEMLIST_DONE;
 	}
 	return stream->err == D2ERR_OK;
 }
@@ -1766,7 +1766,7 @@ CHECK_RESULT bool d2itemreader_seek_valid_item(d2itemreader_stream* stream)
 
 CHECK_RESULT bool d2itemreader_next_but_stop_on(d2itemreader_stream* stream, d2item* item, d2itemreader_parse_state stopOn)
 {
-	if (!d2itemreader_seek_valid_item_but_stop_on(stream, stopOn) || stream->parseState == stopOn || stream->parseState == PARSE_STATE_FINISHED)
+	if (!d2itemreader_seek_valid_item_but_stop_on(stream, stopOn) || stream->state.parseState == stopOn || stream->state.parseState == PARSE_STATE_FINISHED)
 	{
 		return false;
 	}

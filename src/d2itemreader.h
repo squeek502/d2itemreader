@@ -515,6 +515,7 @@ typedef enum d2char_section {
 } d2char_section;
 
 typedef struct d2itemreader_state {
+	d2itemreader_parse_state parseState;
 	uint32_t curPage;
 	uint32_t numPages;
 	uint16_t curItem;
@@ -530,7 +531,6 @@ typedef struct d2itemreader_stream {
 	d2err err;
 	d2filetype filetype;
 	d2itemreader_state state;
-	d2itemreader_parse_state parseState;
 	union {
 		d2char_info d2char;
 		d2atmastash_info d2atmastash;
