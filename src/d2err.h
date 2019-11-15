@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include <stddef.h>
 typedef struct d2itemreader_stream d2itemreader_stream; // forward dec
 
 typedef enum d2err {
