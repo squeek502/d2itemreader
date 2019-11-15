@@ -952,6 +952,61 @@ eof:
 	stream->err = D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
+void d2stashpages_parse(d2itemreader_stream* stream, uint32_t expectedNumPages, uint32_t* numPages, d2stashpage** pages, d2itemlist** itemsByPage)
+{
+	// numPages is incremented as pages are successfully parsed to
+	// ensure that calling d2<x>stash_destroy doesn't attempt to free pages
+	// that haven't been initialized
+	*numPages = 0;
+	*pages = NULL;
+	*itemsByPage = NULL;
+	if (expectedNumPages > 0)
+	{
+		*pages = malloc(expectedNumPages * sizeof(d2stashpage));
+		if (*pages == NULL)
+		{
+			stream->err = D2ERR_OUT_OF_MEMORY;
+			return;
+		}
+		*itemsByPage = malloc(expectedNumPages * sizeof(d2itemlist));
+		if (*itemsByPage == NULL)
+		{
+			stream->err = D2ERR_OUT_OF_MEMORY;
+			return;
+		}
+
+		uint32_t pageNum = 0;
+		d2item item;
+		while (stream->err == D2ERR_OK && stream->parseState != PARSE_STATE_FINISHED && *numPages < expectedNumPages)
+		{
+			// seek to the start of a page's items, even if the page is empty
+			if (!d2itemreader_seek_parse_state(stream, PARSE_STATE_NONE))
+			{
+				break;
+			}
+			uint32_t pageIndex = *numPages;
+			(*pages)[pageIndex] = stream->curPage;
+			if ((stream->err = d2itemlist_init(&(*itemsByPage)[pageIndex], stream->state.numItems)) != D2ERR_OK)
+			{
+				return;
+			}
+			(*numPages)++;
+
+			// now loop through the items, but stop after this page's itemlist
+			while (d2itemreader_next_but_stop_on(stream, &item, PARSE_STATE_ITEMLIST_DONE))
+			{
+				if ((stream->err = d2itemlist_append(&(*itemsByPage)[pageIndex], &item)) != D2ERR_OK)
+				{
+					d2item_destroy(&item);
+					return;
+				}
+			}
+		}
+	}
+	// finish parsing the rest (which should be nothing, we just stopped at the last ITEMLIST_DONE state)
+	d2itemreader_seek_parse_state(stream, PARSE_STATE_FINISHED);
+}
+
 void d2sharedstash_parse_header(d2itemreader_stream* stream, d2sharedstash_info* info)
 {
 	uint32_t header = D2ITEMREADER_STREAM_READ(uint32_t) else { goto eof; }
@@ -1029,57 +1084,8 @@ CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t d
 	}
 	// copy info over
 	stash->info = stream.info.d2sharedstash;
-	// stash->numPages is incremented as pages are successfully parsed to
-	// ensure that calling d2sharedstash_destroy doesn't attempt to free pages
-	// that haven't been initialized
-	stash->numPages = 0;
-	stash->pages = NULL;
-	stash->itemsByPage = NULL;
-	if (stash->info.expectedNumPages > 0)
-	{
-		stash->pages = malloc(stash->info.expectedNumPages * sizeof(*stash->pages));
-		if (stash->pages == NULL)
-		{
-			err = D2ERR_OUT_OF_MEMORY;
-			goto err;
-		}
-		stash->itemsByPage = malloc(stash->info.expectedNumPages * sizeof(*stash->itemsByPage));
-		if (stash->itemsByPage == NULL)
-		{
-			return D2ERR_OUT_OF_MEMORY;
-			goto err;
-		}
+	d2stashpages_parse(&stream, stash->info.expectedNumPages, &stash->numPages, &stash->pages, &stash->itemsByPage);
 
-		uint32_t pageNum = 0;
-		d2item item;
-		while (stream.err == D2ERR_OK && stream.parseState != PARSE_STATE_FINISHED && stash->numPages < stash->info.expectedNumPages)
-		{
-			// seek to the start of a page's items, even if the page is empty
-			if (!d2itemreader_seek_parse_state(&stream, PARSE_STATE_NONE))
-			{
-				break;
-			}
-			uint32_t pageIndex = stash->numPages;
-			stash->pages[pageIndex] = stream.curPage;
-			if ((err = d2itemlist_init(&stash->itemsByPage[pageIndex], stream.state.numItems)) != D2ERR_OK)
-			{
-				goto err;
-			}
-			stash->numPages++;
-
-			// now loop through the items, but stop after this page's itemlist
-			while (d2itemreader_next_but_stop_on(&stream, &item, PARSE_STATE_ITEMLIST_DONE))
-			{
-				if ((err = d2itemlist_append(&stash->itemsByPage[pageIndex], &item)) != D2ERR_OK)
-				{
-					d2item_destroy(&item);
-					goto err;
-				}
-			}
-		}
-	}
-	// finish parsing the rest (which should be nothing, we just stopped at the last ITEMLIST_DONE state)
-	d2itemreader_seek_parse_state(&stream, PARSE_STATE_FINISHED);
 	if (stream.err != D2ERR_OK)
 	{
 		err = stream.err;
@@ -1190,57 +1196,8 @@ CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t
 	}
 	// copy info over
 	stash->info = stream.info.d2personalstash;
-	// stash->numPages is incremented as pages are successfully parsed to
-	// ensure that calling d2personalstash_destroy doesn't attempt to free pages
-	// that haven't been initialized
-	stash->numPages = 0;
-	stash->pages = NULL;
-	stash->itemsByPage = NULL;
-	if (stash->info.expectedNumPages > 0)
-	{
-		stash->pages = malloc(stash->info.expectedNumPages * sizeof(*stash->pages));
-		if (stash->pages == NULL)
-		{
-			err = D2ERR_OUT_OF_MEMORY;
-			goto err;
-		}
-		stash->itemsByPage = malloc(stash->info.expectedNumPages * sizeof(*stash->itemsByPage));
-		if (stash->itemsByPage == NULL)
-		{
-			return D2ERR_OUT_OF_MEMORY;
-			goto err;
-		}
+	d2stashpages_parse(&stream, stash->info.expectedNumPages, &stash->numPages, &stash->pages, &stash->itemsByPage);
 
-		uint32_t pageNum = 0;
-		d2item item;
-		while (stream.err == D2ERR_OK && stream.parseState != PARSE_STATE_FINISHED && stash->numPages < stash->info.expectedNumPages)
-		{
-			// seek to the start of a page's items, even if the page is empty
-			if (!d2itemreader_seek_parse_state(&stream, PARSE_STATE_NONE))
-			{
-				break;
-			}
-			uint32_t pageIndex = stash->numPages;
-			stash->pages[pageIndex] = stream.curPage;
-			if ((err = d2itemlist_init(&stash->itemsByPage[pageIndex], stream.state.numItems)) != D2ERR_OK)
-			{
-				goto err;
-			}
-			stash->numPages++;
-
-			// now loop through the items, but stop after this page's itemlist
-			while (d2itemreader_next_but_stop_on(&stream, &item, PARSE_STATE_ITEMLIST_DONE))
-			{
-				if ((err = d2itemlist_append(&stash->itemsByPage[pageIndex], &item)) != D2ERR_OK)
-				{
-					d2item_destroy(&item);
-					goto err;
-				}
-			}
-		}
-	}
-	// finish parsing the rest (which should be nothing, we just stopped at the last ITEMLIST_DONE state)
-	d2itemreader_seek_parse_state(&stream, PARSE_STATE_FINISHED);
 	if (stream.err != D2ERR_OK)
 	{
 		err = stream.err;
