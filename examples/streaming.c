@@ -41,7 +41,7 @@ int main(int argc, const char* argv[])
 		if (stream.err != D2ERR_OK)
 		{
 			d2itemreader_close(&stream);
-			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(stream.err), stream.curByte);
+			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(stream.err), d2err_bytepos(&stream));
 			continue;
 		}
 

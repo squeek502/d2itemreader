@@ -1,4 +1,5 @@
 #include "d2err.h"
+#include "d2itemreader.h"
 
 const char* d2err_str(d2err err)
 {
@@ -22,4 +23,9 @@ const char* d2err_str(d2err err)
 		case D2ERR_INTERNAL: return "internal error (this is a bug)";
 		default: return "unknown error";
 	}
+}
+
+size_t d2err_bytepos(d2itemreader_stream* stream)
+{
+	return stream->source.curByte;
 }

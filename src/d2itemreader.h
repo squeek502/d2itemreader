@@ -523,10 +523,16 @@ typedef struct d2itemreader_state {
 	size_t lastItemSize;
 } d2itemreader_state;
 
-typedef struct d2itemreader_stream {
+typedef struct d2itemreader_source {
 	const unsigned char* data;
 	size_t dataSizeBytes;
 	size_t curByte;
+	// FIXME: this is temporary, should probably use something different
+	bool dataNeedsFree;
+} d2itemreader_source;
+
+typedef struct d2itemreader_stream {
+	d2itemreader_source source;
 	d2gamedata* gameData;
 	d2err err;
 	d2filetype filetype;
@@ -539,8 +545,6 @@ typedef struct d2itemreader_stream {
 	} info;
 	d2stashpage curPage;
 	d2char_section curSection;
-	// this is temporary, should probably use a different structure
-	bool dataNeedsFree;
 } d2itemreader_stream;
 
 CHECK_RESULT d2err d2itemreader_open_file(d2itemreader_stream* stream, const char* filepath, d2gamedata* gameData);

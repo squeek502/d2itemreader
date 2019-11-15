@@ -11,10 +11,10 @@
 #define D2ITEMREADER_READ(T) (curByte+sizeof(T)<=dataSizeBytes ? *(T*)D2ITEMREADER_DATA : (T)0); D2ITEMREADER_SKIP(T)
 
 
-#define D2ITEMREADER_STREAM_DATA (stream->data + stream->curByte)
-#define D2ITEMREADER_STREAM_INC(T) stream->curByte += sizeof(T)
-#define D2ITEMREADER_STREAM_SKIP(T) if (stream->curByte+sizeof(T)<=stream->dataSizeBytes) { D2ITEMREADER_STREAM_INC(T); }
-#define D2ITEMREADER_STREAM_READ(T) (stream->curByte+sizeof(T)<=stream->dataSizeBytes ? *(T*)D2ITEMREADER_STREAM_DATA : (T)0); D2ITEMREADER_STREAM_SKIP(T)
+#define D2ITEMREADER_STREAM_DATA (stream->source.data + stream->source.curByte)
+#define D2ITEMREADER_STREAM_INC(T) stream->source.curByte += sizeof(T)
+#define D2ITEMREADER_STREAM_SKIP(T) if (stream->source.curByte+sizeof(T)<=stream->source.dataSizeBytes) { D2ITEMREADER_STREAM_INC(T); }
+#define D2ITEMREADER_STREAM_READ(T) (stream->source.curByte+sizeof(T)<=stream->source.dataSizeBytes ? *(T*)D2ITEMREADER_STREAM_DATA : (T)0); D2ITEMREADER_STREAM_SKIP(T)
 
 d2filetype d2filetype_get(const unsigned char* data, size_t size)
 {
@@ -98,7 +98,7 @@ CHECK_RESULT d2err d2itemreader_parse_any(const unsigned char* const data, size_
 	{
 		if ((err = d2itemlist_append(itemList, &item)) != D2ERR_OK)
 		{
-			*out_bytesRead = stream.curByte;
+			*out_bytesRead = stream.source.curByte;
 			d2item_destroy(&item);
 			d2itemlist_destroy(itemList);
 			d2itemreader_close(&stream);
@@ -107,7 +107,7 @@ CHECK_RESULT d2err d2itemreader_parse_any(const unsigned char* const data, size_
 	}
 	if (stream.err != D2ERR_OK)
 	{
-		*out_bytesRead = stream.curByte;
+		*out_bytesRead = stream.source.curByte;
 		d2itemlist_destroy(itemList);
 		d2itemreader_close(&stream);
 		return stream.err;
@@ -281,7 +281,7 @@ void d2itemlist_parse_header(d2itemreader_stream* stream)
 	uint16_t tag = D2ITEMREADER_STREAM_READ(uint16_t) else { goto eof; }
 	if (tag != D2_JM_TAG)
 	{
-		stream->curByte -= sizeof(uint16_t);
+		stream->source.curByte -= sizeof(uint16_t);
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
@@ -292,7 +292,7 @@ void d2itemlist_parse_header(d2itemreader_stream* stream)
 	return;
 
 eof:
-	stream->curByte = stream->dataSizeBytes;
+	stream->source.curByte = stream->source.dataSizeBytes;
 	stream->err = D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
@@ -905,36 +905,36 @@ void d2stashpage_parse_header(d2itemreader_stream* stream)
 	uint16_t tag = D2ITEMREADER_STREAM_READ(uint16_t) else { goto eof; }
 	if (tag != PLUGY_STASH_TAG)
 	{
-		stream->curByte -= sizeof(uint16_t);
+		stream->source.curByte -= sizeof(uint16_t);
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
 
 	stream->curPage.flags = 0;
 	// need to make sure we have at least one byte available to read
-	if (stream->curByte >= stream->dataSizeBytes)
+	if (stream->source.curByte >= stream->source.dataSizeBytes)
 	{
 		goto eof;
 	}
-	size_t len = strnlen((char*)&stream->data[stream->curByte], stream->dataSizeBytes - stream->curByte - 1);
+	size_t len = strnlen((char*)&stream->source.data[stream->source.curByte], stream->source.dataSizeBytes - stream->source.curByte - 1);
 	// check that we won't read past the end of data here
-	if (stream->curByte + len + 1 + sizeof(uint16_t) > stream->dataSizeBytes)
+	if (stream->source.curByte + len + 1 + sizeof(uint16_t) > stream->source.dataSizeBytes)
 	{
 		goto eof;
 	}
-	if (*(uint16_t*)&stream->data[stream->curByte + len + 1] != D2_JM_TAG)
+	if (*(uint16_t*)&stream->source.data[stream->source.curByte + len + 1] != D2_JM_TAG)
 	{
 		stream->curPage.flags = D2ITEMREADER_STREAM_READ(uint32_t) else { goto eof; }
 	}
 
 	// need to make sure we have at least one byte available to read
-	if (stream->curByte >= stream->dataSizeBytes)
+	if (stream->source.curByte >= stream->source.dataSizeBytes)
 	{
 		goto eof;
 	}
 	stream->curPage.name[0] = 0;
-	char* namePtr = (char*)&stream->data[stream->curByte];
-	size_t nameLen = strnlen(namePtr, stream->dataSizeBytes - stream->curByte - 1);
+	char* namePtr = (char*)&stream->source.data[stream->source.curByte];
+	size_t nameLen = strnlen(namePtr, stream->source.dataSizeBytes - stream->source.curByte - 1);
 	if (nameLen > D2_MAX_STASH_PAGE_NAME_STRLEN)
 	{
 		stream->err = D2ERR_PARSE_STRING_TOO_LONG;
@@ -942,13 +942,13 @@ void d2stashpage_parse_header(d2itemreader_stream* stream)
 	}
 	if (nameLen)
 		strncpy(stream->curPage.name, namePtr, nameLen + 1);
-	stream->curByte += nameLen + 1;
+	stream->source.curByte += nameLen + 1;
 	stream->curPage.pageNum = stream->state.curPage + 1;
 	stream->state.parseState = PARSE_STATE_ITEMLIST_READY;
 	return;
 
 eof:
-	stream->curByte = stream->dataSizeBytes;
+	stream->source.curByte = stream->source.dataSizeBytes;
 	stream->err = D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
@@ -1012,7 +1012,7 @@ void d2sharedstash_parse_header(d2itemreader_stream* stream, d2sharedstash_info*
 	uint32_t header = D2ITEMREADER_STREAM_READ(uint32_t) else { goto eof; }
 	if (header != PLUGY_SHAREDSTASH_HEADER)
 	{
-		stream->curByte -= sizeof(uint32_t);
+		stream->source.curByte -= sizeof(uint32_t);
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
@@ -1020,7 +1020,7 @@ void d2sharedstash_parse_header(d2itemreader_stream* stream, d2sharedstash_info*
 	info->fileVersion = D2ITEMREADER_STREAM_READ(uint16_t) else { goto eof; }
 	if (!(info->fileVersion == PLUGY_FILE_VERSION_01 || info->fileVersion == PLUGY_FILE_VERSION_02))
 	{
-		stream->curByte -= sizeof(uint16_t);
+		stream->source.curByte -= sizeof(uint16_t);
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
@@ -1033,9 +1033,9 @@ void d2sharedstash_parse_header(d2itemreader_stream* stream, d2sharedstash_info*
 
 	info->expectedNumPages = D2ITEMREADER_STREAM_READ(uint32_t) else { goto eof; }
 	// basic sanity check for impossible page numbers
-	if (info->expectedNumPages > stream->dataSizeBytes)
+	if (info->expectedNumPages > stream->source.dataSizeBytes)
 	{
-		stream->curByte -= sizeof(uint32_t);
+		stream->source.curByte -= sizeof(uint32_t);
 		stream->err = D2ERR_PARSE_TOO_MANY_STASH_PAGES;
 		return;
 	}
@@ -1046,7 +1046,7 @@ void d2sharedstash_parse_header(d2itemreader_stream* stream, d2sharedstash_info*
 	return;
 
 eof:
-	stream->curByte = stream->dataSizeBytes;
+	stream->source.curByte = stream->source.dataSizeBytes;
 	stream->err = D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
@@ -1092,14 +1092,14 @@ CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t d
 		goto err;
 	}
 
-	*out_bytesRead = stream.curByte;
+	*out_bytesRead = stream.source.curByte;
 	d2itemreader_close(&stream);
 	return D2ERR_OK;
 
 err:
 	d2sharedstash_destroy(stash);
 err_early:
-	*out_bytesRead = stream.curByte;
+	*out_bytesRead = stream.source.curByte;
 	d2itemreader_close(&stream);
 	return err;
 }
@@ -1127,7 +1127,7 @@ void d2personalstash_parse_header(d2itemreader_stream* stream, d2personalstash_i
 	uint32_t header = D2ITEMREADER_STREAM_READ(uint32_t) else { goto eof; }
 	if (header != PLUGY_PERSONALSTASH_HEADER)
 	{
-		stream->curByte -= sizeof(uint32_t);
+		stream->source.curByte -= sizeof(uint32_t);
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
@@ -1135,7 +1135,7 @@ void d2personalstash_parse_header(d2itemreader_stream* stream, d2personalstash_i
 	info->fileVersion = D2ITEMREADER_STREAM_READ(uint16_t) else { goto eof; }
 	if (!(info->fileVersion == PLUGY_FILE_VERSION_01))
 	{
-		stream->curByte -= sizeof(uint16_t);
+		stream->source.curByte -= sizeof(uint16_t);
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
@@ -1145,9 +1145,9 @@ void d2personalstash_parse_header(d2itemreader_stream* stream, d2personalstash_i
 
 	info->expectedNumPages = D2ITEMREADER_STREAM_READ(uint32_t) else { goto eof; }
 	// basic sanity check for impossible page numbers
-	if (info->expectedNumPages > stream->dataSizeBytes)
+	if (info->expectedNumPages > stream->source.dataSizeBytes)
 	{
-		stream->curByte -= sizeof(uint32_t);
+		stream->source.curByte -= sizeof(uint32_t);
 		stream->err = D2ERR_PARSE_TOO_MANY_STASH_PAGES;
 		return;
 	}
@@ -1158,7 +1158,7 @@ void d2personalstash_parse_header(d2itemreader_stream* stream, d2personalstash_i
 	return;
 
 eof:
-	stream->curByte = stream->dataSizeBytes;
+	stream->source.curByte = stream->source.dataSizeBytes;
 	stream->err = D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
@@ -1204,14 +1204,14 @@ CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t
 		goto err;
 	}
 
-	*out_bytesRead = stream.curByte;
+	*out_bytesRead = stream.source.curByte;
 	d2itemreader_close(&stream);
 	return D2ERR_OK;
 
 err:
 	d2personalstash_destroy(stash);
 err_early:
-	*out_bytesRead = stream.curByte;
+	*out_bytesRead = stream.source.curByte;
 	d2itemreader_close(&stream);
 	return err;
 }
@@ -1236,9 +1236,9 @@ void d2personalstash_destroy(d2personalstash *stash)
 
 void d2char_parse_section_main(d2itemreader_stream* stream, d2char_info* info)
 {
-	if (stream->dataSizeBytes < D2S_STATS_OFFSET)
+	if (stream->source.dataSizeBytes < D2S_STATS_OFFSET)
 	{
-		stream->curByte = stream->dataSizeBytes;
+		stream->source.curByte = stream->source.dataSizeBytes;
 		stream->err = D2ERR_PARSE_NOT_ENOUGH_BYTES;
 		return;
 	}
@@ -1246,34 +1246,34 @@ void d2char_parse_section_main(d2itemreader_stream* stream, d2char_info* info)
 	uint32_t d2sheader = D2ITEMREADER_STREAM_READ(uint32_t);
 	if (d2sheader != D2S_HEADER)
 	{
-		stream->curByte -= sizeof(uint32_t);
+		stream->source.curByte -= sizeof(uint32_t);
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
 	info->fileVersion = D2ITEMREADER_STREAM_READ(uint32_t);
 	if (info->fileVersion < D2S_VERSION_110)
 	{
-		stream->curByte -= sizeof(uint32_t);
+		stream->source.curByte -= sizeof(uint32_t);
 		stream->err = D2ERR_UNSUPPORTED_VERSION;
 		return;
 	}
 
-	uint8_t statusBitfield = *(uint8_t*)(stream->data + D2S_STATUS_OFFSET);
+	uint8_t statusBitfield = *(uint8_t*)(stream->source.data + D2S_STATUS_OFFSET);
 	info->isExpansion = statusBitfield & D2S_STATUS_EXPANSION_MASK;
-	info->mercID = info->isExpansion ? *(uint32_t*)(stream->data + D2S_MERC_ID_OFFSET) : 0;
+	info->mercID = info->isExpansion ? *(uint32_t*)(stream->source.data + D2S_MERC_ID_OFFSET) : 0;
 
 	// skip to stats, as that's where things gets variable length
-	stream->curByte = D2S_STATS_OFFSET;
+	stream->source.curByte = D2S_STATS_OFFSET;
 
 	uint16_t header = D2ITEMREADER_STREAM_READ(uint16_t) else { goto eof; }
 	if (header != D2S_STATS_HEADER)
 	{
-		stream->curByte -= sizeof(uint16_t);
+		stream->source.curByte -= sizeof(uint16_t);
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
 
-	d2bitreader br = { stream->data, stream->dataSizeBytes, stream->curByte, stream->curByte * BITS_PER_BYTE, stream->curByte * BITS_PER_BYTE };
+	d2bitreader br = { stream->source.data, stream->source.dataSizeBytes, stream->source.curByte, stream->source.curByte * BITS_PER_BYTE, stream->source.curByte * BITS_PER_BYTE };
 
 	while (true)
 	{
@@ -1289,7 +1289,7 @@ void d2char_parse_section_main(d2itemreader_stream* stream, d2char_info* info)
 
 		if (id > D2DATA_ITEMSTAT_END_ID)
 		{
-			stream->curByte = br.cursor;
+			stream->source.curByte = br.cursor;
 			stream->err = D2ERR_PARSE;
 			return;
 		}
@@ -1299,7 +1299,7 @@ void d2char_parse_section_main(d2itemreader_stream* stream, d2char_info* info)
 		// this is unrecoverably bad
 		if (stat->charSaveBits == 0)
 		{
-			stream->curByte = br.cursor;
+			stream->source.curByte = br.cursor;
 			stream->err = D2ERR_PARSE;
 			return;
 		}
@@ -1307,9 +1307,9 @@ void d2char_parse_section_main(d2itemreader_stream* stream, d2char_info* info)
 		d2bitreader_skip(&br, stat->charSaveBits);
 	}
 
-	stream->curByte = d2bitreader_next_byte_pos(&br) + D2S_SKILLS_BYTELEN;
+	stream->source.curByte = d2bitreader_next_byte_pos(&br) + D2S_SKILLS_BYTELEN;
 
-	if (stream->curByte > stream->dataSizeBytes || br.cursor == BIT_READER_CURSOR_BEYOND_EOF)
+	if (stream->source.curByte > stream->source.dataSizeBytes || br.cursor == BIT_READER_CURSOR_BEYOND_EOF)
 	{
 		goto eof;
 	}
@@ -1318,7 +1318,7 @@ void d2char_parse_section_main(d2itemreader_stream* stream, d2char_info* info)
 	return;
 
 eof:
-	stream->curByte = stream->dataSizeBytes;
+	stream->source.curByte = stream->source.dataSizeBytes;
 	stream->err = D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
@@ -1327,7 +1327,7 @@ void d2char_parse_section_corpse(d2itemreader_stream* stream, d2char_info* info)
 	uint16_t corpseHeader = D2ITEMREADER_STREAM_READ(uint16_t) else { goto eof; }
 	if (corpseHeader != D2_JM_TAG)
 	{
-		stream->curByte -= sizeof(uint16_t);
+		stream->source.curByte -= sizeof(uint16_t);
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
@@ -1337,7 +1337,7 @@ void d2char_parse_section_corpse(d2itemreader_stream* stream, d2char_info* info)
 	if (isDead)
 	{
 		// 12 unknown bytes
-		stream->curByte += 12;
+		stream->source.curByte += 12;
 		stream->state.parseState = PARSE_STATE_ITEMLIST_READY;
 	}
 	else
@@ -1345,7 +1345,7 @@ void d2char_parse_section_corpse(d2itemreader_stream* stream, d2char_info* info)
 	return;
 
 eof:
-	stream->curByte = stream->dataSizeBytes;
+	stream->source.curByte = stream->source.dataSizeBytes;
 	stream->err = D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
@@ -1356,7 +1356,7 @@ void d2char_parse_section_merc(d2itemreader_stream* stream, d2char_info* info)
 		uint16_t mercHeader = D2ITEMREADER_STREAM_READ(uint16_t) else { goto eof; }
 		if (mercHeader != D2S_MERC_HEADER)
 		{
-			stream->curByte -= sizeof(uint16_t);
+			stream->source.curByte -= sizeof(uint16_t);
 			stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 			return;
 		}
@@ -1370,7 +1370,7 @@ void d2char_parse_section_merc(d2itemreader_stream* stream, d2char_info* info)
 	return;
 
 eof:
-	stream->curByte = stream->dataSizeBytes;
+	stream->source.curByte = stream->source.dataSizeBytes;
 	stream->err = D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
@@ -1379,7 +1379,7 @@ void d2char_parse_section_golem(d2itemreader_stream* stream, d2char_info* info)
 	uint16_t ironGolemHeader = D2ITEMREADER_STREAM_READ(uint16_t) else { goto eof; }
 	if (ironGolemHeader != D2S_IRON_GOLEM_HEADER)
 	{
-		stream->curByte -= sizeof(uint16_t);
+		stream->source.curByte -= sizeof(uint16_t);
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
@@ -1390,8 +1390,8 @@ void d2char_parse_section_golem(d2itemreader_stream* stream, d2char_info* info)
 		// parse and discard
 		d2item ironGolemItem = { 0 };
 		size_t bytesRead;
-		stream->err = d2item_parse(stream->data, stream->dataSizeBytes, stream->curByte, &ironGolemItem, stream->gameData, &bytesRead);
-		stream->curByte += bytesRead;
+		stream->err = d2item_parse(stream->source.data, stream->source.dataSizeBytes, stream->source.curByte, &ironGolemItem, stream->gameData, &bytesRead);
+		stream->source.curByte += bytesRead;
 		if (stream->err != D2ERR_OK)
 		{
 			return;
@@ -1403,7 +1403,7 @@ void d2char_parse_section_golem(d2itemreader_stream* stream, d2char_info* info)
 	return;
 
 eof:
-	stream->curByte = stream->dataSizeBytes;
+	stream->source.curByte = stream->source.dataSizeBytes;
 	stream->err = D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
@@ -1482,14 +1482,14 @@ CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSize
 	// copy info here to make sure we got all of it (since some is in later sections)
 	character->info = stream.info.d2char;
 
-	*out_bytesRead = stream.curByte;
+	*out_bytesRead = stream.source.curByte;
 	d2itemreader_close(&stream);
 	return D2ERR_OK;
 
 err:
 	d2char_destroy(character);
 err_early:
-	*out_bytesRead = stream.curByte;
+	*out_bytesRead = stream.source.curByte;
 	d2itemreader_close(&stream);
 	return err;
 }
@@ -1509,7 +1509,7 @@ void d2atmastash_parse_header(d2itemreader_stream* stream, d2atmastash_info* inf
 	header[2] = D2ITEMREADER_STREAM_READ(char) else { goto eof; }
 	if (!(header[0] == 'D' && header[1] == '2' && header[2] == 'X'))
 	{
-		stream->curByte = 0;
+		stream->source.curByte = 0;
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
@@ -1520,7 +1520,7 @@ void d2atmastash_parse_header(d2itemreader_stream* stream, d2atmastash_info* inf
 	info->fileVersion = D2ITEMREADER_STREAM_READ(uint16_t) else { goto eof; }
 	if (info->fileVersion != GOMULE_D2X_FILE_VERSION)
 	{
-		stream->curByte -= sizeof(uint16_t);
+		stream->source.curByte -= sizeof(uint16_t);
 		stream->err = D2ERR_PARSE_BAD_HEADER_OR_TAG;
 		return;
 	}
@@ -1531,7 +1531,7 @@ void d2atmastash_parse_header(d2itemreader_stream* stream, d2atmastash_info* inf
 	return;
 
 eof:
-	stream->curByte = stream->dataSizeBytes;
+	stream->source.curByte = stream->source.dataSizeBytes;
 	stream->err = D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
@@ -1586,7 +1586,7 @@ CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dat
 		goto err;
 	}
 
-	*out_bytesRead = stream.curByte;
+	*out_bytesRead = stream.source.curByte;
 	err = stream.err;
 	d2itemreader_close(&stream);
 	return err;
@@ -1594,7 +1594,7 @@ CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dat
 err:
 	d2atmastash_destroy(stash);
 err_early:
-	*out_bytesRead = stream.curByte;
+	*out_bytesRead = stream.source.curByte;
 	d2itemreader_close(&stream);
 	return err;
 }
@@ -1606,14 +1606,14 @@ void d2atmastash_destroy(d2atmastash* stash)
 
 static void d2itemreader_stream_init(d2itemreader_stream* stream)
 {
-	stream->curByte = 0;
+	stream->source.curByte = 0;
 	stream->err = D2ERR_OK;
 	stream->filetype = D2FILETYPE_UNKNOWN;
 	stream->state = (d2itemreader_state) { 0 };
 	stream->state.parseState = PARSE_STATE_NOTHING_PARSED;
 	stream->curPage = (d2stashpage) { 0 };
 	stream->curSection = D2CHAR_SECTION_MAIN;
-	stream->dataNeedsFree = false;
+	stream->source.dataNeedsFree = false;
 }
 
 CHECK_RESULT d2err d2itemreader_open_file(d2itemreader_stream* stream, const char* filepath, d2gamedata* gameData)
@@ -1631,10 +1631,10 @@ CHECK_RESULT d2err d2itemreader_open_file(d2itemreader_stream* stream, const cha
 		stream->err = D2ERR_UNKNOWN_FILE_TYPE;
 		goto done;
 	}
-	stream->err = d2util_read_file(filepath, (unsigned char**)(&stream->data), &stream->dataSizeBytes);
+	stream->err = d2util_read_file(filepath, (unsigned char**)(&stream->source.data), &stream->source.dataSizeBytes);
 	if (stream->err == D2ERR_OK)
 	{
-		stream->dataNeedsFree = true;
+		stream->source.dataNeedsFree = true;
 	}
 
 done:
@@ -1656,8 +1656,8 @@ CHECK_RESULT d2err d2itemreader_open_buffer(d2itemreader_stream* stream, const u
 		stream->err = D2ERR_UNKNOWN_FILE_TYPE;
 		goto done;
 	}
-	stream->data = data;
-	stream->dataSizeBytes = dataSizeBytes;
+	stream->source.data = data;
+	stream->source.dataSizeBytes = dataSizeBytes;
 
 done:
 	return stream->err;
@@ -1734,7 +1734,7 @@ CHECK_RESULT bool d2itemreader_seek_parse_state(d2itemreader_stream* stream, d2i
 			break;
 		case PARSE_STATE_NEEDS_VERIFICATION:
 			// make sure we parsed exactly the whole file
-			if (stream->curByte != stream->dataSizeBytes)
+			if (stream->source.curByte != stream->source.dataSizeBytes)
 			{
 				stream->err = D2ERR_PARSE_TRAILING_BYTES;
 				break;
@@ -1773,13 +1773,13 @@ CHECK_RESULT bool d2itemreader_next_but_stop_on(d2itemreader_stream* stream, d2i
 	// reset item
 	*item = (d2item) { 0 };
 	size_t bytesRead;
-	if ((stream->err = d2item_parse(stream->data, stream->dataSizeBytes, stream->curByte, item, stream->gameData, &bytesRead)) != D2ERR_OK)
+	if ((stream->err = d2item_parse(stream->source.data, stream->source.dataSizeBytes, stream->source.curByte, item, stream->gameData, &bytesRead)) != D2ERR_OK)
 	{
-		stream->curByte += bytesRead;
+		stream->source.curByte += bytesRead;
 		return false;
 	}
 	stream->state.lastItemSize = bytesRead;
-	stream->curByte += bytesRead;
+	stream->source.curByte += bytesRead;
 	stream->state.curItem++;
 	return true;
 }
@@ -1791,9 +1791,9 @@ CHECK_RESULT bool d2itemreader_next(d2itemreader_stream* stream, d2item* item)
 
 void d2itemreader_close(d2itemreader_stream* stream)
 {
-	if (stream->dataNeedsFree)
+	if (stream->source.dataNeedsFree)
 	{
-		free((void*)stream->data);
+		free((void*)stream->source.data);
 	}
 }
 
@@ -1803,5 +1803,5 @@ const unsigned char* const d2itemreader_dump_last_item(d2itemreader_stream* stre
 		return NULL;
 
 	*out_itemSizeBytes = stream->state.lastItemSize;
-	return stream->data - stream->state.lastItemSize;
+	return stream->source.data - stream->state.lastItemSize;
 }
