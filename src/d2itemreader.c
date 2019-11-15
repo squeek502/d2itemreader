@@ -1805,3 +1805,8 @@ unsigned char* const d2itemreader_dump_last_item(d2itemreader_stream* stream, si
 	*out_itemSizeBytes = stream->state.lastItemSize;
 	return stream->source.data - stream->state.lastItemSize;
 }
+
+size_t d2itemreader_bytepos(d2itemreader_stream* stream)
+{
+	return stream->source.curByte;
+}

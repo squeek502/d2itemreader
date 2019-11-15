@@ -5,9 +5,6 @@
 extern "C" {
 #endif
 
-#include <stddef.h>
-typedef struct d2itemreader_stream d2itemreader_stream; // forward dec
-
 typedef enum d2err {
 	D2ERR_OK,
 	D2ERR_FILE,
@@ -31,11 +28,6 @@ typedef enum d2err {
 * Get a human readable representation for the error code
 */
 const char* d2err_str(d2err err);
-
-/*
-* Get the byte position of the error in a d2itemreader_stream
-*/
-size_t d2err_bytepos(d2itemreader_stream* stream);
 
 #ifdef __cplusplus
 }

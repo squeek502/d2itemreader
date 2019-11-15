@@ -24,8 +24,3 @@ const char* d2err_str(d2err err)
 		default: return "unknown error";
 	}
 }
-
-size_t d2err_bytepos(d2itemreader_stream* stream)
-{
-	return stream->source.curByte;
-}

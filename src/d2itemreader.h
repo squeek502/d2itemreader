@@ -552,6 +552,11 @@ CHECK_RESULT d2err d2itemreader_open_buffer(d2itemreader_stream* stream, const u
 void d2itemreader_close(d2itemreader_stream* stream);
 unsigned char* const d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes);
 
+/*
+* Get the byte position of the d2itemreader_stream (useful for printing the location of an error)
+*/
+size_t d2itemreader_bytepos(d2itemreader_stream* stream);
+
 /**
 * Get the next item in the `stream`
 *
