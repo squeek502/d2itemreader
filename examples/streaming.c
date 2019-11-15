@@ -36,9 +36,11 @@ int main(int argc, const char* argv[])
 		while (d2itemreader_next(&stream, &item))
 		{
 			count++;
+			d2item_destroy(&item);
 		}
 		if (stream.err != D2ERR_OK)
 		{
+			d2itemreader_close(&stream);
 			fprintf(stderr, "Failed to parse %s: %s at byte 0x%zx\n", filename, d2err_str(stream.err), stream.curByte);
 			continue;
 		}

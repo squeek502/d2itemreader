@@ -1613,6 +1613,7 @@ static void d2itemreader_stream_init(d2itemreader_stream* stream)
 	stream->parseState = PARSE_STATE_NOTHING_PARSED;
 	stream->curPage = (d2stashpage) { 0 };
 	stream->curSection = D2CHAR_SECTION_MAIN;
+	stream->dataNeedsFree = false;
 }
 
 CHECK_RESULT d2err d2itemreader_open_file(d2itemreader_stream* stream, const char* filepath, d2gamedata* gameData)
@@ -1631,6 +1632,10 @@ CHECK_RESULT d2err d2itemreader_open_file(d2itemreader_stream* stream, const cha
 		goto done;
 	}
 	stream->err = d2util_read_file(filepath, (unsigned char**)(&stream->data), &stream->dataSizeBytes);
+	if (stream->err == D2ERR_OK)
+	{
+		stream->dataNeedsFree = true;
+	}
 
 done:
 	return stream->err;
@@ -1786,7 +1791,10 @@ CHECK_RESULT bool d2itemreader_next(d2itemreader_stream* stream, d2item* item)
 
 void d2itemreader_close(d2itemreader_stream* stream)
 {
-	// FIXME: noop
+	if (stream->dataNeedsFree)
+	{
+		free((void*)stream->data);
+	}
 }
 
 const unsigned char* const d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes)

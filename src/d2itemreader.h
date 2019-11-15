@@ -539,6 +539,8 @@ typedef struct d2itemreader_stream {
 	} info;
 	d2stashpage curPage;
 	d2char_section curSection;
+	// this is temporary, should probably use a different structure
+	bool dataNeedsFree;
 } d2itemreader_stream;
 
 CHECK_RESULT d2err d2itemreader_open_file(d2itemreader_stream* stream, const char* filepath, d2gamedata* gameData);
