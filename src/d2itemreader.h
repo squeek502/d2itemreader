@@ -32,7 +32,7 @@ typedef enum d2filetype
 } d2filetype;
 
 /// Attempt to determine the filetype of the given binary data
-d2filetype d2filetype_get(const unsigned char* data, size_t size);
+d2filetype d2filetype_get(const uint8_t* data, size_t size);
 /// Attempt to determine the filetype of the given file path
 d2filetype d2filetype_of_file(const char* filename);
 
@@ -57,7 +57,7 @@ typedef struct d2itemlist {
 * @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2itemreader_parse_any_file(const char* filename, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead);
-CHECK_RESULT d2err d2itemreader_parse_any(const unsigned char* const data, size_t dataSizeBytes, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2itemreader_parse_any(const uint8_t* const data, size_t dataSizeBytes, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead);
 
 /**
 * Parse the itemlist in `data` starting at `startByte`, and store the result in `items`
@@ -71,7 +71,7 @@ CHECK_RESULT d2err d2itemreader_parse_any(const unsigned char* const data, size_
 *
 * @see d2itemlist_destroy(), d2itemlist_parse_num()
 */
-CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2itemlist_parse(const uint8_t* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, d2gamedata *gameData, size_t* out_bytesRead);
 /**
 * Parse the itemlist containing exactly `numItems` items (not including items in sockets)
 * in `data` starting at `startByte`, and store the result in `items`
@@ -86,7 +86,7 @@ CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t data
 *
 * @see d2itemlist_destroy(), d2itemlist_parse()
 */
-CHECK_RESULT d2err d2itemlist_parse_num(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, uint16_t numItems, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2itemlist_parse_num(const uint8_t* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, uint16_t numItems, d2gamedata *gameData, size_t* out_bytesRead);
 CHECK_RESULT d2err d2itemlist_init(d2itemlist* list, size_t initialSize);
 void d2itemlist_init_empty(d2itemlist* list);
 CHECK_RESULT d2err d2itemlist_append(d2itemlist* list, const d2item* const item);
@@ -362,7 +362,7 @@ CHECK_RESULT d2err d2item_parse_file(const char* filename, d2item* item, d2gamed
 *
 * @see d2item_destroy(), d2item_parse_file(), d2item_parse_single()
 */
-CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2item_parse(const uint8_t* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead);
 /**
 * Parse the item (but not socketed items within) in `data` starting at `startByte`, and store the result in `item`
 *
@@ -377,7 +377,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 *
 * @see d2item_destroy(), d2item_parse_file(), d2item_parse()
 */
-CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2item_parse_single(const uint8_t* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead);
 CHECK_RESULT d2err d2item_copy(d2item* dest, const d2item* const src);
 void d2item_destroy(d2item *item);
 
@@ -412,7 +412,7 @@ typedef struct d2sharedstash {
 * @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2sharedstash_parse_file(const char* filename, d2sharedstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
-CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2sharedstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2sharedstash_parse(const uint8_t* const data, size_t dataSizeBytes, d2sharedstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
 void d2sharedstash_destroy(d2sharedstash *stash);
 
 typedef struct d2personalstash_info {
@@ -439,7 +439,7 @@ typedef struct d2personalstash {
 * @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2personalstash_parse_file(const char* filename, d2personalstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
-CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2personalstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2personalstash_parse(const uint8_t* const data, size_t dataSizeBytes, d2personalstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
 void d2personalstash_destroy(d2personalstash *stash);
 
 typedef struct d2char_info {
@@ -468,7 +468,7 @@ typedef struct d2char {
 * @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, d2gamedata *gameData, size_t* out_bytesRead);
-CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSizeBytes, d2char *character, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2char_parse(const uint8_t* const data, size_t dataSizeBytes, d2char *character, d2gamedata *gameData, size_t* out_bytesRead);
 void d2char_destroy(d2char *character);
 
 typedef struct d2atmastash_info {
@@ -493,7 +493,7 @@ typedef struct d2atmastash {
 * @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2atmastash_parse_file(const char* filename, d2atmastash* stash, d2gamedata *gameData, size_t* out_bytesRead);
-CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dataSizeBytes, d2atmastash* stash, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2atmastash_parse(const uint8_t* const data, size_t dataSizeBytes, d2atmastash* stash, d2gamedata *gameData, size_t* out_bytesRead);
 void d2atmastash_destroy(d2atmastash* stash);
 
 typedef enum d2itemreader_parse_state {
@@ -524,7 +524,7 @@ typedef struct d2itemreader_state {
 } d2itemreader_state;
 
 typedef struct d2itemreader_source {
-	const unsigned char* data;
+	const uint8_t* data;
 	size_t dataSizeBytes;
 	size_t curByte;
 	// FIXME: this is temporary, should probably use something different
@@ -548,9 +548,9 @@ typedef struct d2itemreader_stream {
 } d2itemreader_stream;
 
 CHECK_RESULT d2err d2itemreader_open_file(d2itemreader_stream* stream, const char* filepath, d2gamedata* gameData);
-CHECK_RESULT d2err d2itemreader_open_buffer(d2itemreader_stream* stream, const unsigned char* const data, size_t dataSizeBytes, d2gamedata* gameData);
+CHECK_RESULT d2err d2itemreader_open_buffer(d2itemreader_stream* stream, const uint8_t* const data, size_t dataSizeBytes, d2gamedata* gameData);
 void d2itemreader_close(d2itemreader_stream* stream);
-const unsigned char* d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes);
+const uint8_t* d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes);
 
 /*
 * Get the byte position of the d2itemreader_stream (useful for printing the location of an error)

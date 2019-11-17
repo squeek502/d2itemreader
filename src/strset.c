@@ -78,7 +78,7 @@ static int strset_bucket_has(strset_bucket* bucket, const char* str)
 
 static inline strset_bucket* strset_get_bucket(strset_t* set, const char* str)
 {
-	size_t hash = (*set->hash_fn)((const unsigned char*)str);
+	size_t hash = (*set->hash_fn)((const uint8_t*)str);
 	return &set->buckets[hash % set->numBuckets];
 }
 
@@ -146,7 +146,7 @@ size_t strset_count(strset_t* set)
 }
 
 // djb2 from http://www.cse.yorku.ca/~oz/hash.html
-size_t strset_hash_default(const unsigned char* key)
+size_t strset_hash_default(const uint8_t* key)
 {
 	size_t hash = 5381;
 	int c;

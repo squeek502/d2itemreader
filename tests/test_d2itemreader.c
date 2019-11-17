@@ -103,7 +103,7 @@ MU_TEST(unexpected_eof)
 {
 	d2err err;
 
-	unsigned char* data;
+	uint8_t* data;
 	size_t dataSizeBytes;
 	err = d2util_read_file("data/atma.d2x", &data, &dataSizeBytes);
 	mu_check(err == D2ERR_OK);

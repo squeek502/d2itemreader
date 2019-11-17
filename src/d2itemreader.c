@@ -16,7 +16,7 @@
 #define D2ITEMREADER_STREAM_SKIP(T) if (stream->source.curByte+sizeof(T)<=stream->source.dataSizeBytes) { D2ITEMREADER_STREAM_INC(T); }
 #define D2ITEMREADER_STREAM_READ(T) (stream->source.curByte+sizeof(T)<=stream->source.dataSizeBytes ? *(T*)D2ITEMREADER_STREAM_DATA : (T)0); D2ITEMREADER_STREAM_SKIP(T)
 
-d2filetype d2filetype_get(const unsigned char* data, size_t size)
+d2filetype d2filetype_get(const uint8_t* data, size_t size)
 {
 	if (size < 4)
 		return D2FILETYPE_UNKNOWN;
@@ -57,13 +57,13 @@ d2filetype d2filetype_of_file(const char* filename)
 	size_t bytesRead = fread(&header, 1, 4, file);
 	fclose(file);
 
-	return d2filetype_get((unsigned char*)&header, bytesRead);
+	return d2filetype_get((uint8_t*)&header, bytesRead);
 }
 
 CHECK_RESULT d2err d2itemreader_parse_any_file(const char* filename, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	d2err err;
-	unsigned char* data;
+	uint8_t* data;
 	size_t dataSizeBytes;
 	err = d2util_read_file(filename, &data, &dataSizeBytes);
 	if (err != D2ERR_OK)
@@ -76,7 +76,7 @@ CHECK_RESULT d2err d2itemreader_parse_any_file(const char* filename, d2itemlist 
 	return err;
 }
 
-CHECK_RESULT d2err d2itemreader_parse_any(const unsigned char* const data, size_t dataSizeBytes, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead)
+CHECK_RESULT d2err d2itemreader_parse_any(const uint8_t* const data, size_t dataSizeBytes, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	d2err err;
 	*out_bytesRead = 0;
@@ -409,7 +409,7 @@ void d2itemlist_destroy(d2itemlist* list)
 CHECK_RESULT d2err d2item_parse_file(const char* filename, d2item* item, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	d2err err;
-	unsigned char* data;
+	uint8_t* data;
 	size_t dataSizeBytes;
 	err = d2util_read_file(filename, &data, &dataSizeBytes);
 	if (err != D2ERR_OK)
@@ -422,7 +422,7 @@ CHECK_RESULT d2err d2item_parse_file(const char* filename, d2item* item, d2gamed
 	return err;
 }
 
-CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead)
+CHECK_RESULT d2err d2item_parse(const uint8_t* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	size_t curByte = startByte;
 	size_t bytesRead;
@@ -485,7 +485,7 @@ err:
 	return err;
 }
 
-CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead)
+CHECK_RESULT d2err d2item_parse_single(const uint8_t* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	if (gameData->initState != D2DATA_INIT_STATE_ALL)
 	{
@@ -1052,7 +1052,7 @@ eof:
 CHECK_RESULT d2err d2sharedstash_parse_file(const char* filename, d2sharedstash *stash, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	d2err err;
-	unsigned char* data;
+	uint8_t* data;
 	size_t dataSizeBytes;
 	err = d2util_read_file(filename, &data, &dataSizeBytes);
 	if (err != D2ERR_OK)
@@ -1065,7 +1065,7 @@ CHECK_RESULT d2err d2sharedstash_parse_file(const char* filename, d2sharedstash 
 	return err;
 }
 
-CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2sharedstash *stash, d2gamedata *gameData, size_t* out_bytesRead)
+CHECK_RESULT d2err d2sharedstash_parse(const uint8_t* const data, size_t dataSizeBytes, d2sharedstash *stash, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	d2err err;
 
@@ -1164,7 +1164,7 @@ eof:
 CHECK_RESULT d2err d2personalstash_parse_file(const char* filename, d2personalstash *stash, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	d2err err;
-	unsigned char* data;
+	uint8_t* data;
 	size_t dataSizeBytes;
 	err = d2util_read_file(filename, &data, &dataSizeBytes);
 	if (err != D2ERR_OK)
@@ -1177,7 +1177,7 @@ CHECK_RESULT d2err d2personalstash_parse_file(const char* filename, d2personalst
 	return err;
 }
 
-CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2personalstash *stash, d2gamedata *gameData, size_t* out_bytesRead)
+CHECK_RESULT d2err d2personalstash_parse(const uint8_t* const data, size_t dataSizeBytes, d2personalstash *stash, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	d2err err;
 
@@ -1409,7 +1409,7 @@ eof:
 CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	d2err err;
-	unsigned char* data;
+	uint8_t* data;
 	size_t dataSizeBytes;
 	err = d2util_read_file(filename, &data, &dataSizeBytes);
 	if (err != D2ERR_OK)
@@ -1422,7 +1422,7 @@ CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, d2
 	return err;
 }
 
-CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSizeBytes, d2char *character, d2gamedata *gameData, size_t* out_bytesRead)
+CHECK_RESULT d2err d2char_parse(const uint8_t* const data, size_t dataSizeBytes, d2char *character, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	d2err err;
 
@@ -1537,7 +1537,7 @@ eof:
 CHECK_RESULT d2err d2atmastash_parse_file(const char* filename, d2atmastash* stash, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	d2err err;
-	unsigned char* data;
+	uint8_t* data;
 	size_t dataSizeBytes;
 	err = d2util_read_file(filename, &data, &dataSizeBytes);
 	if (err != D2ERR_OK)
@@ -1550,7 +1550,7 @@ CHECK_RESULT d2err d2atmastash_parse_file(const char* filename, d2atmastash* sta
 	return err;
 }
 
-CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dataSizeBytes, d2atmastash* stash, d2gamedata *gameData, size_t* out_bytesRead)
+CHECK_RESULT d2err d2atmastash_parse(const uint8_t* const data, size_t dataSizeBytes, d2atmastash* stash, d2gamedata *gameData, size_t* out_bytesRead)
 {
 	d2err err;
 
@@ -1630,7 +1630,7 @@ CHECK_RESULT d2err d2itemreader_open_file(d2itemreader_stream* stream, const cha
 		stream->err = D2ERR_UNKNOWN_FILE_TYPE;
 		goto done;
 	}
-	stream->err = d2util_read_file(filepath, (unsigned char**)(&stream->source.data), &stream->source.dataSizeBytes);
+	stream->err = d2util_read_file(filepath, (uint8_t**)(&stream->source.data), &stream->source.dataSizeBytes);
 	if (stream->err == D2ERR_OK)
 	{
 		stream->source.dataNeedsFree = true;
@@ -1640,7 +1640,7 @@ done:
 	return stream->err;
 }
 
-CHECK_RESULT d2err d2itemreader_open_buffer(d2itemreader_stream* stream, const unsigned char* const data, size_t dataSizeBytes, d2gamedata* gameData)
+CHECK_RESULT d2err d2itemreader_open_buffer(d2itemreader_stream* stream, const uint8_t* const data, size_t dataSizeBytes, d2gamedata* gameData)
 {
 	d2itemreader_stream_init(stream);
 	stream->gameData = gameData;
@@ -1799,7 +1799,7 @@ void d2itemreader_close(d2itemreader_stream* stream)
 	}
 }
 
-const unsigned char* d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes)
+const uint8_t* d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes)
 {
 	if (stream->err != D2ERR_OK)
 		return NULL;

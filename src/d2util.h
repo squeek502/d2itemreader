@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "d2err.h"
 
 #if defined(__GNUC__) && (__GNUC__ >= 4)
@@ -22,7 +23,7 @@ extern "C" {
 # define UNUSED(x) UNUSED_ ## x
 #endif
 
-CHECK_RESULT d2err d2util_read_file(const char* filepath, unsigned char** data_out, size_t* bytesRead);
+CHECK_RESULT d2err d2util_read_file(const char* filepath, uint8_t** data_out, size_t* bytesRead);
 
 #ifdef __cplusplus
 }

@@ -6,9 +6,9 @@
 #define ITEM_SIMPLE_FILE "data/item_simple.bin"
 #define ITEM_ADVANCED_FILE "data/item_advanced.bin"
 
-static unsigned char* simpleItemData;
+static uint8_t* simpleItemData;
 static size_t simpleItemDataSize;
-static unsigned char* advancedItemData;
+static uint8_t* advancedItemData;
 static size_t advancedItemDataSize;
 
 static void test_setup(void)
