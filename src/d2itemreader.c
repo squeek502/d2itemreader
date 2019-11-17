@@ -975,7 +975,6 @@ void d2stashpages_parse(d2itemreader_stream* stream, uint32_t expectedNumPages, 
 			return;
 		}
 
-		uint32_t pageNum = 0;
 		d2item item;
 		while (stream->err == D2ERR_OK && stream->state.parseState != PARSE_STATE_FINISHED && *numPages < expectedNumPages)
 		{
@@ -1374,7 +1373,7 @@ eof:
 	stream->err = D2ERR_PARSE_UNEXPECTED_EOF;
 }
 
-void d2char_parse_section_golem(d2itemreader_stream* stream, d2char_info* info)
+void d2char_parse_section_golem(d2itemreader_stream* stream)
 {
 	uint16_t ironGolemHeader = D2ITEMREADER_STREAM_READ(uint16_t) else { goto eof; }
 	if (ironGolemHeader != D2S_IRON_GOLEM_HEADER)
@@ -1722,7 +1721,10 @@ CHECK_RESULT bool d2itemreader_seek_parse_state(d2itemreader_stream* stream, d2i
 					d2char_parse_section_merc(stream, &stream->info.d2char);
 					break;
 				case D2CHAR_SECTION_MERC:
-					d2char_parse_section_golem(stream, &stream->info.d2char);
+					d2char_parse_section_golem(stream);
+					break;
+				default:
+					stream->err = D2ERR_INTERNAL;
 					break;
 				}
 				stream->curSection++;
@@ -1797,7 +1799,7 @@ void d2itemreader_close(d2itemreader_stream* stream)
 	}
 }
 
-unsigned char* const d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes)
+const unsigned char* d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes)
 {
 	if (stream->err != D2ERR_OK)
 		return NULL;

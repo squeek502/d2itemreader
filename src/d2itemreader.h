@@ -550,7 +550,7 @@ typedef struct d2itemreader_stream {
 CHECK_RESULT d2err d2itemreader_open_file(d2itemreader_stream* stream, const char* filepath, d2gamedata* gameData);
 CHECK_RESULT d2err d2itemreader_open_buffer(d2itemreader_stream* stream, const unsigned char* const data, size_t dataSizeBytes, d2gamedata* gameData);
 void d2itemreader_close(d2itemreader_stream* stream);
-unsigned char* const d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes);
+const unsigned char* d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes);
 
 /*
 * Get the byte position of the d2itemreader_stream (useful for printing the location of an error)
@@ -576,7 +576,7 @@ CHECK_RESULT bool d2itemreader_next(d2itemreader_stream* stream, d2item* item);
 * @param item If this function returns `true`, set to the parsed item.
 *             If this function returns `false`, `*item` remains uninitialized.
 * @param stopOn The parse state to check for.
-* @return `true` on success, `false` on error, no more items, or `stopOn` being hit.
+* @return `true` on success; `false` on error, no more items, or `stopOn` being hit.
 *         On error, `stream->err != D2ERR_OK`.
 *         On no more items, `stream->parseState == PARSE_STATE_FINISHED`.
 *         On stop, `stream->parseState == onStop`.
@@ -589,18 +589,18 @@ CHECK_RESULT bool d2itemreader_next_but_stop_on(d2itemreader_stream* stream, d2i
 *
 * @param stream A pointer to an open d2itemreader_stream.
 * @param state The parse state to check for.
-* @return `true` on success, `false` on error while seeking
+* @return `true` on success, `false` on error while seeking (check stream->err for the error)
 */
-CHECK_RESULT bool d2itemreader_seek_parse_state(d2itemreader_stream* stream, d2itemreader_parse_state state);
+bool d2itemreader_seek_parse_state(d2itemreader_stream* stream, d2itemreader_parse_state state);
 
 /**
 * Seek the `stream` until it is ready to read a valid item.
 * Similar to `d2itemreader_seek_parse_state` but will skip over empty item lists.
 *
 * @param stream A pointer to an open d2itemreader_stream.
-* @return `true` on success, `false` on error while seeking
+* @return `true` on success, `false` on error while seeking (check stream->err for the error)
 */
-CHECK_RESULT bool d2itemreader_seek_valid_item(d2itemreader_stream* stream);
+bool d2itemreader_seek_valid_item(d2itemreader_stream* stream);
 
 #ifdef __cplusplus
 }
