@@ -10,7 +10,6 @@
 #define D2ITEMREADER_SKIP(T) if (curByte+sizeof(T)<=dataSizeBytes) { D2ITEMREADER_INC(T); }
 #define D2ITEMREADER_READ(T) (curByte+sizeof(T)<=dataSizeBytes ? *(T*)D2ITEMREADER_DATA : (T)0); D2ITEMREADER_SKIP(T)
 
-
 #define D2ITEMREADER_STREAM_DATA (stream->source.data + stream->source.curByte)
 #define D2ITEMREADER_STREAM_INC(T) stream->source.curByte += sizeof(T)
 #define D2ITEMREADER_STREAM_SKIP(T) if (stream->source.curByte+sizeof(T)<=stream->source.dataSizeBytes) { D2ITEMREADER_STREAM_INC(T); }

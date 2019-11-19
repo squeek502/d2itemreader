@@ -149,7 +149,7 @@ size_t strset_count(strset_t* set)
 size_t strset_hash_default(const uint8_t* key)
 {
 	size_t hash = 5381;
-	int c;
+	uint8_t c;
 
 	while ((c = *key++))
 		hash = ((hash << 5) + hash) + c;
