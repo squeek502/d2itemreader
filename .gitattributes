@@ -1,1 +1,2 @@
 src/d2gamedata_default linguist-language=C
+*.h linguist-language=C
