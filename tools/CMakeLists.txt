@@ -4,7 +4,7 @@ add_executable( tool_gen_d2gamedata_default EXCLUDE_FROM_ALL gen_d2gamedata_defa
 target_link_libraries( tool_gen_d2gamedata_default PRIVATE d2itemreader )
 set_target_properties(tool_gen_d2gamedata_default PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
-add_custom_target(tool_gen_d2gamedata_default_run tool_gen_d2gamedata_default > src/d2gamedata_default.inc DEPENDS tool_gen_d2gamedata_default WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_custom_target(tool_gen_d2gamedata_default_run tool_gen_d2gamedata_default > src/d2gamedata_default DEPENDS tool_gen_d2gamedata_default WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 add_executable( tool_gen_expected_errors EXCLUDE_FROM_ALL gen_expected_errors.c )
 target_link_libraries( tool_gen_expected_errors PRIVATE d2itemreader )

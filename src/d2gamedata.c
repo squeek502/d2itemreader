@@ -382,7 +382,7 @@ void d2gamedata_destroy(d2gamedata* data)
 	data->initState = D2DATA_INIT_STATE_NONE;
 }
 
-#include "d2gamedata_default.inc"
+#include "d2gamedata_default"
 #define d2gamedata_default_count(x) (sizeof(x) / sizeof((x)[0]))
 CHECK_RESULT d2err d2gamedata_load_defaults(d2gamedata* data)
 {
