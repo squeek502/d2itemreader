@@ -3,6 +3,16 @@
 
 d2gamedata gameData;
 
+// note: no error checking
+static long fileSize(const char* filepath)
+{
+	FILE* file = fopen(filepath, "rb");
+	fseek(file, 0, SEEK_END);
+	long size = ftell(file);
+	fclose(file);
+	return size;
+}
+
 MU_TEST(nodata)
 {
 	d2char character;
@@ -20,7 +30,19 @@ MU_TEST(classic)
 	mu_check(character.items.count == 7);
 	mu_check(character.itemsCorpse.count == 0);
 	mu_check(character.itemsMerc.count == 0);
+	mu_assert_int_eq(fileSize("data/classic.d2s"), bytesRead);
 	d2char_destroy(&character);
+}
+
+MU_TEST(classic_parse_any)
+{
+	d2itemlist itemlist;
+	size_t bytesRead;
+	d2err err = d2itemreader_parse_any_file("data/classic.d2s", &itemlist, &gameData, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	mu_check(itemlist.count == 7);
+	mu_assert_int_eq(fileSize("data/classic.d2s"), bytesRead);
+	d2itemlist_destroy(&itemlist);
 }
 
 MU_TEST(golem)
@@ -312,6 +334,7 @@ MU_TEST_SUITE(test_d2itemreader)
 	d2err err = d2gamedata_init_default(&gameData);
 	mu_check(err == D2ERR_OK);
 	MU_RUN_TEST(classic);
+	MU_RUN_TEST(classic_parse_any);
 	MU_RUN_TEST(golem);
 	MU_RUN_TEST(nomerc);
 	MU_RUN_TEST(badcorpseheader);

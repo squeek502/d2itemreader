@@ -111,6 +111,8 @@ CHECK_RESULT d2err d2itemreader_parse_any(const uint8_t* const data, size_t data
 		d2itemreader_close(&stream);
 		return stream.err;
 	}
+
+	*out_bytesRead = stream.source.curByte;
 	return D2ERR_OK;
 }
 
