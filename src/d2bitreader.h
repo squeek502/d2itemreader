@@ -17,7 +17,7 @@ extern "C" {
 	((*((uint64_t*) &(data)[(start) / 8]) >> ((start) & 7)) & (((uint64_t)1 << (size)) - 1))
 
 typedef struct d2bitreader {
-	const unsigned char* const data;
+	const uint8_t* const data;
 	size_t dataSizeBytes;
 	size_t cursor;
 	size_t bitCursor;

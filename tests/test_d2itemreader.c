@@ -3,6 +3,16 @@
 
 d2gamedata gameData;
 
+// note: no error checking
+static long fileSize(const char* filepath)
+{
+	FILE* file = fopen(filepath, "rb");
+	fseek(file, 0, SEEK_END);
+	long size = ftell(file);
+	fclose(file);
+	return size;
+}
+
 MU_TEST(nodata)
 {
 	d2char character;
@@ -20,7 +30,19 @@ MU_TEST(classic)
 	mu_check(character.items.count == 7);
 	mu_check(character.itemsCorpse.count == 0);
 	mu_check(character.itemsMerc.count == 0);
+	mu_assert_int_eq(fileSize("data/classic.d2s"), bytesRead);
 	d2char_destroy(&character);
+}
+
+MU_TEST(classic_parse_any)
+{
+	d2itemlist itemlist;
+	size_t bytesRead;
+	d2err err = d2itemreader_parse_any_file("data/classic.d2s", &itemlist, &gameData, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	mu_check(itemlist.count == 7);
+	mu_assert_int_eq(fileSize("data/classic.d2s"), bytesRead);
+	d2itemlist_destroy(&itemlist);
 }
 
 MU_TEST(golem)
@@ -71,13 +93,13 @@ MU_TEST(plugy_sss)
 	size_t bytesRead;
 	d2err err = d2sharedstash_parse_file("data/simple.sss", &stash, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
-	mu_check(stash.sharedGold == 10);
-	mu_check(stash.numPages == 20);
+	mu_check(stash.info.sharedGold == 10);
+	mu_check(stash.info.expectedNumPages == 20);
 	for (size_t i = 0; i < stash.numPages; i++)
 	{
 		d2stashpage* page = &stash.pages[i];
 		mu_check(page->pageNum == i + 1);
-		d2itemlist* items = &stash.pages[i].items;
+		d2itemlist* items = &stash.itemsByPage[i];
 		if (page->pageNum == 1)
 			mu_check(items->count == 4);
 		else if (page->pageNum == 20)
@@ -94,8 +116,8 @@ MU_TEST(plugy_d2x)
 	size_t bytesRead;
 	d2err err = d2personalstash_parse_file("data/simple.d2x", &stash, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
-	mu_check(stash.numPages == 1);
-	mu_check(stash.pages[0].items.count == 24);
+	mu_check(stash.info.expectedNumPages == 1);
+	mu_check(stash.itemsByPage[0].count == 24);
 	d2personalstash_destroy(&stash);
 }
 
@@ -103,7 +125,7 @@ MU_TEST(unexpected_eof)
 {
 	d2err err;
 
-	unsigned char* data;
+	uint8_t* data;
 	size_t dataSizeBytes;
 	err = d2util_read_file("data/atma.d2x", &data, &dataSizeBytes);
 	mu_check(err == D2ERR_OK);
@@ -279,12 +301,40 @@ MU_TEST(string_too_long)
 	mu_check(bytesRead == 0x14);
 }
 
+MU_TEST(err_eof_d2s)
+{
+	d2char character;
+	size_t bytesRead;
+	d2err err = d2char_parse_file("data/err-eof.d2s", &character, &gameData, &bytesRead);
+	mu_check(err == D2ERR_PARSE_UNEXPECTED_EOF);
+	mu_check(bytesRead == 0x3d2);
+}
+
+MU_TEST(err_unexpected_socketed_atma)
+{
+	d2atmastash stash;
+	size_t bytesRead;
+	d2err err = d2atmastash_parse_file("data/err-atma-unexpected-socketed.d2x", &stash, &gameData, &bytesRead);
+	mu_check(err == D2ERR_PARSE_UNEXPECTED_SOCKETED_ITEM);
+	mu_check(bytesRead == 0xb);
+}
+
+MU_TEST(err_eof_d2x)
+{
+	d2personalstash stash;
+	size_t bytesRead;
+	d2err err = d2personalstash_parse_file("data/err-eof.d2x", &stash, &gameData, &bytesRead);
+	mu_check(err == D2ERR_PARSE_UNEXPECTED_EOF);
+	mu_check(bytesRead == 0xb1);
+}
+
 MU_TEST_SUITE(test_d2itemreader)
 {
 	MU_RUN_TEST(nodata);
 	d2err err = d2gamedata_init_default(&gameData);
 	mu_check(err == D2ERR_OK);
 	MU_RUN_TEST(classic);
+	MU_RUN_TEST(classic_parse_any);
 	MU_RUN_TEST(golem);
 	MU_RUN_TEST(nomerc);
 	MU_RUN_TEST(badcorpseheader);
@@ -306,6 +356,9 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(earchar);
 	MU_RUN_TEST(sets);
 	MU_RUN_TEST(string_too_long);
+	MU_RUN_TEST(err_eof_d2s);
+	MU_RUN_TEST(err_unexpected_socketed_atma);
+	MU_RUN_TEST(err_eof_d2x);
 	d2gamedata_destroy(&gameData);
 }
 

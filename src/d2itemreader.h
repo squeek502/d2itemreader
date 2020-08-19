@@ -21,7 +21,7 @@ extern "C" {
 #define D2ITEMTYPE_TOME_ID "ibk"
 
 /// @see d2filetype_get(), d2filetype_of_file()
-enum d2filetype
+typedef enum d2filetype
 {
 	D2FILETYPE_UNKNOWN, ///< Filetype could not be determined or file is malformed
 	D2FILETYPE_D2_CHARACTER, ///< Parsable using d2char_parse() or d2char_parse_file()
@@ -29,12 +29,12 @@ enum d2filetype
 	D2FILETYPE_PLUGY_PERSONAL_STASH, ///< Parsable using d2personalstash_parse() or d2personalstash_parse_file()
 	D2FILETYPE_ATMA_STASH, ///< Parsable using d2atmastash_parse() or d2atmastash_parse_file()
 	D2FILETYPE_D2_ITEM ///< Parsable using d2item_parse() or d2item_parse_file()
-};
+} d2filetype;
 
 /// Attempt to determine the filetype of the given binary data
-enum d2filetype d2filetype_get(const unsigned char* data, size_t size);
+d2filetype d2filetype_get(const uint8_t* data, size_t size);
 /// Attempt to determine the filetype of the given file path
-enum d2filetype d2filetype_of_file(const char* filename);
+d2filetype d2filetype_of_file(const char* filename);
 
 typedef struct d2item d2item; // forward dec
 typedef struct d2itemlist {
@@ -57,7 +57,7 @@ typedef struct d2itemlist {
 * @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2itemreader_parse_any_file(const char* filename, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead);
-CHECK_RESULT d2err d2itemreader_parse_any(const unsigned char* const data, size_t dataSizeBytes, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2itemreader_parse_any(const uint8_t* const data, size_t dataSizeBytes, d2itemlist *itemList, d2gamedata *gameData, size_t* out_bytesRead);
 
 /**
 * Parse the itemlist in `data` starting at `startByte`, and store the result in `items`
@@ -71,7 +71,7 @@ CHECK_RESULT d2err d2itemreader_parse_any(const unsigned char* const data, size_
 *
 * @see d2itemlist_destroy(), d2itemlist_parse_num()
 */
-CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2itemlist_parse(const uint8_t* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, d2gamedata *gameData, size_t* out_bytesRead);
 /**
 * Parse the itemlist containing exactly `numItems` items (not including items in sockets)
 * in `data` starting at `startByte`, and store the result in `items`
@@ -86,8 +86,9 @@ CHECK_RESULT d2err d2itemlist_parse(const unsigned char* const data, size_t data
 *
 * @see d2itemlist_destroy(), d2itemlist_parse()
 */
-CHECK_RESULT d2err d2itemlist_parse_num(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, uint16_t numItems, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2itemlist_parse_num(const uint8_t* const data, size_t dataSizeBytes, size_t startByte, d2itemlist* items, uint16_t numItems, d2gamedata *gameData, size_t* out_bytesRead);
 CHECK_RESULT d2err d2itemlist_init(d2itemlist* list, size_t initialSize);
+void d2itemlist_init_empty(d2itemlist* list);
 CHECK_RESULT d2err d2itemlist_append(d2itemlist* list, const d2item* const item);
 CHECK_RESULT d2err d2itemlist_append_copy(d2itemlist* list, const d2item* const item);
 CHECK_RESULT d2err d2itemlist_append_list_copy(d2itemlist* dest, const d2itemlist* const src);
@@ -361,7 +362,7 @@ CHECK_RESULT d2err d2item_parse_file(const char* filename, d2item* item, d2gamed
 *
 * @see d2item_destroy(), d2item_parse_file(), d2item_parse_single()
 */
-CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2item_parse(const uint8_t* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead);
 /**
 * Parse the item (but not socketed items within) in `data` starting at `startByte`, and store the result in `item`
 *
@@ -376,7 +377,7 @@ CHECK_RESULT d2err d2item_parse(const unsigned char* const data, size_t dataSize
 *
 * @see d2item_destroy(), d2item_parse_file(), d2item_parse()
 */
-CHECK_RESULT d2err d2item_parse_single(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2item_parse_single(const uint8_t* const data, size_t dataSizeBytes, size_t startByte, d2item* item, d2gamedata *gameData, size_t* out_bytesRead);
 CHECK_RESULT d2err d2item_copy(d2item* dest, const d2item* const src);
 void d2item_destroy(d2item *item);
 
@@ -384,30 +385,20 @@ typedef struct d2stashpage {
 	uint32_t pageNum;
 	uint32_t flags;
 	char name[D2_MAX_STASH_PAGE_NAME_BYTELEN];
-	d2itemlist items;
 } d2stashpage;
 
-/**
-* Parse the stash page in `data` starting at `startByte`, and store the result in `page`
-*
-* @param page A pointer to an uninitialized d2stashpage object.
-*             If this function returns `D2ERR_OK`, then `page` will need to be cleaned up with d2stashpage_destroy().
-*             If this function returns something other than `D2ERR_OK`, then `page` will remain uninitialized.
-* @param out_bytesRead On `D2ERR_OK`, set to the number of bytes read when parsing the stash page.
-*                      On error, set to the number of bytes successfully parsed before the error.
-* @return `D2ERR_OK` on success
-*
-* @see d2stashpage_destroy()
-*/
-CHECK_RESULT d2err d2stashpage_parse(const unsigned char* const data, size_t dataSizeBytes, size_t startByte, d2stashpage *page, d2gamedata *gameData, size_t* out_bytesRead);
-void d2stashpage_destroy(d2stashpage *page);
+typedef struct d2sharedstash_info {
+	uint16_t fileVersion;
+	uint32_t sharedGold;
+	uint32_t expectedNumPages;
+} d2sharedstash_info;
 
 /// PlugY Shared Stash (.sss)
 typedef struct d2sharedstash {
-	uint16_t fileVersion;
-	uint32_t sharedGold;
-	uint32_t numPages;
+	d2itemlist* itemsByPage;
 	d2stashpage* pages;
+	uint32_t numPages;
+	d2sharedstash_info info;
 } d2sharedstash;
 
 /**
@@ -421,14 +412,20 @@ typedef struct d2sharedstash {
 * @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2sharedstash_parse_file(const char* filename, d2sharedstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
-CHECK_RESULT d2err d2sharedstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2sharedstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2sharedstash_parse(const uint8_t* const data, size_t dataSizeBytes, d2sharedstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
 void d2sharedstash_destroy(d2sharedstash *stash);
+
+typedef struct d2personalstash_info {
+	uint16_t fileVersion;
+	uint32_t expectedNumPages;
+} d2personalstash_info;
 
 /// PlugY Personal Stash (.d2x)
 typedef struct d2personalstash {
-	uint16_t fileVersion;
-	uint32_t numPages;
+	d2itemlist* itemsByPage;
 	d2stashpage* pages;
+	uint32_t numPages;
+	d2personalstash_info info;
 } d2personalstash;
 
 /**
@@ -442,14 +439,22 @@ typedef struct d2personalstash {
 * @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2personalstash_parse_file(const char* filename, d2personalstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
-CHECK_RESULT d2err d2personalstash_parse(const unsigned char* const data, size_t dataSizeBytes, d2personalstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2personalstash_parse(const uint8_t* const data, size_t dataSizeBytes, d2personalstash *stash, d2gamedata *gameData, size_t* out_bytesRead);
 void d2personalstash_destroy(d2personalstash *stash);
+
+typedef struct d2char_info {
+	bool isExpansion;
+	uint32_t fileVersion;
+	uint32_t mercID;
+	bool isDead;
+} d2char_info;
 
 /// Character Save File (.d2s)
 typedef struct d2char {
 	d2itemlist items;
 	d2itemlist itemsCorpse;
 	d2itemlist itemsMerc;
+	d2char_info info;
 } d2char;
 
 /**
@@ -463,13 +468,18 @@ typedef struct d2char {
 * @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2char_parse_file(const char* filename, d2char *character, d2gamedata *gameData, size_t* out_bytesRead);
-CHECK_RESULT d2err d2char_parse(const unsigned char* const data, size_t dataSizeBytes, d2char *character, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2char_parse(const uint8_t* const data, size_t dataSizeBytes, d2char *character, d2gamedata *gameData, size_t* out_bytesRead);
 void d2char_destroy(d2char *character);
+
+typedef struct d2atmastash_info {
+	uint16_t fileVersion;
+	uint16_t expectedNumItems;
+} d2atmastash_info;
 
 /// ATMA Stash (.d2x)
 typedef struct d2atmastash {
-	uint16_t fileVersion;
 	d2itemlist items;
+	d2atmastash_info info;
 } d2atmastash;
 
 /**
@@ -483,8 +493,114 @@ typedef struct d2atmastash {
 * @return `D2ERR_OK` on success
 */
 CHECK_RESULT d2err d2atmastash_parse_file(const char* filename, d2atmastash* stash, d2gamedata *gameData, size_t* out_bytesRead);
-CHECK_RESULT d2err d2atmastash_parse(const unsigned char* const data, size_t dataSizeBytes, d2atmastash* stash, d2gamedata *gameData, size_t* out_bytesRead);
+CHECK_RESULT d2err d2atmastash_parse(const uint8_t* const data, size_t dataSizeBytes, d2atmastash* stash, d2gamedata *gameData, size_t* out_bytesRead);
 void d2atmastash_destroy(d2atmastash* stash);
+
+typedef enum d2itemreader_parse_state {
+	PARSE_STATE_NOTHING_PARSED = 0,
+	PARSE_STATE_ITEMLIST_READY,
+	PARSE_STATE_ITEM_READY,
+	PARSE_STATE_ITEMLIST_DONE,
+	PARSE_STATE_PAGE_READY,
+	PARSE_STATE_NEEDS_VERIFICATION,
+	PARSE_STATE_FINISHED,
+	PARSE_STATE_NONE,
+} d2itemreader_parse_state;
+
+typedef enum d2char_section {
+	D2CHAR_SECTION_MAIN,
+	D2CHAR_SECTION_CORPSE,
+	D2CHAR_SECTION_MERC,
+	D2CHAR_SECTION_GOLEM,
+} d2char_section;
+
+typedef struct d2itemreader_state {
+	d2itemreader_parse_state parseState;
+	uint32_t curPage;
+	uint32_t numPages;
+	uint16_t curItem;
+	uint16_t numItems;
+	size_t lastItemSize;
+} d2itemreader_state;
+
+typedef struct d2itemreader_source {
+	const uint8_t* data;
+	size_t dataSizeBytes;
+	size_t curByte;
+	// FIXME: this is temporary, should probably use something different
+	bool dataNeedsFree;
+} d2itemreader_source;
+
+typedef struct d2itemreader_stream {
+	d2itemreader_source source;
+	d2gamedata* gameData;
+	d2err err;
+	d2filetype filetype;
+	d2itemreader_state state;
+	union {
+		d2char_info d2char;
+		d2atmastash_info d2atmastash;
+		d2sharedstash_info d2sharedstash;
+		d2personalstash_info d2personalstash;
+	} info;
+	d2stashpage curPage;
+	d2char_section curSection;
+} d2itemreader_stream;
+
+CHECK_RESULT d2err d2itemreader_open_file(d2itemreader_stream* stream, const char* filepath, d2gamedata* gameData);
+CHECK_RESULT d2err d2itemreader_open_buffer(d2itemreader_stream* stream, const uint8_t* const data, size_t dataSizeBytes, d2gamedata* gameData);
+void d2itemreader_close(d2itemreader_stream* stream);
+const uint8_t* d2itemreader_dump_last_item(d2itemreader_stream* stream, size_t* out_itemSizeBytes);
+
+/*
+* Get the byte position of the d2itemreader_stream (useful for printing the location of an error)
+*/
+size_t d2itemreader_bytepos(d2itemreader_stream* stream);
+
+/**
+* Get the next item in the `stream`
+*
+* @param stream A pointer to an open d2itemreader_stream.
+* @param item If this function returns `true`, set to the parsed item.
+*             If this function returns `false`, `*item` remains uninitialized.
+* @return `true` on success, `false` on error or no more items.
+*         On error, `stream->err != D2ERR_OK`.
+*         On no more items, `stream->parseState == PARSE_STATE_FINISHED`.
+*/
+CHECK_RESULT bool d2itemreader_next(d2itemreader_stream* stream, d2item* item);
+
+/**
+* Get the next item in the `stream` but stop if the `stopOn` parse state is hit at any point.
+*
+* @param stream A pointer to an open d2itemreader_stream.
+* @param item If this function returns `true`, set to the parsed item.
+*             If this function returns `false`, `*item` remains uninitialized.
+* @param stopOn The parse state to check for.
+* @return `true` on success; `false` on error, no more items, or `stopOn` being hit.
+*         On error, `stream->err != D2ERR_OK`.
+*         On no more items, `stream->parseState == PARSE_STATE_FINISHED`.
+*         On stop, `stream->parseState == onStop`.
+*/
+CHECK_RESULT bool d2itemreader_next_but_stop_on(d2itemreader_stream* stream, d2item* item, d2itemreader_parse_state stopOn);
+
+/**
+* Seek the `stream` until the specified `state` is hit or an error occurs.
+* Will never seek past `PARSE_STATE_ITEM_READY` or `PARSE_STATE_FINISHED` states.
+*
+* @param stream A pointer to an open d2itemreader_stream.
+* @param state The parse state to check for.
+* @return `true` on success, `false` on error while seeking (check stream->err for the error)
+*/
+bool d2itemreader_seek_parse_state(d2itemreader_stream* stream, d2itemreader_parse_state state);
+
+/**
+* Seek the `stream` until it is ready to read a valid item.
+* Similar to `d2itemreader_seek_parse_state` but will skip over empty item lists.
+*
+* @param stream A pointer to an open d2itemreader_stream.
+* @return `true` on success, `false` on error while seeking (check stream->err for the error)
+*/
+bool d2itemreader_seek_valid_item(d2itemreader_stream* stream);
 
 #ifdef __cplusplus
 }

@@ -251,7 +251,7 @@ err:
 CHECK_RESULT d2err d2txt_parse_file(const char *filename, d2txt_file* out_parsed, size_t *out_numRows)
 {
 	d2err err;
-	unsigned char* data;
+	uint8_t* data;
 	size_t size;
 	err = d2util_read_file(filename, &data, &size);
 	if (err != D2ERR_OK)

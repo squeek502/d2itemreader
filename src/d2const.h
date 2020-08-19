@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 // D2
-#define D2S_HEADER 0xAA55AA55 // "U.U." where '.' = (unsigned char)170
+#define D2S_HEADER 0xAA55AA55 // "U.U." where '.' = (uint8_t)170
 #define D2S_STATUS_OFFSET 36
 #define D2S_STATUS_EXPANSION_MASK (1 << 5)
 #define D2S_MERC_ID_OFFSET 179

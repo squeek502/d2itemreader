@@ -1,7 +1,7 @@
 #include "d2util.h"
 #include <stdio.h>
 
-CHECK_RESULT d2err d2util_read_file(const char* filepath, unsigned char** data_out, size_t* bytesRead)
+CHECK_RESULT d2err d2util_read_file(const char* filepath, uint8_t** data_out, size_t* bytesRead)
 {
 	d2err err;
 	FILE* file = fopen(filepath, "rb");
@@ -19,7 +19,7 @@ CHECK_RESULT d2err d2util_read_file(const char* filepath, unsigned char** data_o
 		goto nothing_read;
 	}
 	rewind(file);
-	*data_out = (unsigned char*)malloc((size_t)size+1);
+	*data_out = (uint8_t*)malloc((size_t)size+1);
 	if (*data_out == NULL)
 	{
 		fclose(file);
