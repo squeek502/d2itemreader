@@ -511,7 +511,6 @@ typedef enum d2char_section {
 	D2CHAR_SECTION_MAIN,
 	D2CHAR_SECTION_CORPSE,
 	D2CHAR_SECTION_MERC,
-	D2CHAR_SECTION_GOLEM,
 } d2char_section;
 
 typedef struct d2itemreader_state {
