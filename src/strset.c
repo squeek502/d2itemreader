@@ -114,12 +114,12 @@ int strset_put(strset_t* set, const char* str)
 	}
 
 	// copy the string and put it in the bucket
-	char* value = malloc(strlen(str) + 1);
+	char* value = strdup(str);
 	if (value == NULL)
 	{
 		return STRSET_ERR_OOM;
 	}
-	bucket->values[bucket->count] = strcpy(value, str);
+	bucket->values[bucket->count] = value;
 	bucket->count++;
 	set->valueCount++;
 	return 1;
