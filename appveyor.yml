@@ -15,6 +15,10 @@ environment:
       GENERATOR: "Visual Studio 15 Win64"
       CONFIG: Release
 
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      GENERATOR: "Visual Studio 16 2019"
+      CONFIG: Release
+
 before_build:
   - cmake -H. -Bbuild -G"%GENERATOR%"
 
