@@ -13,6 +13,7 @@ target_include_directories(d2itemreader PUBLIC src/)
 set_target_properties(d2itemreader PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED true)
 if (MSVC)
   target_compile_definitions( d2itemreader PUBLIC _CRT_SECURE_NO_WARNINGS )
+  target_compile_definitions( d2itemreader PUBLIC _CRT_NONSTDC_NO_WARNINGS )
 endif()
 
 if (("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU"))
