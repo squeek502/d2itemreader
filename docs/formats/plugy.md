@@ -43,7 +43,7 @@ Byte Offset | Size (bytes) | Description
 0x00 | 2 | Stash header. Must be "ST" (0x5453 when read as a 16 bit unsigned integer).
 0x02 | 0 or 4 | Flags data (added in PlugY 11.02, doesn't exist in save data from earlier versions). The actual flags can be seen [here](https://github.com/ChaosMarc/PlugY/blob/0116cb44b459ba02832cf8f07092ce4f48aeecdf/PlugY/playerCustomData.h#L19-L27). <br/><br/> It's possible to determine if the flags data exists by checking if the 2 bytes following the next null character == the D2 item header ("JM"); see [the PlugY source code for an example](https://github.com/ChaosMarc/PlugY/blob/0116cb44b459ba02832cf8f07092ce4f48aeecdf/PlugY/InfinityStash.cpp#L258-L264).
 0x02 or 0x06 | At least 1 | Stash page name as a null-terminated string. Can be a maximum of 15 characters + the null terminator (16 total bytes).
-Varies | ... | Beginning of [D2 Item List data](d2.md#item-list-data-format)
+Varies | ... | Beginning of [D2 Item List data](d2.html#item-list-data-format)
 
 ## Sources / Further Reading
 
