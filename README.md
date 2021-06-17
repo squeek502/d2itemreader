@@ -1,7 +1,7 @@
 d2itemreader
 ============
 
-[![Build Status](https://travis-ci.org/squeek502/d2itemreader.svg?branch=master)](https://travis-ci.org/squeek502/d2itemreader)
+[![Build status](https://github.com/squeek502/d2itemreader/actions/workflows/ci.yml/badge.svg)](https://github.com/squeek502/d2itemreader/actions/workflows/ci.yml)
 [![Build status](https://ci.appveyor.com/api/projects/status/8hyrcevhv2wpvg5l/branch/master?svg=true)](https://ci.appveyor.com/project/squeek502/d2itemreader/branch/master)
 
 **work in progress, everything is subject to change**
