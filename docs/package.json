@@ -1,0 +1,11 @@
+{
+  "name": "d2itemreader-docs",
+  "version": "1.0.0",
+  "license": "Unlicense",
+  "author": "squeek502",
+  "dependencies": {
+    "moxygen": "git://github.com/squeek502/moxygen.git",
+    "gitbook-cli": "^2.3.2"
+  },
+  "devDependencies": {},
+}
