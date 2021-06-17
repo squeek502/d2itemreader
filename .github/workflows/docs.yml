@@ -17,8 +17,9 @@ jobs:
       with:
         node-version: '14'
     - run: npm install gitbook-cli -g
-    - run: cd "${{github.workspace}}/docs"
-    - run: ./make.sh
+
+    - name: Build
+      run: cd docs && ./make.sh
 
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@4.1.4
