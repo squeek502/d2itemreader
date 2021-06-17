@@ -4,6 +4,6 @@ call npm install
 
 call doxygen
 copy /Y "..\README.md" ".\INDEX.md"
-call "./node_modules/.bin/moxygen" ./xml --anchors
-call "./node_modules/.bin/gitbook" install
-call "./node_modules/.bin/gitbook" build
+call npx moxygen ./xml --anchors
+call npx gitbook install
+call npx gitbook build

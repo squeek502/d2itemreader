@@ -18,12 +18,12 @@ First, you'll need to have the following installed and accessible via `PATH`:
 
 ```
 make.bat
-node_modules/.bin/gitbook serve
+npx gitbook serve
 ```
 
 ### On Linux
 
 ```
 ./make.sh
-./node_modules/.bin/gitbook serve
+npx gitbook serve
 ```
