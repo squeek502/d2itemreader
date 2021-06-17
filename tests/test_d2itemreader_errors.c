@@ -10,7 +10,7 @@ MU_TEST(check_against_expected_errors)
 	d2txt_file parsed;
 	size_t numRows;
 	d2err err = d2txt_parse_file("data/expected_errors.txt", &parsed, &numRows);
-	mu_assert_int_eq(D2ERR_OK, err);
+	mu_assert_int_eq((int)D2ERR_OK, (int)err);
 
 	int file_path_col = d2txt_find_index(parsed, "file_path");
 	mu_check(file_path_col >= 0);
@@ -37,7 +37,7 @@ MU_TEST(check_against_expected_errors)
 
 		fprintf(stderr, "%s\n", filePath);
 		mu_assert_string_eq(expectedError, d2err_str(err));
-		mu_assert_int_eq(expectedBytesRead, bytesRead);
+		mu_assert_int_eq((int)expectedBytesRead, (int)bytesRead);
 	}
 
 	d2txt_destroy(parsed);

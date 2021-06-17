@@ -28,7 +28,7 @@ CHECK_RESULT d2err d2util_read_file(const char* filepath, uint8_t** data_out, si
 	}
 	(*data_out)[size] = '\0';
 
-	size_t _bytesRead = fread(*data_out, 1, size, file);
+	size_t _bytesRead = fread(*data_out, 1, (size_t)size, file);
 	fclose(file);
 
 	if (_bytesRead != (size_t)size)

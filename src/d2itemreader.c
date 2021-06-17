@@ -749,7 +749,7 @@ CHECK_RESULT d2err d2item_parse_single(const uint8_t* const data, size_t dataSiz
 			// (see `d2itemproplist_parse`)
 			// TODO: Find out if this is actually linked, or if this -10 is hardcoded
 			//       separate from the ItemStatCost.txt values
-			item->defenseRating = (uint16_t)d2bitreader_read(&br, 11) - 10;
+			item->defenseRating = (uint16_t)(d2bitreader_read(&br, 11) - 10);
 		}
 
 		if (d2gamedata_is_armor(gameData, item->code) || d2gamedata_is_weapon(gameData, item->code))

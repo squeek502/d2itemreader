@@ -24,7 +24,7 @@ static char* d2txt_strsep(char* str, const char* delims, size_t* out_tokLen)
 	{
 		*p = 0;
 		ret = src;
-		if (out_tokLen) *out_tokLen = p - ret;
+		if (out_tokLen) *out_tokLen = (size_t)(p - ret);
 		src = ++p;
 	}
 	else if (*src)

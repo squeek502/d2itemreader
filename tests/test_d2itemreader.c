@@ -30,7 +30,7 @@ MU_TEST(classic)
 	mu_check(character.items.count == 7);
 	mu_check(character.itemsCorpse.count == 0);
 	mu_check(character.itemsMerc.count == 0);
-	mu_assert_int_eq(fileSize("data/classic.d2s"), bytesRead);
+	mu_assert_int_eq((int)fileSize("data/classic.d2s"), (int)bytesRead);
 	d2char_destroy(&character);
 }
 
@@ -41,7 +41,7 @@ MU_TEST(classic_parse_any)
 	d2err err = d2itemreader_parse_any_file("data/classic.d2s", &itemlist, &gameData, &bytesRead);
 	mu_check(err == D2ERR_OK);
 	mu_check(itemlist.count == 7);
-	mu_assert_int_eq(fileSize("data/classic.d2s"), bytesRead);
+	mu_assert_int_eq((int)fileSize("data/classic.d2s"), (int)bytesRead);
 	d2itemlist_destroy(&itemlist);
 }
 
