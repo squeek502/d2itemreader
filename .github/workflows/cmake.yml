@@ -13,14 +13,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Configure CMake
+    - name: Configure
       run: cmake -B ${{github.workspace}}/build
+
+    - name: Configure (fuzz)
+      run: cmake -B ${{github.workspace}}/build.fuzz -DENABLE_FUZZING=On -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build
-      
-    - name: Build (fuzz)
-      run: cmake --build ${{github.workspace}}/build.fuzz -DENABLE_FUZZING=On -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+
+    - name: Build (examples)
+      run: cmake --build ${{github.workspace}}/build --target examples
 
     - name: Test
       working-directory: ${{github.workspace}}/build
