@@ -1,0 +1,31 @@
+name: CMake
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build
+      
+    - name: Build (fuzz)
+      run: cmake --build ${{github.workspace}}/build.fuzz -DENABLE_FUZZING=On -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest --output-on-failure
+    
+    - name: Test (fuzz)
+      working-directory: ${{github.workspace}}/build.fuzz
+      run: cmake --build . --target fuzz_check_all
