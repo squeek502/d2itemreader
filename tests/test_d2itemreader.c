@@ -110,6 +110,40 @@ MU_TEST(plugy_sss)
 	d2sharedstash_destroy(&stash);
 }
 
+MU_TEST(plugy14_sss)
+{
+	d2sharedstash stash;
+	size_t bytesRead;
+	d2err err = d2sharedstash_parse_file("data/plugy14.sss", &stash, &gameData, &bytesRead);
+	mu_check(err == D2ERR_OK);
+	mu_check(stash.info.sharedGold == 0);
+	mu_check(stash.info.expectedNumPages == 14);
+	for (size_t i = 0; i < stash.numPages; i++)
+	{
+		d2stashpage* page = &stash.pages[i];
+		mu_check(page->pageNum == i + 1);
+		d2itemlist* items = &stash.itemsByPage[i];
+		if (page->pageNum == 1)
+			mu_check(items->count == 3);
+		else if (page->pageNum == 2)
+			mu_check(items->count == 1);
+		else if (page->pageNum == 3)
+			mu_check(items->count == 3);
+		else if (page->pageNum == 10)
+		{
+			mu_check(items->count == 1);
+			mu_assert_string_eq("a long long name of ", page->name);
+		}
+		else if (page->pageNum == 13)
+			mu_check(items->count == 1);
+		else if (page->pageNum == 14)
+			mu_check(items->count == 1);
+		else
+			mu_check(items->count == 0);
+	}
+	d2sharedstash_destroy(&stash);
+}
+
 MU_TEST(plugy_d2x)
 {
 	d2personalstash stash;
@@ -340,6 +374,7 @@ MU_TEST_SUITE(test_d2itemreader)
 	MU_RUN_TEST(badcorpseheader);
 	MU_RUN_TEST(atma);
 	MU_RUN_TEST(plugy_sss);
+	MU_RUN_TEST(plugy14_sss);
 	MU_RUN_TEST(plugy_d2x);
 	MU_RUN_TEST(unexpected_eof);
 	MU_RUN_TEST(d2i);
