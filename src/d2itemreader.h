@@ -221,7 +221,7 @@ struct d2item
 	uint8_t panelID;
 
 	/// only initialized if isEar is true.
-	/// NOTE: Anything below this will be unitialized when isEar is true
+	/// NOTE: Anything below this will be uninitialized when isEar is true
 	d2ear ear;
 
 	/// null-terminated item code, typical string length is 3-4 characters.
