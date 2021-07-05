@@ -22,12 +22,6 @@ elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
   set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} /W3 /sdl")
 endif()
 
-add_subdirectory(examples)
-add_subdirectory(tools)
-
-enable_testing()
-add_subdirectory(tests)
-
 option(ENABLE_FUZZING "Create executables and targets for fuzzing." Off)
 option(COVERAGE "Enable code coverage tracking" Off)
 if (COVERAGE)
@@ -45,4 +39,10 @@ if (ENABLE_FUZZING)
   endif()
 
   add_subdirectory(tests/fuzz)
+else()
+  add_subdirectory(examples)
+  add_subdirectory(tools)
+
+  enable_testing()
+  add_subdirectory(tests)
 endif()
