@@ -40,28 +40,28 @@ int main(int argc, const char* argv[])
 		printf("failed to init d2gamedata struct: %s\n", d2err_str(err));
 		return 1;
 	}
-	snprintf(filepath, MAX_PATH, "%s/%s", data_dir, "Armor.txt");
+	sprintf(filepath, "%s/%s", data_dir, "Armor.txt");
 	err = d2gamedata_load_armors_from_file(&data, filepath);
 	if (err != D2ERR_OK)
 	{
 		printf("failed to load %s: %s\n", filepath, d2err_str(err));
 		return 1;
 	}
-	snprintf(filepath, MAX_PATH, "%s/%s", data_dir, "Weapons.txt");
+	sprintf(filepath, "%s/%s", data_dir, "Weapons.txt");
 	err = d2gamedata_load_weapons_from_file(&data, filepath);
 	if (err != D2ERR_OK)
 	{
 		printf("failed to load %s: %s\n", filepath, d2err_str(err));
 		return 1;
 	}
-	snprintf(filepath, MAX_PATH, "%s/%s", data_dir, "Misc.txt");
+	sprintf(filepath, "%s/%s", data_dir, "Misc.txt");
 	err = d2gamedata_load_miscs_from_file(&data, filepath);
 	if (err != D2ERR_OK)
 	{
 		printf("failed to load %s: %s\n", filepath, d2err_str(err));
 		return 1;
 	}
-	snprintf(filepath, MAX_PATH, "%s/%s", data_dir, "ItemStatCost.txt");
+	sprintf(filepath, "%s/%s", data_dir, "ItemStatCost.txt");
 	err = d2gamedata_load_itemstats_from_file(&data, filepath);
 	if (err != D2ERR_OK)
 	{
