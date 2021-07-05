@@ -115,7 +115,7 @@ void forEachFile(const char* startDir, void (*callback)(const char*))
 
 		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			recursiveTest(path);
+			forEachFile(path, callback);
 		}
 		else
 		{
