@@ -24,7 +24,9 @@ before_build:
 
 build_script:
   - cmake --build build --config "%CONFIG%"
+  - cmake --build build --target examples --config "%CONFIG%"
+  - cmake --build build --target tools --config "%CONFIG%"
 
 test_script:
   - cd build
-  - ctest -VV -C "%CONFIG%"
+  - ctest -C "%CONFIG%" --output-on-failure
