@@ -1,5 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <linux/limits.h>
+#define MAX_PATH PATH_MAX
+#endif
 
 #include "d2gamedata.h"
 
@@ -18,6 +24,15 @@ void dumpstrset(const char* str, void* context)
 
 int main(int argc, const char* argv[])
 {
+	if (argc <= 1)
+	{
+		fprintf(stderr, "usage: %s data_dir\n", argv[0]);
+		return 1;
+	}
+
+	const char* data_dir = argv[1];
+	char filepath[MAX_PATH];
+
 	d2gamedata data;
 	d2err err = d2gamedata_init(&data);
 	if (err != D2ERR_OK)
@@ -25,28 +40,32 @@ int main(int argc, const char* argv[])
 		printf("failed to init d2gamedata struct: %s\n", d2err_str(err));
 		return 1;
 	}
-	err = d2gamedata_load_armors_from_file(&data, "data/Armor.txt");
+	snprintf(filepath, MAX_PATH, "%s/%s", data_dir, "Armor.txt");
+	err = d2gamedata_load_armors_from_file(&data, filepath);
 	if (err != D2ERR_OK)
 	{
-		printf("failed to load data/Armor.txt: %s\n", d2err_str(err));
+		printf("failed to load %s: %s\n", filepath, d2err_str(err));
 		return 1;
 	}
-	err = d2gamedata_load_weapons_from_file(&data, "data/Weapons.txt");
+	snprintf(filepath, MAX_PATH, "%s/%s", data_dir, "Weapons.txt");
+	err = d2gamedata_load_weapons_from_file(&data, filepath);
 	if (err != D2ERR_OK)
 	{
-		printf("failed to load data/Weapons.txt: %s\n", d2err_str(err));
+		printf("failed to load %s: %s\n", filepath, d2err_str(err));
 		return 1;
 	}
-	err = d2gamedata_load_miscs_from_file(&data, "data/Misc.txt");
+	snprintf(filepath, MAX_PATH, "%s/%s", data_dir, "Misc.txt");
+	err = d2gamedata_load_miscs_from_file(&data, filepath);
 	if (err != D2ERR_OK)
 	{
-		printf("failed to load data/Misc.txt: %s\n", d2err_str(err));
+		printf("failed to load %s: %s\n", filepath, d2err_str(err));
 		return 1;
 	}
-	err = d2gamedata_load_itemstats_from_file(&data, "data/ItemStatCost.txt");
+	snprintf(filepath, MAX_PATH, "%s/%s", data_dir, "ItemStatCost.txt");
+	err = d2gamedata_load_itemstats_from_file(&data, filepath);
 	if (err != D2ERR_OK)
 	{
-		printf("failed to load data/ItemStatCost.txt: %s\n", d2err_str(err));
+		printf("failed to load %s: %s\n", filepath, d2err_str(err));
 		return 1;
 	}
 
