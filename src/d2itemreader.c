@@ -551,9 +551,7 @@ CHECK_RESULT d2err d2item_parse_single(const uint8_t* const data, size_t dataSiz
 	// offset 65
 	item->positionX = (uint8_t)d2bitreader_read(&br, 4);
 	// offset 69
-	item->positionY = (uint8_t)d2bitreader_read(&br, 3);
-	// offset 72
-	d2bitreader_read(&br, 1);
+	item->positionY = (uint8_t)d2bitreader_read(&br, 4);
 	// offset 73, if item is neither equipped or in the belt, this tells us where it is.
 	item->panelID = (uint8_t)d2bitreader_read(&br, 3);
 
